@@ -1,71 +1,122 @@
-# Getting Started with Create React App
+# InheritChain - Digital Inheritance DApp
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A decentralized application for managing digital inheritance across multiple blockchain networks.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Multi-Chain Support**: Ethereum, Solana, Base, Avalanche, Polygon
+- **Digital Will Creation**: Create and manage wills with asset distribution
+- **Beneficiary Management**: Add and manage beneficiaries with custom allocations
+- **Asset Overview**: View all digital assets across different blockchains
+- **Investigation Process**: Beneficiaries can initiate inheritance investigations
+- **Responsive Design**: Works on desktop and mobile devices
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Frontend**: React 18, React Router DOM
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI primitives
+- **Icons**: Lucide React
+- **State Management**: React hooks with localStorage
+- **Build Tool**: Create React App
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js 16+ 
+- npm or yarn
 
-### `npm run build`
+### Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Clone the repository:
+\`\`\`bash
+git clone <repository-url>
+cd inheritchain-dapp
+\`\`\`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. Install dependencies:
+\`\`\`bash
+npm install
+\`\`\`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Run the development server:
+\`\`\`bash
+npm start
+\`\`\`
 
-### `npm run eject`
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project Structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+\`\`\`
+├── public/                 # Static files
+│   ├── index.html         # HTML template
+│   ├── manifest.json      # PWA manifest
+│   └── robots.txt         # SEO robots file
+├── src/                   # Source code
+│   ├── components/        # Reusable UI components
+│   │   └── ui/           # shadcn/ui components
+│   ├── pages/            # Page components
+│   │   ├── testator/     # Testator-specific pages
+│   │   └── beneficiary/  # Beneficiary-specific pages
+│   ├── hooks/            # Custom React hooks
+│   ├── data/             # Mock data and constants
+│   ├── lib/              # Utility functions
+│   ├── App.js            # Main app component with routing
+│   ├── index.js          # React entry point
+│   └── index.css         # Global styles
+└── package.json          # Dependencies and scripts
+\`\`\`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Key Components
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Testator Flow
+1. **Dashboard**: Overview of will status and quick actions
+2. **Create Will**: Multi-step form for creating digital wills
+3. **Edit Will**: Modify existing wills and beneficiaries
+4. **Asset Management**: View and allocate multi-chain assets
 
-## Learn More
+### Beneficiary Flow
+1. **Dashboard**: View inherited assets and investigation status
+2. **Investigation**: Start inheritance claim processes
+3. **Asset Details**: Detailed view of inherited assets
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Blockchain Integration
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The app supports assets across:
+- **Ethereum**: ETH + USDC
+- **Solana**: SOL + USDC  
+- **Base**: ETH + USDC
+- **Avalanche**: AVAX + USDC
+- **Polygon**: MATIC + USDC
+- **Stablecoins**: Total USDC across chains
+- **NFTs**: Cross-chain NFT collections
 
-### Code Splitting
+## Development
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Available Scripts
 
-### Analyzing the Bundle Size
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm test` - Run tests
+- `npm run eject` - Eject from Create React App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Adding New Features
 
-### Making a Progressive Web App
+1. Create components in `src/components/` directory
+2. Add pages in `src/pages/` directory
+3. Use React Router for navigation
+4. Follow the established patterns for state management
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Contributing
 
-### Advanced Configuration
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## License
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# Chainlink-Chromion
+This project is licensed under the MIT License.
