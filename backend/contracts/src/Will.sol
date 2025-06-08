@@ -86,7 +86,7 @@ contract Will {
         }
     }
 
-    // in the frontend, first call beneficiaryToTestator() then call getInheritancePerWIll for each address you recieve from beneficiaryToTestator
+    // in the frontend, first call getWIllLinkedToBeneficiary() then call getInheritancePerWIll for each address you recieve from getWIllLinkedToBeneficiary
     // returns inhertiance of a beneficiary for a specific will 
     function getInheritancePerWill(address testator, address beneficiary) external view returns (Asset[] memory) {
         UserWill storage userWill = wills[testator];
@@ -116,7 +116,9 @@ contract Will {
 
         return result;
     }
-
+    function getWillsLinkedToBeneficiary(address beneficiary) external view returns (address[] memory) {
+        return beneficiaryToTestators[beneficiary];
+    }
     // Called by the owner to view their will
     function getWill() external view returns (Beneficiary[] memory) {
         require(wills[msg.sender].exists, "No will created");
