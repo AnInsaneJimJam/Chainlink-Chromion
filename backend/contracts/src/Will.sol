@@ -141,7 +141,7 @@ contract Will is VRFConsumerBaseV2Plus {
     //     wills[msg.sender].exists = true;
     // }
 
-     function createWill(address[] calldata _beneficiaries, bytes32 _willHash) external {
+    function createWill(address[] calldata _beneficiaries, bytes32 _willHash) external {
         if (s_willExists[msg.sender]) {
             revert Will_WillAlreadyCreated();
         }
@@ -152,7 +152,6 @@ contract Will is VRFConsumerBaseV2Plus {
 
         emit WillCreated(msg.sender, _willHash);
     }
-
 
     // Edit will: fully replaces existing beneficiaries
     // function editWill(Beneficiary[] calldata updatedBeneficiaries) external {
@@ -288,7 +287,7 @@ contract Will is VRFConsumerBaseV2Plus {
     //     );
     // }
 
-     function fulfillRandomWords(uint256 _requestId, uint256[] memory _randomWords) internal override {
+    function fulfillRandomWords(uint256 _requestId, uint256[] memory _randomWords) internal override {
         address testator = s_requestIdToTestator[_requestId];
         if (testator == address(0)) revert Will_RequestNotFound();
 
@@ -313,10 +312,10 @@ contract Will is VRFConsumerBaseV2Plus {
                 selected.push(candidate);
             }
         }
-        
+
         // In the rare case of not getting enough unique random numbers, we revert
         // to ensure the process is fair and has the required number of verifiers.
-        if(selected.length < NUM_VERIFIERS_TO_SELECT) {
+        if (selected.length < NUM_VERIFIERS_TO_SELECT) {
             // Reset state to allow re-initiation
             delete s_selectedVerifiers[testator];
             s_verificationState[testator] = VerificationStatus.NotStarted;
@@ -350,7 +349,6 @@ contract Will is VRFConsumerBaseV2Plus {
         }
     }
 
-
     //list of beneficiary addresses for a given testator
     function getBeneficiaries(address _testator) external view returns (address[] memory) {
         return s_beneficiaryLists[_testator];
@@ -376,4 +374,3 @@ contract Will is VRFConsumerBaseV2Plus {
         return false;
     }
 }
-
