@@ -10,7 +10,6 @@ const BaseWillSchema = new mongoose.Schema({
   testator: { type: String, required: true },
   chain: { type: String, default: "Base" },
   beneficiaries: [BeneficiarySchema],
-  willHash: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 
