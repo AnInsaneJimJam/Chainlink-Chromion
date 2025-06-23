@@ -6,7 +6,7 @@ const router = express.Router();
 // CREATE a will for a testator
 router.post("/", async (req, res) => {
   try {
-    const will = await EthereumWill.create(req.body);
+    const will = await SolanaWill.create(req.body);
     res.status(201).json(will);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 // GET a will by testator address
 router.get("/:testator", async (req, res) => {
   try {
-    const will = await EthereumWill.findOne({ testator: req.params.testator });
+    const will = await SolanaWill.findOne({ testator: req.params.testator });
     if (!will) return res.status(404).json({ error: "Will not found" });
     res.json(will);
   } catch (err) {
@@ -28,7 +28,7 @@ router.get("/:testator", async (req, res) => {
 router.put("/:testator/:beneficiary", async (req, res) => {
   try {
     const { nativeShare, usdcShare } = req.body;
-    const will = await EthereumWill.findOne({ testator: req.params.testator });
+    const will = await SolanaWill.findOne({ testator: req.params.testator });
 
     if (!will) return res.status(404).json({ error: "Will not found" });
 
@@ -49,7 +49,7 @@ router.put("/:testator/:beneficiary", async (req, res) => {
 router.post("/:testator/beneficiaries", async (req, res) => {
   try {
     const { address, nativeShare, usdcShare, commitmentHash } = req.body;
-    const will = await EthereumWill.findOne({ testator: req.params.testator });
+    const will = await SolanaWill.findOne({ testator: req.params.testator });
 
     if (!will) return res.status(404).json({ error: "Will not found" });
 
@@ -70,7 +70,7 @@ router.post("/:testator/beneficiaries", async (req, res) => {
 // DELETE a beneficiary from a will
 router.delete("/:testator/:beneficiary", async (req, res) => {
   try {
-    const will = await EthereumWill.findOne({ testator: req.params.testator });
+    const will = await SolanaWill.findOne({ testator: req.params.testator });
     if (!will) return res.status(404).json({ error: "Will not found" });
 
     will.beneficiaries = will.beneficiaries.filter(b => b.address !== req.params.beneficiary);

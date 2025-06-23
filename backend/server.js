@@ -7,11 +7,12 @@ import avalancheRoutes from "./routes/avalanche/avalanche.route.js";
 import solanaRoutes from "./routes/solana/solana.route.js";
 import baseRoutes from "./routes/base/base.route.js";
 import polygonRoutes from "./routes/polygon/polygon.route.js";
+import fullWillRoutes from "./routes/fullwill.route.js";
 
 dotenv.config();
 
 const app = express();
-                                                            //GET--get info, PUT--update info, POST--give info, DELETE--delete info
+//GET--get info, PUT--update info, POST--give info, DELETE--delete info
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -31,6 +32,7 @@ app.use("/api/avalanche", avalancheRoutes);
 app.use("/api/solana", solanaRoutes);
 app.use("/api/polygon", polygonRoutes);
 app.use("/api/base", baseRoutes);
+app.use("/api", fullWillRoutes);
 
 //connect db
 mongoose.connect(process.env.MONGO_URI).then(() => {
