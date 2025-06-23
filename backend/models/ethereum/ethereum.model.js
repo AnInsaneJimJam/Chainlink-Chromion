@@ -14,7 +14,7 @@
 //             nativeCurrency: "...%",
 //             usdc: "...%"
 //         }
-    
+
 //             .... many more beneficiaries
 //     ]
 // }
@@ -31,8 +31,7 @@ const EthereumWillSchema = new mongoose.Schema({
   testator: { type: String, required: true },
   chain: { type: String, default: "Ethereum" },
   beneficiaries: [BeneficiarySchema],
-  createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 const EthereumWill = mongoose.model("EthereumWill", EthereumWillSchema);
 export default EthereumWill;

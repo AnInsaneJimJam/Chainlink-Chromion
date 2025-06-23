@@ -10,8 +10,7 @@ const SolanaWillSchema = new mongoose.Schema({
   testator: { type: String, required: true },
   chain: { type: String, default: "Solana" },
   beneficiaries: [BeneficiarySchema],
-  createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 const SolanaWill = mongoose.model("SolanaWill", SolanaWillSchema);
 export default SolanaWill;

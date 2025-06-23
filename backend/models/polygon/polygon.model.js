@@ -10,8 +10,7 @@ const PolygonWillSchema = new mongoose.Schema({
   testator: { type: String, required: true },
   chain: { type: String, default: "Polygon" },
   beneficiaries: [BeneficiarySchema],
-  createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 const PolygonWill = mongoose.model("PolygonWill", PolygonWillSchema);
 export default PolygonWill;

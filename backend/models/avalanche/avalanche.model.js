@@ -10,8 +10,7 @@ const AvalancheWillSchema = new mongoose.Schema({
   testator: { type: String, required: true },
   chain: { type: String, default: "Avalanche" },
   beneficiaries: [BeneficiarySchema],
-  createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 const AvalancheWill = mongoose.model("AvalancheWill", AvalancheWillSchema);
 export default AvalancheWill;

@@ -10,8 +10,7 @@ const BaseWillSchema = new mongoose.Schema({
   testator: { type: String, required: true },
   chain: { type: String, default: "Base" },
   beneficiaries: [BeneficiarySchema],
-  createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 const BaseWill = mongoose.model("BaseWill", BaseWillSchema);
 export default BaseWill;
