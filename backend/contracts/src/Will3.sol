@@ -82,6 +82,7 @@ contract Will is Ownable {
     mapping(address => bool) public s_willExists;
     mapping(address => Status) public s_verificationStatus; // Testator -> Status
     mapping(address => ChallengeInfo) private s_challenges; // Testator -> Challenge Info
+    mapping(address => string) private s_testatorName; // Testator -> Challenge Info
 
     ////////////////////// EVENTS ///////////////////////////////////////
 
@@ -92,6 +93,7 @@ contract Will is Ownable {
     event DisputeResolved(address indexed testator, bool wasInitiationCorrect);
     event WillVerified(address indexed testator);
     event WillEdited(address indexed testator, bytes32 indexed newWillHash);
+    event TestatorNameUpdated(address indexed testator, string newName);
 
     modifier onlyTestator() {
         if (!s_willExists[msg.sender]) revert Will_WillDoesNotExist();
@@ -249,6 +251,13 @@ contract Will is Ownable {
 
         emit DisputeResolved(_testator, _wasInitiationCorrect);
         delete s_challenges[_testator];
+    }
+
+    // testator name mapping and its getter
+
+    function setTestatorName(string calldata name) external {
+        s_testatorName[msg.sender] = name;
+        emit TestatorNameUpdated(msg.sender, name);
     }
 
     // --- View & Internal Functions ---

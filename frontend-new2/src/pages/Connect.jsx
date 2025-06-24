@@ -101,7 +101,6 @@ const handleConnectWallet = async () => {
                       <Button
                         onClick={() => {
                           handleConnectWallet();
-                          connectWallet();
                         }}
                         className="w-full bg-brand-primary hover:bg-brand-deep-ocean text-white font-medium py-3 rounded-lg mb-4"
                       >
