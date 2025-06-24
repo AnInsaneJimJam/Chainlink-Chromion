@@ -91,6 +91,7 @@ contract Will is Ownable {
     event ExecutionSlashed(address indexed testator, address indexed initiator);
     event DisputeResolved(address indexed testator, bool wasInitiationCorrect);
     event WillVerified(address indexed testator);
+    event WillEdited(address indexed testator, bytes32 indexed newWillHash);
 
     modifier onlyTestator() {
         if (!s_willExists[msg.sender]) revert Will_WillDoesNotExist();
@@ -124,7 +125,7 @@ contract Will is Ownable {
         if (!s_willExists[msg.sender]) revert Will_WillDoesNotExist();
 
         // Status should be not started
-        if(!s_verificationStatus[msg.sender] == Status.NotStarted) revert Will_VerificationAlreadyInProgressOrCompleted();
+        if(s_verificationStatus[msg.sender] != Status.NotStarted) revert Will_VerificationAlreadyInProgressOrCompleted();
 
         s_willHashes[msg.sender] = _newWillHash;
         s_beneficiaryLists[msg.sender] = _newBeneficiaries;

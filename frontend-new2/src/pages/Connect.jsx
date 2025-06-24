@@ -99,7 +99,10 @@ const handleConnectWallet = async () => {
                       whileTap={{ scale: 0.98 }}
                     >
                       <Button
-                        onClick={handleConnectWallet}
+                        onClick={() => {
+                          handleConnectWallet();
+                          connectWallet();
+                        }}
                         className="w-full bg-brand-primary hover:bg-brand-deep-ocean text-white font-medium py-3 rounded-lg mb-4"
                       >
                         Connect Wallet

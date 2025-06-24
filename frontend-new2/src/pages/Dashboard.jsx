@@ -37,7 +37,10 @@ const Dashboard = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      <Header showDisconnect onDisconnect={handleDisconnect} />
+      <Header showDisconnect onDisconnect={() => {
+        handleDisconnect();
+        disconnectWallet();
+        }} />
 
       <div className="container mx-auto px-6 py-8 max-w-4xl">
         {/* Page Header */}

@@ -48,7 +48,7 @@ router.put("/:testator/:beneficiary", async (req, res) => {
 // ADD a beneficiary to the will
 router.post("/:testator/beneficiaries", async (req, res) => {
   try {
-    const { address, nativeShare, usdcShare, commitmentHash } = req.body;
+    const { address, nativeShare, usdcShare } = req.body;
     const will = await BaseWill.findOne({ testator: req.params.testator });
 
     if (!will) return res.status(404).json({ error: "Will not found" });
