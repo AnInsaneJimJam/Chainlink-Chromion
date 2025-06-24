@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Header from "@/components/Header";
 import { Wallet, Loader2, CheckCircle } from "lucide-react";
+import {connectWallet, disconnectWallet} from "../EtherJs/WalletConnect.js";
 
 const Connect = () => {
   const navigate = useNavigate();
@@ -79,7 +80,10 @@ const Connect = () => {
                       whileTap={{ scale: 0.98 }}
                     >
                       <Button
-                        onClick={handleConnectWallet}
+                        onClick={() => {
+                          handleConnectWallet();
+                          connectWallet();
+                        }}
                         className="w-full bg-brand-primary hover:bg-brand-deep-ocean text-white font-medium py-3 rounded-lg mb-4"
                       >
                         Connect Wallet

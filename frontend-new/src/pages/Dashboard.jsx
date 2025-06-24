@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import ManageBeneficiariesModal from "@/components/ManageBeneficiariesModal";
 import DigitalAssetsModal from "@/components/DigitalAssetsModal";
 import { Edit, Users, BarChart3 } from "lucide-react";
+import {disconnectWallet} from "../EtherJs/WalletConnect.js";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -39,7 +40,10 @@ const Dashboard = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      <Header showDisconnect onDisconnect={handleDisconnect} />
+      <Header showDisconnect onDisconnect={() => {
+        handleDisconnect();
+        disconnectWallet();
+        }} />
 
       <div className="container mx-auto px-6 py-8 max-w-4xl">
         {/* Page Header */}
