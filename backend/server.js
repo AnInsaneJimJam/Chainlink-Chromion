@@ -33,6 +33,7 @@ app.use("/api/solana", solanaRoutes);
 app.use("/api/polygon", polygonRoutes);
 app.use("/api/base", baseRoutes);
 app.use("/api", fullWillRoutes);
+app.use("/api/wallets", walletRoutes);
 
 //connect db
 mongoose.connect(process.env.MONGO_URI).then(() => {
