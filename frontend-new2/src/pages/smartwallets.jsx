@@ -7,15 +7,15 @@ import { smartWalletABI, smartWalletBytecode } from "../abi/smartwallet";
 
 const CHAIN_CONFIGS = {
   polygon: {
-    chainId: 80002, // Polygon Amoy
+    chainId: 80002n, // Polygon Amoy
     name: "Polygon",
   },
   ethereum: {
-    chainId: 11155111, // Sepolia
+    chainId: 11155111n, // Sepolia
     name: "Ethereum",
   },
   base: {
-    chainId: 84532,
+    chainId: 84532n,
     name: "Base",
   },
 };
@@ -70,7 +70,7 @@ const SmartWallets = () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const network = await provider.getNetwork();
-
+      console.log(network.chainId)
       if (network.chainId !== expectedChainId) {
         alert(`Please switch to ${CHAIN_CONFIGS[chainKey].name} network.`);
         return;
