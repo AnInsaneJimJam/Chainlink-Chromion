@@ -8,7 +8,7 @@ import solanaRoutes from "./routes/solana/solana.route.js";
 import baseRoutes from "./routes/base/base.route.js";
 import polygonRoutes from "./routes/polygon/polygon.route.js";
 import fullWillRoutes from "./routes/fullwill.route.js";
-
+import walletRoutes from "./routes/wallet.route.js"
 dotenv.config();
 
 const app = express();
@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: "http://localhost:8081",
   })
 );
 

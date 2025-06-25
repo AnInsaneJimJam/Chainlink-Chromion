@@ -1,5 +1,5 @@
 import express from "express";
-import Wallet from "../models/wallets.js";
+import Wallet from "../models/wallet.model.js";
 
 const router = express.Router();
 
@@ -24,12 +24,15 @@ router.post("/", async (req, res) => {
 // GET /api/wallets/:userAddress
 router.get("/:userAddress", async (req, res) => {
   try {
+    console.log("Looking for:", req.params.userAddress);
     const wallets = await Wallet.findOne({ userAddress: req.params.userAddress });
     if (!wallets) return res.status(404).json({ error: "User not found" });
     res.json({ wallets: wallets.wallets });
   } catch (err) {
+    console.error("Error in GET /api/wallets/:userAddress:", err);
     res.status(500).json({ error: "Failed to fetch wallets." });
   }
 });
+
 
 export default router;
