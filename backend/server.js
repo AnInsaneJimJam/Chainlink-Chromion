@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: "http://localhost:8081",
+    origin: "http://localhost:8080",
   })
 );
 

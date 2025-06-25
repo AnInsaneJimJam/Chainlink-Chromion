@@ -35,7 +35,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * @dev The will's sensitive details are stored off-chain. This contract only manages the verification trigger.
  */
 contract Will is Ownable {
-    
     ///////////////////////// ERRORS //////////////////////////////////////
     error Will_WillAlreadyCreated();
     error Will_WillDoesNotExist();
@@ -69,7 +68,6 @@ contract Will is Ownable {
 
     ////////////////////////// CONSTANTS ////////////////////////////////////
 
-
     uint256 public constant MIN_INITIATOR_BOND = 0.1 ether;
     uint256 public constant MIN_CHALLENGE_BOND = 0.01 ether;
     uint256 public constant CHALLENGE_DURATION = 10 days;
@@ -79,6 +77,7 @@ contract Will is Ownable {
 
     mapping(address => bytes32) public s_willHashes; // Testator -> Hash of off-chain will
     mapping(address => address[]) private s_beneficiaryLists; // Testator -> On-chain list of beneficiary addresses
+    mapping(address => address[]) private s_testators; // Beneficiary -> On-chain list of testators (wills basically) which beneficiary is part of
     mapping(address => bool) public s_willExists;
     mapping(address => Status) public s_verificationStatus; // Testator -> Status
     mapping(address => ChallengeInfo) private s_challenges; // Testator -> Challenge Info
@@ -109,27 +108,54 @@ contract Will is Ownable {
     // --- Will Management ---
 
     function createWill(address[] calldata _beneficiaries, bytes32 _willHash) external {
-
         //if will already exsists
         if (s_willExists[msg.sender]) revert Will_WillAlreadyCreated();
 
         s_willExists[msg.sender] = true;
         s_willHashes[msg.sender] = _willHash;
         s_beneficiaryLists[msg.sender] = _beneficiaries;
+
         s_verificationStatus[msg.sender] = Status.NotStarted;
+
+        for (uint256 i = 0; i < _beneficiaries.length; i++) {
+            s_testators[_beneficiaries[i]].push(msg.sender);
+        }
 
         emit WillCreated(msg.sender, _willHash);
     }
 
     function editWill(address[] calldata _newBeneficiaries, bytes32 _newWillHash) external onlyTestator {
-
         // if the will doesn't already exsist
         if (!s_willExists[msg.sender]) revert Will_WillDoesNotExist();
 
         // Status should be not started
-        if(s_verificationStatus[msg.sender] != Status.NotStarted) revert Will_VerificationAlreadyInProgressOrCompleted();
+        if (s_verificationStatus[msg.sender] != Status.NotStarted) {
+            revert Will_VerificationAlreadyInProgressOrCompleted();
+        }
+
+        address testator = msg.sender;
 
         s_willHashes[msg.sender] = _newWillHash;
+
+        // 1. Remove testator from old beneficiaries
+        address[] storage oldBeneficiaries = s_beneficiaryLists[testator];
+        for (uint256 i = 0; i < oldBeneficiaries.length; i++) {
+            address beneficiary = oldBeneficiaries[i];
+            address[] storage testators = s_testators[beneficiary];
+            for (uint256 j = 0; j < testators.length; j++) {
+                if (testators[j] == testator) {
+                    testators[j] = testators[testators.length - 1]; // swap with last
+                    testators.pop(); // remove last
+                    break;
+                }
+            }
+        }
+
+        // 2. Add will to new beneficiaries
+        for (uint256 i = 0; i < _newBeneficiaries.length; i++) {
+            s_testators[_newBeneficiaries[i]].push(testator);
+        }
+
         s_beneficiaryLists[msg.sender] = _newBeneficiaries;
 
         emit WillEdited(msg.sender, _newWillHash);
@@ -258,6 +284,10 @@ contract Will is Ownable {
     function setTestatorName(string calldata name) external {
         s_testatorName[msg.sender] = name;
         emit TestatorNameUpdated(msg.sender, name);
+    }
+
+    function getTestatorsForBeneficiary(address _beneficiary) external view returns (address[] memory) {
+        return s_testators[_beneficiary];
     }
 
     // --- View & Internal Functions ---
