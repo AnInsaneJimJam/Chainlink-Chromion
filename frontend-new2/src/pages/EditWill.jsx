@@ -6,15 +6,20 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import useWalletStore from "../EtherJs/walletStore.js";
 
 const EditWill = () => {
+  const { contract } = useWalletStore()
+
+  console.log("edit will save contract contrdct",contract);
+
   const navigate = useNavigate();
 
   const [beneficiaries, setBeneficiaries] = useState([
     {
       id: 1,
       name: "Alice Smith",
-      address: "0x444878d5fd0f32e479d4e20556de47924e09690d",
+      address: "0x17F6AD8Ef982297579C203069C1DbfFE4348c372",
       allocations: {
         ETH: { total: "50%", amount: "50" },
         USDC: { total: "100%", amount: "60" },
@@ -24,7 +29,7 @@ const EditWill = () => {
     {
       id: 2,
       name: "Bob Johnson",
-      address: "0x540076f386a7d37d123d04e204d36490864860488",
+      address: "0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB",
       allocations: {
         ETH: { total: "50%", amount: "50" },
         USDC: { total: "100%", amount: "20" },
@@ -34,7 +39,7 @@ const EditWill = () => {
     {
       id: 3,
       name: "Beneficiary Name",
-      address: "0x...",
+      address: "0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2",
       allocations: {
         ETH: { total: "100%", amount: "0" },
         USDC: { total: "100%", amount: "0" },
@@ -56,6 +61,30 @@ const EditWill = () => {
   const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
+
+  // interacting with smart contract
+  const editWill = async () => {
+    console.log(contract);
+    if (!contract) return
+    
+    try {
+      
+      console.log("this got triggered");
+      // Get the updated beneficiaries
+      const updatedBeneficiaries = beneficiaries.map(b => b.address);
+
+      // @anand bro, ye will hash calculate karke idhar daal dena
+      const newWillHash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
+      
+      const tx = await contract.editWill(updatedBeneficiaries, newWillHash)
+      
+      await tx.wait()
+      
+      console.log('Will edited successfully!')
+    } catch (error) {
+      console.error('Error editing will:', error)
+    } 
+  }
 
   const addBeneficiary = () => {
     const newBeneficiary = {
@@ -370,7 +399,10 @@ const EditWill = () => {
         >
           <Button variant="outline">Cancel Changes</Button>
           <Button
-            onClick={handleSave}
+            onClick={() => {
+              editWill();
+              handleSave();
+            }}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             Save Changes

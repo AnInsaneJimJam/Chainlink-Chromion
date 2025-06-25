@@ -18,10 +18,28 @@ import Solanafundme from "./pages/Solanafundme";
 import Avalanchefundme from "./pages/Avalanchefundme";
 import Withdraw from "./pages/Withdraw";
 import SmartWallets from "./pages/smartwallets";
+import useWalletStore from "./EtherJs/walletStore.js";
+import { useState } from 'react'
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+
+  const [contract, setContract] = useState(null)
+  const { provider, address, signer, isConnected } = useWalletStore()
+
+  let count = 0;
+  if (isConnected && count == 1) {
+      
+      const contractInstance = getContract(signer);
+      setContract(contractInstance);
+      count++;
+      console.log("app if couunt", contract);
+  } 
+
+
+  return(
+    <>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -50,6 +68,8 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+    </>
+  )
+};
 
 export default App;

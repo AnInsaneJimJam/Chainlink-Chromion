@@ -6,8 +6,11 @@ import { Card } from "@/components/ui/card";
 import Header from "@/components/Header";
 import { Wallet, Loader2, CheckCircle } from "lucide-react";
 import {ethers} from "ethers"; 
+import useWalletStore from "../EtherJs/walletStore.js";
+import {getContract} from "../EtherJs/contract.js";
 
 const Connect = () => {
+  const { setContract } = useWalletStore()
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const userType = searchParams.get("type");
@@ -31,6 +34,10 @@ const handleConnectWallet = async () => {
     const address = await signer.getAddress();
     console.log("Connected wallet address:", address);
 
+    const contractInstance = getContract(signer);
+    setContract(contractInstance);
+    // console.log("wallet", Wallet);
+    
     // Simulate connection animations
     setConnectionState("connected");
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -45,6 +52,8 @@ const handleConnectWallet = async () => {
         navigate("/beneficiary-dashboard");
       }
     }, 1500);
+    return { provider, signer, address }
+
   } catch (err) {
     console.error("Wallet connection failed", err);
     setConnectionState("idle");
