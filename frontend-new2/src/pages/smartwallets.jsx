@@ -24,8 +24,18 @@ const SmartWallets = () => {
   const [userAddress, setUserAddress] = useState(null);
   const [wallets, setWallets] = useState({});
   const [status, setStatus] = useState("Loading...");
-
+  const [eventTriggered, setEventTriggered] = useState(false);
   useEffect(() => {
+    const triggered = localStorage.getItem("eventTriggered") === "true";
+    if (triggered) {
+      setEventTriggered(true);
+
+      setTimeout(() => {
+        localStorage.removeItem("eventTriggered");
+        setEventTriggered(false);
+      }, 4000);
+    }
+  
     const connectWallet = async () => {
         if (!window.ethereum) return alert("Please install Metamask");
 
@@ -48,6 +58,7 @@ const SmartWallets = () => {
   
   const fetchWallets = async (address) => {
     try {
+      
         const res = await fetch(`http://localhost:5000/api/wallets/${address}`);
         if (!res.ok) {
         setStatus("No wallets found.");
@@ -122,6 +133,14 @@ const SmartWallets = () => {
 
 
   return (
+    <div>
+    <div>
+      {eventTriggered && (
+        <div className="bg-yellow-200 p-3 text-black rounded mb-4">
+           Deposit time triggered! Please fund now.
+        </div>
+      )}
+      </div>
     <div className="min-h-screen bg-gray-50 py-12 px-6">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-center">Your Smart Wallets</h1>
@@ -162,6 +181,7 @@ const SmartWallets = () => {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 };

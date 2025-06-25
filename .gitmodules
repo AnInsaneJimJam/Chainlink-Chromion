@@ -7,3 +7,6 @@
 [submodule "backend/contracts/lib/openzeppelin-contracts"]
 	path = backend/contracts/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "backend/contracts/lib/chainlink"]
+	path = backend/contracts/lib/chainlink
+	url = https://github.com/smartcontractkit/chainlink

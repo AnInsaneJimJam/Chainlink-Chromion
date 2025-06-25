@@ -19,7 +19,8 @@ import Avalanchefundme from "./pages/Avalanchefundme";
 import Withdraw from "./pages/Withdraw";
 import SmartWallets from "./pages/smartwallets";
 import useWalletStore from "./EtherJs/walletStore.js";
-import { useState } from 'react'
+import { useState } from 'react';
+import AppLayout from "./pages/AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => {
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route element={<AppLayout />}/>
           <Route path="/" element={<Index />} />
           <Route path="/connect" element={<Connect />} />
           <Route path="/dashboard" element={<Dashboard />} />
