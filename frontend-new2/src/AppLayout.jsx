@@ -1,6 +1,6 @@
 
 import React from "react";
-import useAutomationListener from "@/hooks/useAutomationListener";
+import useAutomationListener from "./hooks/automationtofrontend";
 
 const AppLayout = () => {
   useAutomationListener(); 

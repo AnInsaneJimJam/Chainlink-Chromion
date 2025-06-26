@@ -66,17 +66,10 @@ const Dashboard = () => {
         >
           <div className="flex gap-4 justify-center">
             <Button
-              onClick={() => navigate("/Deploysmartwallet")}
+              onClick={() => navigate("/smartWalletManager")}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium"
             >
-              Deploy Smart Wallet
-            </Button>
-            <Button
-              onClick={() => navigate("/smart-wallets")}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-md font-medium flex items-center gap-2"
-            >
-              <Eye className="w-4 h-4" />
-              View Smart Wallets
+              Manage smart wallets
             </Button>
           </div>
         </motion.div>

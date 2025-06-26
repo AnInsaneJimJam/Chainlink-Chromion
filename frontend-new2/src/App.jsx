@@ -19,8 +19,9 @@ import Avalanchefundme from "./pages/Avalanchefundme";
 import Withdraw from "./pages/Withdraw";
 import SmartWallets from "./pages/smartwallets";
 import useWalletStore from "./EtherJs/walletStore.js";
+import SmartWalletManager from "./pages/smartwalletmanager.jsx";
 import { useState } from 'react';
-import AppLayout from "./pages/AppLayout";
+import AppLayout from "./AppLayout";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,7 @@ const App = () => {
           <Route path="/Avalanchefundme" element={<Avalanchefundme/>}/>
          <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/smart-wallets" element={<SmartWallets/>}/>
+          <Route path="/smartWalletManager" element={<SmartWalletManager/>}/>
          <Route   path="/beneficiary-dashboard"
             element={<BeneficiaryDashboard />}
           />
