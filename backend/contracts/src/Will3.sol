@@ -82,6 +82,9 @@ contract Will is Ownable {
     mapping(address => Status) public s_verificationStatus; // Testator -> Status
     mapping(address => ChallengeInfo) private s_challenges; // Testator -> Challenge Info
     mapping(address => string) private s_testatorName; // Testator -> Challenge Info
+    mapping(address => string) public s_testatorName; // Testator -> Full Name
+    mapping(address => uint256) public s_testatorYearOfBirth; // Testator -> Year of Birth
+    
 
     ////////////////////// EVENTS ///////////////////////////////////////
 
@@ -93,6 +96,7 @@ contract Will is Ownable {
     event WillVerified(address indexed testator);
     event WillEdited(address indexed testator, bytes32 indexed newWillHash);
     event TestatorNameUpdated(address indexed testator, string newName);
+    event TestatorInfoUpdated(address indexed testator, string name, uint256 yearOfBirth);
 
     modifier onlyTestator() {
         if (!s_willExists[msg.sender]) revert Will_WillDoesNotExist();
@@ -122,6 +126,16 @@ contract Will is Ownable {
         }
 
         emit WillCreated(msg.sender, _willHash);
+    }
+
+    /**
+    * @notice Allows a testator to set or update their name and year of birth.
+    * @dev This information is required for the oracle to verify their status during a dispute.
+    */
+    function setTestatorInfo(string calldata _name, uint256 _yearOfBirth) external onlyTestator {
+        s_testatorName[msg.sender] = _name;
+        s_testatorYearOfBirth[msg.sender] = _yearOfBirth;
+        emit TestatorInfoUpdated(msg.sender, _name, _yearOfBirth);
     }
 
     function editWill(address[] calldata _newBeneficiaries, bytes32 _newWillHash) external onlyTestator {
