@@ -74,7 +74,7 @@ contract SmartWallet {
     // --- Internal Transfer Utility ---
 
     function _sendValue(address payable to, uint256 amount) internal {
-        (bool success, ) = to.call{value: amount}("");
+        (bool success,) = to.call{value: amount}("");
         require(success, "Transfer failed");
     }
 
