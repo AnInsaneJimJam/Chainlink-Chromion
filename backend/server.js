@@ -9,6 +9,7 @@ import baseRoutes from "./routes/base/base.route.js";
 import polygonRoutes from "./routes/polygon/polygon.route.js";
 import fullWillRoutes from "./routes/fullwill.route.js";
 import walletRoutes from "./routes/wallet.route.js"
+import willRoutes from "./routes/willRoute.js"
 dotenv.config();
 
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/polygon", polygonRoutes);
 app.use("/api/base", baseRoutes);
 app.use("/api", fullWillRoutes);
 app.use("/api/wallets", walletRoutes);
+app.use("/api/wills", willRoutes); 
 
 //connect db
 mongoose.connect(process.env.MONGO_URI).then(() => {
