@@ -428,7 +428,8 @@ import { useEffect, useState, useCallback } from "react";
   rpcUrls: ["https://rpc.sepolia.org"],
   blockExplorerUrls: ["https://sepolia.etherscan.io"],
   name: "Ethereum",
-  logo: "https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=029"
+  logo: "https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=029",
+  logicContractAddress: "0x3996AC2788485e56b25F48E5825fed4f409c8cB7"
 
   },
   base: {
@@ -592,7 +593,7 @@ import { useEffect, useState, useCallback } from "react";
   }
 
   const factory = new ethers.ContractFactory(smartWalletABI, smartWalletBytecode, signer);
-  const contract = await factory.deploy(await signer.getAddress());
+  const contract = await factory.deploy();
   await contract.waitForDeployment();
   const address = await contract.getAddress();
   const logicAddress = CHAIN_CONFIGS[chainKey].logicContractAddress;
