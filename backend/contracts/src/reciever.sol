@@ -18,11 +18,7 @@ contract LogicContractReceiver is CCIPReceiver {
     uint64 public immutable ethereumChainSelector;
 
     event ExecutedAction(
-        string action,
-        address indexed user,
-        address indexed wallet,
-        address indexed to,
-        uint256 amount
+        string action, address indexed user, address indexed wallet, address indexed to, uint256 amount
     );
 
     constructor(address _router, address _coordinator, uint64 _ethSelector) CCIPReceiver(_router) {
@@ -32,13 +28,8 @@ contract LogicContractReceiver is CCIPReceiver {
     }
 
     function _ccipReceive(Client.Any2EVMMessage memory message) internal override {
-        (
-            string memory action,
-            address user,
-            address wallet,
-            address to,
-            uint256 amount
-        ) = abi.decode(message.data, (string, address, address, address, uint256));
+        (string memory action, address user, address wallet, address to, uint256 amount) =
+            abi.decode(message.data, (string, address, address, address, uint256));
 
         emit ExecutedAction(action, user, wallet, to, amount);
 
@@ -65,12 +56,7 @@ contract LogicContractReceiver is CCIPReceiver {
             receiver: abi.encode(mainCoordinator),
             data: responseData,
             tokenAmounts: new Client.EVMTokenAmount[](0),
-            extraArgs: Client._argsToBytes(
-                Client.GenericExtraArgsV2({
-                    gasLimit: 200_000,
-                    allowOutOfOrderExecution: true
-                })
-            ),
+            extraArgs: Client._argsToBytes(Client.GenericExtraArgsV2({gasLimit: 200_000, allowOutOfOrderExecution: true})),
             feeToken: address(0) // Native gas token (ETH, MATIC, etc.)
         });
 

@@ -19,11 +19,7 @@ contract MainCoordinator is OwnerIsCreator {
 
     event WalletRegistered(address indexed user, uint64 chain, address wallet, address logic);
     event CrossChainActionInitiated(
-        address indexed user,
-        uint64 indexed destChain,
-        string action,
-        address to,
-        uint256 amount
+        address indexed user, uint64 indexed destChain, string action, address to, uint256 amount
     );
     event MessageSent(
         bytes32 indexed messageId,
@@ -41,25 +37,19 @@ contract MainCoordinator is OwnerIsCreator {
         s_router = IRouterClient(_router);
     }
 
-    function registerWalletForUser(
-        address _user,
-        uint64 _chainSelector,
-        address _wallet,
-        address _logicContract
-    ) external onlyOwner {
-        userWallets[_user][_chainSelector] = WalletInfo({
-            wallet: _wallet,
-            logicContract: _logicContract
-        });
+    function registerWalletForUser(address _user, uint64 _chainSelector, address _wallet, address _logicContract)
+        external
+        onlyOwner
+    {
+        userWallets[_user][_chainSelector] = WalletInfo({wallet: _wallet, logicContract: _logicContract});
         emit WalletRegistered(_user, _chainSelector, _wallet, _logicContract);
     }
 
-    function requestAction(
-        uint64 destChainSelector,
-        string calldata action,
-        address to,
-        uint256 amount
-    ) external payable returns (bytes32 messageId) {
+    function requestAction(uint64 destChainSelector, string calldata action, address to, uint256 amount)
+        external
+        payable
+        returns (bytes32 messageId)
+    {
         WalletInfo memory info = userWallets[msg.sender][destChainSelector];
         require(info.wallet != address(0), "Wallet not registered");
 
@@ -68,12 +58,7 @@ contract MainCoordinator is OwnerIsCreator {
             receiver: abi.encode(info.logicContract),
             data: abi.encode(action, msg.sender, info.wallet, to, amount),
             tokenAmounts: new Client.EVMTokenAmount[](0),
-            extraArgs: Client._argsToBytes(
-                Client.GenericExtraArgsV2({
-                    gasLimit: 200_000,
-                    allowOutOfOrderExecution: true
-                })
-            ),
+            extraArgs: Client._argsToBytes(Client.GenericExtraArgsV2({gasLimit: 200_000, allowOutOfOrderExecution: true})),
             feeToken: address(0) // Use native gas token
         });
 
@@ -101,11 +86,7 @@ contract MainCoordinator is OwnerIsCreator {
     }
 
     // callback from receiver contract
-    function receiveBalance(
-        address user,
-        uint64 chainSelector,
-        uint256 balance
-    ) external {
+    function receiveBalance(address user, uint64 chainSelector, uint256 balance) external {
         require(msg.sender == tx.origin || msg.sender == address(s_router), "Unauthorized");
         emit ReceivedBalance(user, chainSelector, balance);
     }
