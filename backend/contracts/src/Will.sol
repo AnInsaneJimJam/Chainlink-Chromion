@@ -79,6 +79,9 @@ contract Will is Ownable {
 
     //////////////////////// STATE VARIABLES ///////////////////////////////
 
+    address public functionsConsumerAddress;
+    uint64 public functionsSubscriptionId;
+
     mapping(address => bytes32) public s_willHashes; // Testator -> Hash of off-chain will
     mapping(address => address[]) private s_beneficiaryLists; // Testator -> On-chain list of beneficiary addresses
     mapping(address => address[]) private s_testators; // Beneficiary -> On-chain list of testators (wills basically) which beneficiary is part of
@@ -86,7 +89,6 @@ contract Will is Ownable {
     mapping(address => Status) public s_verificationStatus; // Testator -> Status
     mapping(address => ChallengeInfo) private s_challenges; // Testator -> Challenge Info
     mapping(address => string) private s_testatorName; // Testator -> Challenge Info
-    mapping(address => string) public s_testatorName; // Testator -> Full Name
     mapping(address => string) public s_testatorYearOfBirth; // Testator -> Year of Birth
 
     ////////////////////// EVENTS ///////////////////////////////////////
@@ -99,7 +101,7 @@ contract Will is Ownable {
     event DisputeResolved(address indexed testator, bool wasInitiationCorrect);
     event WillVerified(address indexed testator);
     event TestatorNameUpdated(address indexed testator, string newName);
-    event TestatorInfoUpdated(address indexed testator, string name, uint256 yearOfBirth);
+    event TestatorInfoUpdated(address indexed testator, string name, string yearOfBirth);
 
     modifier onlyTestator() {
         if (!s_willExists[msg.sender]) revert Will_WillDoesNotExist();
@@ -147,7 +149,7 @@ contract Will is Ownable {
      * @notice Allows a testator to set or update their name and year of birth.
      * @dev This information is required for the oracle to verify their status during a dispute.
      */
-    function setTestatorInfo(string calldata _name, uint256 _yearOfBirth) external onlyTestator {
+    function setTestatorInfo(string calldata _name, string calldata _yearOfBirth) external onlyTestator {
         s_testatorName[msg.sender] = _name;
         s_testatorYearOfBirth[msg.sender] = _yearOfBirth;
         emit TestatorInfoUpdated(msg.sender, _name, _yearOfBirth);
