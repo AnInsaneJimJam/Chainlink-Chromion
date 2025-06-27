@@ -568,15 +568,374 @@
 
 // export default CreateWill;
 
-import { useEffect, useState, useCallback } from "react";
-import { ethers } from "ethers";
+// import { useEffect, useState, useCallback } from "react";
+// import { ethers } from "ethers";
+// import { motion } from "framer-motion";
+// import { Button } from "@/components/ui/button";
+// import { Card } from "@/components/ui/card";
+// import Header from "@/components/Header";
+// import { Input } from "@/components/ui/input";
+// import { Plus, Trash2 } from "lucide-react";
+// import useWalletStore from "../EtherJs/walletStore.js";
+
+// const chainToSymbol = {
+//   polygon: "MATIC",
+//   ethereum: "ETH",
+//   binancesmartchain: "BNB",
+//   avalanche: "AVAX",
+// };
+
+// const CreateWill = () => {
+//   const { contract } = useWalletStore();
+//   const [wallets, setWallets] = useState({});
+//   const [balances, setBalances] = useState({});
+//   const [walletAddress, setWalletAddress] = useState("");
+//   const [status, setStatus] = useState("Fetching wallets...");
+//   const [beneficiaries, setBeneficiaries] = useState([]);
+
+//   const fetchWallets = useCallback(async (address) => {
+//     setStatus("Fetching deployed wallets...");
+//     try {
+//       const res = await fetch(`http://localhost:5000/api/wallets/${address}`);
+//       if (res.ok) {
+//         const data = await res.json();
+//         setWallets(data.wallets || {});
+//         setStatus("");
+//       } else {
+//         setStatus("No existing smart wallets found.");
+//       }
+//     } catch (err) {
+//       console.error("Fetch error:", err);
+//       setStatus("Could not fetch wallets. Using local state.");
+//     }
+//   }, []);
+
+//   const updateBalance = useCallback(async (chainKey, walletAddress) => {
+//     try {
+//       const provider = new ethers.BrowserProvider(window.ethereum);
+//       const balance = await provider.getBalance(walletAddress);
+//       setBalances((prev) => ({
+//         ...prev,
+//         [chainKey]: ethers.formatEther(balance),
+//       }));
+//     } catch (err) {
+//       console.error(`Failed to fetch balance for ${chainKey}:`, err);
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     const getConnectedAddress = async () => {
+//       if (window.ethereum) {
+//         try {
+//           const provider = new ethers.BrowserProvider(window.ethereum);
+//           const signer = await provider.getSigner();
+//           const address = await signer.getAddress();
+//           setWalletAddress(address);
+//           fetchWallets(address);
+//         } catch (error) {
+//           console.error("Error fetching wallet:", error);
+//         }
+//       } else {
+//         console.error("MetaMask not detected");
+//       }
+//     };
+
+//     getConnectedAddress();
+//   }, [fetchWallets]);
+
+//   useEffect(() => {
+//     Object.entries(wallets).forEach(([chainKey, walletAddress]) => {
+//       if (walletAddress) {
+//         updateBalance(chainKey, walletAddress);
+//       }
+//     });
+//   }, [wallets, updateBalance]);
+
+//   const addBeneficiary = () => {
+//     const newBeneficiary = {
+//       id: Date.now(),
+//       address: "",
+//       allocations: Object.fromEntries(
+//         Object.keys(wallets).map((chainKey) => [chainKey, ""]),
+//       ),
+//     };
+//     setBeneficiaries((prev) => [...prev, newBeneficiary]);
+//   };
+
+//   const removeBeneficiary = (id) => {
+//     setBeneficiaries((prev) => prev.filter((b) => b.id !== id));
+//   };
+
+//   const updateBeneficiary = (id, field, value, chainKey = null) => {
+//     setBeneficiaries((prev) =>
+//       prev.map((b) => {
+//         if (b.id !== id) return b;
+//         if (field === "address") return { ...b, address: value };
+//         if (field === "allocation" && chainKey)
+//           return {
+//             ...b,
+//             allocations: {
+//               ...b.allocations,
+//               [chainKey]: value,
+//             },
+//           };
+//         return b;
+//       }),
+//     );
+//   };
+
+//   const getTotalAllocations = (chainKey) => {
+//     return beneficiaries.reduce(
+//       (sum, b) => sum + Number(b.allocations[chainKey] || 0),
+//       0,
+//     );
+//   };
+
+//   const handleSaveWill = async () => {
+//     const willObject = {
+//       testator: walletAddress,
+//       beneficiaries: beneficiaries.map((b) => ({
+//         address: b.address,
+//         allocations: Object.entries(b.allocations).map(
+//           ([chain, percentage]) => ({
+//             chain,
+//             percentage: Number(percentage),
+//           }),
+//         ),
+//       })),
+//     };
+
+//     // console.log("willObject", willObject);
+
+//     // return;
+//     try {
+//       const res = await fetch("http://localhost:5000/api/wills", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(willObject),
+//       });
+
+//       if (res.ok) {
+//         alert("Will saved successfully!");
+//       } else {
+//         const errorText = await res.text();
+//         console.error("Backend error:", errorText);
+//         alert("Failed to save will to backend.");
+//       }
+//     } catch (error) {
+//       console.error("Error saving will:", error);
+//       alert("Request failed.");
+//     }
+
+//     // smart contract integratin: createWill
+//     createWill(beneficiaries, walletAddress);
+//   };
+
+//   const createWill = async (_beneficiaries, _testatorAddr) => {
+//     console.log(contract);
+//     if (!contract) return;
+
+//     try {
+//       // Get the new beneficiaries
+//       const newBeneficiaries = _beneficiaries.map((b) => b.address);
+
+//       let createdWillHash = null;
+//       // get the data from database and therefore hash
+//       try {
+//         const res = await fetch(
+//           `http://localhost:5000/api/wills/${_testatorAddr}`,
+//           {
+//             method: "GET",
+//             headers: {
+//               "Content-Type": "application/json",
+//             },
+//           },
+//         );
+
+//         console.log("data for willhash for createWIll interaction", res);
+
+//         const jsonStr = stringifyDeterministic(res);
+//         const bytes = ethers.utils.toUtf8Bytes(jsonStr);
+//         createdWillHash = ethers.utils.keccak256(bytes);
+
+//         if (res.ok) {
+//           console.log("data successfull got for smart contract hash");
+//         } else {
+//           const errorText = await res.text();
+//           console.error("Backend error:", errorText);
+//           alert("Failed to get data for smart contract.");
+//         }
+//       } catch (error) {
+//         console.error("Error data getting:", error);
+//         alert("Request failed.");
+//       }
+
+//       // interact with contract
+//       const tx = await contract.createWill(newBeneficiaries, createdWillHash);
+
+//       await tx.wait();
+
+//       console.log("new Will created successfully on smart contract");
+//     } catch (error) {
+//       console.error("Error saving to smart contract:", error);
+//     }
+//   };
+
+//   return (
+//     <motion.div
+//       className="min-h-screen"
+//       style={{ background: "linear-gradient(to bottom, #ffffff, #fafbfc)" }}
+//       initial={{ opacity: 0 }}
+//       animate={{ opacity: 1 }}
+//       transition={{ duration: 0.6 }}
+//     >
+//       <Header showDisconnect onDisconnect={() => {}} />
+
+//       <div className="container mx-auto px-6 py-8 max-w-4xl">
+//         <div className="mb-6">
+//           <h1 className="text-3xl font-bold text-gray-900 mb-2">
+//             Create New Will
+//           </h1>
+//           <p className="text-gray-600">
+//             Deploy your digital inheritance structure with smart wallets and
+//             assign beneficiaries.
+//           </p>
+//         </div>
+
+//         {status && <p className="text-center text-gray-500 mb-4">{status}</p>}
+
+//         <div className="grid gap-6">
+//           {Object.entries(wallets).map(([chainKey, address]) => (
+//             <Card key={chainKey} className="p-4 border border-gray-300">
+//               <h3 className="text-lg font-semibold mb-2">
+//                 Wallet on {chainKey}
+//               </h3>
+//               <p className="text-sm text-gray-700 break-words">{address}</p>
+//               <p className="text-sm text-gray-800 mt-2">
+//                 Balance:{" "}
+//                 {balances[chainKey]
+//                   ? `${balances[chainKey]} ${chainToSymbol[chainKey]}`
+//                   : "Loading..."}
+//               </p>
+//             </Card>
+//           ))}
+//         </div>
+
+//         <div className="mt-10">
+//           <div className="flex justify-between items-center mb-4">
+//             <h2 className="text-2xl font-semibold text-gray-800">
+//               Add Beneficiaries
+//             </h2>
+//             <Button
+//               onClick={addBeneficiary}
+//               className="flex items-center gap-1"
+//             >
+//               <Plus className="w-4 h-4" /> Add Beneficiary
+//             </Button>
+//           </div>
+
+//           {beneficiaries.map((b, idx) => (
+//             <Card key={b.id} className="p-4 mb-4 border">
+//               <div className="flex justify-between mb-3">
+//                 <h3 className="text-lg font-semibold">Beneficiary {idx + 1}</h3>
+//                 <Button variant="ghost" onClick={() => removeBeneficiary(b.id)}>
+//                   <Trash2 className="text-red-600" />
+//                 </Button>
+//               </div>
+//               <div className="mb-4">
+//                 <label className="text-sm font-medium text-gray-700 mb-1 block">
+//                   Wallet Address
+//                 </label>
+//                 <Input
+//                   value={b.address}
+//                   onChange={(e) =>
+//                     updateBeneficiary(b.id, "address", e.target.value)
+//                   }
+//                   placeholder="0x..."
+//                   className="w-full font-mono"
+//                 />
+//               </div>
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                 {Object.entries(wallets).map(([chainKey]) => (
+//                   <div key={chainKey}>
+//                     <label className="text-sm font-medium text-gray-700">
+//                       {chainToSymbol[chainKey]} Allocation (%) — Total:{" "}
+//                       {getTotalAllocations(chainKey)}%
+//                     </label>
+//                     <Input
+//                       type="number"
+//                       min="0"
+//                       max="100"
+//                       value={b.allocations[chainKey] || ""}
+//                       onChange={(e) =>
+//                         updateBeneficiary(
+//                           b.id,
+//                           "allocation",
+//                           e.target.value,
+//                           chainKey,
+//                         )
+//                       }
+//                       placeholder={`% of ${chainToSymbol[chainKey]}`}
+//                     />
+//                   </div>
+//                 ))}
+//               </div>
+//             </Card>
+//           ))}
+//         </div>
+
+//         <div className="mt-10 flex justify-end">
+//           <Button
+//             onClick={() => {
+//               handleSaveWill();
+//             }}
+//             className="bg-blue-600 text-white hover:bg-blue-700"
+//           >
+//             Create Will (Save to Backend + Chain)
+//           </Button>
+//         </div>
+//       </div>
+//     </motion.div>
+//   );
+// };
+
+// export default CreateWill;
+
+import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { ethers } from "ethers";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2 } from "lucide-react";
-import useWalletStore from "../EtherJs/walletStore.js";
+import Header from "@/components/Header";
+
+// --- Contract Info ---
+const CONTRACT_ADDRESS = "0x076af07022a92cCFdAF1aB6CA42AfA9Ed0360097";
+const CONTRACT_ABI = [
+  {
+    inputs: [
+      { internalType: "address[]", name: "_beneficiaries", type: "address[]" },
+      { internalType: "bytes32", name: "_willHash", type: "bytes32" },
+    ],
+    name: "createWill",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "string", name: "_name", type: "string" },
+      { internalType: "string", name: "_yearOfBirth", type: "string" },
+    ],
+    name: "setTestatorInfo",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
 
 const chainToSymbol = {
   polygon: "MATIC",
@@ -586,12 +945,13 @@ const chainToSymbol = {
 };
 
 const CreateWill = () => {
-  const { contract } = useWalletStore();
   const [wallets, setWallets] = useState({});
   const [balances, setBalances] = useState({});
   const [walletAddress, setWalletAddress] = useState("");
   const [status, setStatus] = useState("Fetching wallets...");
   const [beneficiaries, setBeneficiaries] = useState([]);
+  const [testatorName, setTestatorName] = useState("");
+  const [yearOfBirth, setYearOfBirth] = useState("");
 
   const fetchWallets = useCallback(async (address) => {
     setStatus("Fetching deployed wallets...");
@@ -691,6 +1051,33 @@ const CreateWill = () => {
     );
   };
 
+  const createWill = async (_beneficiaries, _testatorAddr) => {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      const newBeneficiaries = _beneficiaries.map((b) => b.address);
+
+      const res = await fetch(`http://localhost:5000/api/wills/${_testatorAddr}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+      const jsonStr = JSON.stringify(data);
+      const bytes = ethers.toUtf8Bytes(jsonStr);
+      const createdWillHash = ethers.keccak256(bytes);
+
+      const tx = await contract.createWill(newBeneficiaries, createdWillHash);
+      await tx.wait();
+
+      console.log("Will created on-chain successfully");
+    } catch (error) {
+      console.error("Error saving to smart contract:", error);
+    }
+  };
+
   const handleSaveWill = async () => {
     const willObject = {
       testator: walletAddress,
@@ -705,81 +1092,34 @@ const CreateWill = () => {
       })),
     };
 
-    // console.log("willObject", willObject);
-
-    // return;
     try {
       const res = await fetch("http://localhost:5000/api/wills", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(willObject),
       });
 
-      if (res.ok) {
-        alert("Will saved successfully!");
-      } else {
+      if (!res.ok) {
         const errorText = await res.text();
         console.error("Backend error:", errorText);
         alert("Failed to save will to backend.");
+        return;
       }
+
+      await createWill(beneficiaries, walletAddress);
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      const tx = await contract.setTestatorInfo(testatorName, yearOfBirth);
+      await tx.wait();
+
+      console.log("Testator info updated");
+      alert("Will & Testator info saved successfully!");
     } catch (error) {
       console.error("Error saving will:", error);
       alert("Request failed.");
-    }
-
-    // smart contract integratin: createWill
-    createWill(beneficiaries, walletAddress);
-  };
-
-  const createWill = async (_beneficiaries, _testatorAddr) => {
-    console.log(contract);
-    if (!contract) return;
-
-    try {
-      // Get the new beneficiaries
-      const newBeneficiaries = _beneficiaries.map((b) => b.address);
-
-      let createdWillHash = null;
-      // get the data from database and therefore hash
-      try {
-        const res = await fetch(
-          `http://localhost:5000/api/wills/${_testatorAddr}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        console.log("data for willhash for createWIll interaction", res);
-
-        const jsonStr = stringifyDeterministic(res);
-        const bytes = ethers.utils.toUtf8Bytes(jsonStr);
-        createdWillHash = ethers.utils.keccak256(bytes);
-
-        if (res.ok) {
-          console.log("data successfull got for smart contract hash");
-        } else {
-          const errorText = await res.text();
-          console.error("Backend error:", errorText);
-          alert("Failed to get data for smart contract.");
-        }
-      } catch (error) {
-        console.error("Error data getting:", error);
-        alert("Request failed.");
-      }
-
-      // interact with contract
-      const tx = await contract.createWill(newBeneficiaries, createdWillHash);
-
-      await tx.wait();
-
-      console.log("new Will created successfully on smart contract");
-    } catch (error) {
-      console.error("Error saving to smart contract:", error);
     }
   };
 
@@ -795,13 +1135,32 @@ const CreateWill = () => {
 
       <div className="container mx-auto px-6 py-8 max-w-4xl">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Create New Will
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Will</h1>
           <p className="text-gray-600">
-            Deploy your digital inheritance structure with smart wallets and
-            assign beneficiaries.
+            Deploy your digital inheritance structure with smart wallets and assign beneficiaries.
           </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Testator Name</label>
+            <Input
+              value={testatorName}
+              onChange={(e) => setTestatorName(e.target.value)}
+              placeholder="Full Name"
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">Year of Birth</label>
+            <Input
+              value={yearOfBirth}
+              onChange={(e) => setYearOfBirth(e.target.value)}
+              placeholder="e.g. 1975"
+              type="number"
+              className="w-full"
+            />
+          </div>
         </div>
 
         {status && <p className="text-center text-gray-500 mb-4">{status}</p>}
@@ -809,9 +1168,7 @@ const CreateWill = () => {
         <div className="grid gap-6">
           {Object.entries(wallets).map(([chainKey, address]) => (
             <Card key={chainKey} className="p-4 border border-gray-300">
-              <h3 className="text-lg font-semibold mb-2">
-                Wallet on {chainKey}
-              </h3>
+              <h3 className="text-lg font-semibold mb-2">Wallet on {chainKey}</h3>
               <p className="text-sm text-gray-700 break-words">{address}</p>
               <p className="text-sm text-gray-800 mt-2">
                 Balance:{" "}
@@ -825,13 +1182,8 @@ const CreateWill = () => {
 
         <div className="mt-10">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">
-              Add Beneficiaries
-            </h2>
-            <Button
-              onClick={addBeneficiary}
-              className="flex items-center gap-1"
-            >
+            <h2 className="text-2xl font-semibold text-gray-800">Add Beneficiaries</h2>
+            <Button onClick={addBeneficiary} className="flex items-center gap-1">
               <Plus className="w-4 h-4" /> Add Beneficiary
             </Button>
           </div>
@@ -845,14 +1197,10 @@ const CreateWill = () => {
                 </Button>
               </div>
               <div className="mb-4">
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
-                  Wallet Address
-                </label>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">Wallet Address</label>
                 <Input
                   value={b.address}
-                  onChange={(e) =>
-                    updateBeneficiary(b.id, "address", e.target.value)
-                  }
+                  onChange={(e) => updateBeneficiary(b.id, "address", e.target.value)}
                   placeholder="0x..."
                   className="w-full font-mono"
                 />
@@ -861,8 +1209,7 @@ const CreateWill = () => {
                 {Object.entries(wallets).map(([chainKey]) => (
                   <div key={chainKey}>
                     <label className="text-sm font-medium text-gray-700">
-                      {chainToSymbol[chainKey]} Allocation (%) — Total:{" "}
-                      {getTotalAllocations(chainKey)}%
+                      {chainToSymbol[chainKey]} Allocation (%) — Total: {getTotalAllocations(chainKey)}%
                     </label>
                     <Input
                       type="number"
@@ -870,12 +1217,7 @@ const CreateWill = () => {
                       max="100"
                       value={b.allocations[chainKey] || ""}
                       onChange={(e) =>
-                        updateBeneficiary(
-                          b.id,
-                          "allocation",
-                          e.target.value,
-                          chainKey,
-                        )
+                        updateBeneficiary(b.id, "allocation", e.target.value, chainKey)
                       }
                       placeholder={`% of ${chainToSymbol[chainKey]}`}
                     />
@@ -888,9 +1230,7 @@ const CreateWill = () => {
 
         <div className="mt-10 flex justify-end">
           <Button
-            onClick={() => {
-              handleSaveWill();
-            }}
+            onClick={handleSaveWill}
             className="bg-blue-600 text-white hover:bg-blue-700"
           >
             Create Will (Save to Backend + Chain)
