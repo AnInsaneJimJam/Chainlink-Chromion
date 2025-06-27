@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy Wallet - InheritChain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+        Base Styles (Reused)
+        ======================================== */
+        body {
+            position: relative;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #EAF6FF; /* Fallback */
+        }
+
+        .fixed-background {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background: radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%);
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .fixed-background::before {
+            content: '';
+            position: absolute;
+            width: 150vmax;
+            height: 150vmax;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-9.478deg);
+            background: #CDEFFF;
+            mix-blend-mode: hue;
+        }
+
+        .fixed-background::after {
+            content: '';
+            position: absolute;
+            width: 150vmax;
+            height: 150vmax;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30.74deg);
+            background: url('https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg') lightgray 50% / cover no-repeat;
+            opacity: 0.25;
+            box-shadow: 0px 0px 114.717px 0px #CDEFFF;
+        }
+        
+        .main-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header-text {
+            color: #25292A;
+            font-family: "Clash Display";
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        /* ========================================
+        Deploy Wallet Page Specific Styles
+        ======================================== */
+        .font-clash { font-family: 'Clash Display', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+
+        .deploy-heading {
+            color: #0469AB;
+            font-family: "Clash Display";
+            font-size: 54px;
+            font-weight: 600;
+        }
+
+        .deploy-subheading {
+            color: #767676;
+            font-family: 'Inter', sans-serif;
+            font-size: 22px;
+            font-weight: 500;
+        }
+        
+        .warning-box {
+            max-width: 741px;
+            width: 100%;
+            height: 43px;
+            border-radius: 10px;
+            border: 0.5px solid #8F6112;
+            background: #FAF7C1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+        }
+        
+        .warning-text {
+            color: #AE791D;
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(16px, 2vw, 22px);
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .chain-rectangle {
+            width: 1126px;
+            max-width: 95vw;
+            min-height: 170px;
+            border-radius: 9.391px;
+            border: 1.878px solid rgba(4, 105, 171, 0.50);
+            background: rgba(167, 217, 255, 0.18);
+            backdrop-filter: blur(23.4779px);
+            opacity: 0.8;
+        }
+        
+        .chain-name {
+            color: #25292A;
+            font-family: 'Inter', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .label-text {
+            color: #767676;
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .address-text {
+            color: #25292A;
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            border-radius: 13.368px;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 2px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .status-deployed {
+            border: 1.203px solid #12703D;
+            background: #D5FFE6;
+            box-shadow: 2px 2px 4px 0px #096934;
+            color: #12703D;
+        }
+        .status-not-deployed {
+            border: 1.203px solid #b45309;
+            background: #fef3c7;
+            box-shadow: 2px 2px 4px 0px #92400e;
+            color: #b45309;
+        }
+
+        /* Generic Button Style */
+        .action-button {
+            width: 203.163px;
+            height: 50.009px;
+            flex-shrink: 0;
+            border-radius: 25.291px;
+            color: #FFF;
+            font-family: 'Inter', sans-serif;
+            font-size: 20.3px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+        .action-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Specific Button Styles */
+        .btn-view-balance { background: #07AAF4; }
+        .btn-fund-wallet { background: #0167AF; box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25); }
+        .btn-withdraw { background: #753AFE; }
+        .btn-deploy-wallet { background: #0167AF; box-shadow: 2px 2px 4px 0px #002844; }
+
+        /* ========================================
+        Modal Styles
+        ======================================== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(8px);
+            z-index: 40;
+        }
+        .modal-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 25px;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
+            z-index: 50;
+            width: 541px;
+            max-width: 90vw;
+            opacity: 1; /* Override card opacity */
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #767676;
+            cursor: pointer;
+        }
+        .modal-title {
+            color: #0469AB;
+            font-family: "Clash Display";
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .modal-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .modal-label {
+            color: #25292A;
+            font-size: 22px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+        .modal-value {
+            color: #767676;
+            font-size: 22px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-subtext {
+            color: #767676;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .modal-input {
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            width: 100%;
+            font-size: 18px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="fixed-background"></div>
+
+    <div class="main-content min-h-screen">
+        <!-- Page Header -->
+        <header class="absolute top-0 left-0 p-8 lg:p-12">
+            <div class="flex items-center gap-4">
+                <img src="https://placehold.co/50x50/FFFFFF/000000?text=L" alt="InheritChain Logo" class="w-12 h-12">
+                <span class="page-header-text">InheritChain</span>
+            </div>
+        </header>
+
+        <!-- Centered Content -->
+        <div class="min-h-screen flex flex-col items-center justify-center pt-32 pb-12 px-4">
+            <div class="text-center">
+                <h1 class="font-clash deploy-heading">Deploy Your Smart Contract Wallets</h1>
+                <p class="font-inter deploy-subheading mt-2">Please ensure you’re on the correct network when funding or withdrawing</p>
+            </div>
+
+            <div class="warning-box mt-6">
+                <p class="warning-text">Make sure your MetaMask network matches the selected chain</p>
+            </div>
+
+            <div class="space-y-6 mt-8">
+                <!-- Polygon - State changes on click -->
+                <div id="chain-polygon" class="chain-rectangle p-6 flex items-center justify-between gap-4">
+                    <div class="flex-grow flex items-center gap-6">
+                        <img src="https://placehold.co/70x70/E6E6E6/000000?text=P" alt="Polygon Logo" class="w-16 h-16 flex-shrink-0">
+                        <div class="info-container">
+                            <h2 class="chain-name">Polygon</h2>
+                            <div class="status-container flex items-center gap-2 mt-2">
+                                <span class="label-text">Status:</span>
+                                <span class="status-badge status-not-deployed">⊗ Not Deployed</span>
+                            </div>
+                            <div class="address-container hidden items-center gap-2 mt-1">
+                                <span class="label-text">Address:</span>
+                                <span class="address-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttons-container flex-shrink-0">
+                        <button class="action-button btn-deploy-wallet" onclick="deployWallet('polygon')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>Deploy Wallet</button>
+                    </div>
+                </div>
+
+                <!-- Ethereum - State changes on click -->
+                <div id="chain-ethereum" class="chain-rectangle p-6 flex items-center justify-between gap-4">
+                    <div class="flex-grow flex items-center gap-6">
+                        <img src="https://placehold.co/70x70/E6E6E6/000000?text=E" alt="Ethereum Logo" class="w-16 h-16 flex-shrink-0">
+                        <div class="info-container">
+                            <h2 class="chain-name">Ethereum</h2>
+                            <div class="status-container flex items-center gap-2 mt-2">
+                                <span class="label-text">Status:</span>
+                                <span class="status-badge status-not-deployed">⊗ Not Deployed</span>
+                            </div>
+                            <div class="address-container hidden items-center gap-2 mt-1">
+                                <span class="label-text">Address:</span>
+                                <span class="address-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttons-container flex-shrink-0">
+                        <button class="action-button btn-deploy-wallet" onclick="deployWallet('ethereum')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>Deploy Wallet</button>
+                    </div>
+                </div>
+                
+                <!-- Avalanche - State changes on click -->
+                <div id="chain-avalanche" class="chain-rectangle p-6 flex items-center justify-between gap-4">
+                    <div class="flex-grow flex items-center gap-6">
+                        <img src="https://placehold.co/70x70/E6E6E6/000000?text=A" alt="Avalanche Logo" class="w-16 h-16 flex-shrink-0">
+                        <div class="info-container">
+                            <h2 class="chain-name">Avalanche</h2>
+                            <div class="status-container flex items-center gap-2 mt-2">
+                                <span class="label-text">Status:</span>
+                                <span class="status-badge status-not-deployed">⊗ Not Deployed</span>
+                            </div>
+                            <div class="address-container hidden items-center gap-2 mt-1">
+                                <span class="label-text">Address:</span>
+                                <span class="address-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttons-container flex-shrink-0">
+                        <button class="action-button btn-deploy-wallet" onclick="deployWallet('avalanche')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>Deploy Wallet</button>
+                    </div>
+                </div>
+                
+                <!-- Base - State changes on click -->
+                <div id="chain-base" class="chain-rectangle p-6 flex items-center justify-between gap-4">
+                     <div class="flex-grow flex items-center gap-6">
+                        <img src="https://placehold.co/70x70/E6E6E6/000000?text=B" alt="Base Logo" class="w-16 h-16 flex-shrink-0">
+                        <div class="info-container">
+                            <h2 class="chain-name">Base</h2>
+                            <div class="status-container flex items-center gap-2 mt-2">
+                                <span class="label-text">Status:</span>
+                                <span class="status-badge status-not-deployed">⊗ Not Deployed</span>
+                            </div>
+                            <div class="address-container hidden items-center gap-2 mt-1">
+                                <span class="label-text">Address:</span>
+                                <span class="address-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="buttons-container flex-shrink-0">
+                        <button class="action-button btn-deploy-wallet" onclick="deployWallet('base')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>Deploy Wallet</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================
+    Modals (Initially Hidden)
+    ======================================== -->
+    <div id="modal-backdrop" class="modal-backdrop hidden"></div>
+
+    <!-- View Balance Modal -->
+    <div id="view-balance-modal" class="modal-box p-8 hidden">
+        <div class="modal-close-button" onclick="closeAllModals()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <div class="flex flex-col items-center gap-6 text-center">
+            <h2 class="modal-title">Your Smart Contract Wallet Balance</h2>
+            <div class="w-full space-y-4">
+                <div class="modal-info-row"><span class="modal-label">Address:</span> <span id="balance-modal-address" class="modal-value"></span></div>
+                <div class="modal-info-row"><span class="modal-label">Chain:</span> <span id="balance-modal-chain" class="modal-value"></span></div>
+                <div class="modal-info-row"><span class="modal-label">Balance:</span> <span id="balance-modal-balance" class="modal-value"></span></div>
+            </div>
+            <p id="balance-modal-subtext" class="modal-subtext"></p>
+        </div>
+    </div>
+
+    <!-- Fund Wallet Modal -->
+    <div id="fund-wallet-modal" class="modal-box p-8 hidden">
+        <div class="modal-close-button" onclick="closeAllModals()">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <div class="flex flex-col items-center gap-5 text-center">
+            <h2 class="modal-title">Fund Your Wallet</h2>
+            <div class="w-full space-y-3">
+                 <div class="modal-info-row"><span class="modal-label">Address:</span> <span id="fund-modal-address" class="modal-value"></span></div>
+                 <div class="modal-info-row"><span class="modal-label">Chain:</span> <span id="fund-modal-chain" class="modal-value"></span></div>
+                 <div class="modal-info-row"><span class="modal-label">Current Balance:</span> <span id="fund-modal-balance" class="modal-value"></span></div>
+            </div>
+            <div class="w-full text-left">
+                <label for="fund-amount" class="modal-label text-lg">Enter amount to Fund in <span id="fund-modal-currency"></span></label>
+                <input id="fund-amount" type="text" class="modal-input mt-2" placeholder="Eg-0.01">
+            </div>
+            <button class="action-button btn-fund-wallet">Fund Wallet</button>
+            <p class="modal-subtext">Funds will be transferred from your connected wallet to your smart contract wallet. Make sure you're on the right chain</p>
+        </div>
+    </div>
+
+    <!-- Withdraw Funds Modal -->
+    <div id="withdraw-modal" class="modal-box p-8 hidden">
+        <div class="modal-close-button" onclick="closeAllModals()">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </div>
+        <div class="flex flex-col items-center gap-5 text-center">
+            <h2 class="modal-title">Withdraw Funds</h2>
+            <div class="w-full space-y-3">
+                 <div class="modal-info-row"><span class="modal-label">Address:</span> <span id="withdraw-modal-address" class="modal-value"></span></div>
+                 <div class="modal-info-row"><span class="modal-label">Chain:</span> <span id="withdraw-modal-chain" class="modal-value"></span></div>
+                 <div class="modal-info-row"><span class="modal-label">Current Balance:</span> <span id="withdraw-modal-balance" class="modal-value"></span></div>
+            </div>
+            <div class="w-full text-left">
+                <label for="withdraw-amount" class="modal-label text-lg">Enter Withdrawal Amount in <span id="withdraw-modal-currency"></span></label>
+                <input id="withdraw-amount" type="text" class="modal-input mt-2" placeholder="Eg-0.01">
+            </div>
+            <button class="action-button btn-withdraw">↑ Withdraw</button>
+            <p class="modal-subtext">Withdrawals will send funds from your smart contract wallet back to your connected wallet. Make sure you're on the right chain</p>
+        </div>
+    </div>
+
+    <script>
+        const chainData = {
+            polygon: { name: 'Polygon', currency: 'MATIC', logo: 'https://placehold.co/24x24/8A44E6/FFFFFF?text=P' },
+            ethereum: { name: 'Ethereum', currency: 'ETH', logo: 'https://placehold.co/24x24/627EEA/FFFFFF?text=E' },
+            avalanche: { name: 'Avalanche', currency: 'AVAX', logo: 'https://placehold.co/24x24/E84142/FFFFFF?text=A' },
+            base: { name: 'Base', currency: 'ETH', logo: 'https://placehold.co/24x24/0052FF/FFFFFF?text=B' }
+        };
+
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const viewBalanceModal = document.getElementById('view-balance-modal');
+        const fundWalletModal = document.getElementById('fund-wallet-modal');
+        const withdrawModal = document.getElementById('withdraw-modal');
+        const allModals = [viewBalanceModal, fundWalletModal, withdrawModal];
+
+        function deployWallet(chainId) {
+            const chainContainer = document.getElementById(`chain-${chainId}`);
+            if (!chainContainer) return;
+
+            const statusContainer = chainContainer.querySelector('.status-container');
+            const addressContainer = chainContainer.querySelector('.address-container');
+            const addressText = addressContainer.querySelector('.address-text');
+            const buttonsContainer = chainContainer.querySelector('.buttons-container');
+            
+            statusContainer.innerHTML = `<span class="label-text">Status:</span><span class="status-badge status-deployed">✔ Deployed</span>`;
+            const mockAddress = '0x' + [...Array(4)].map(() => Math.floor(Math.random() * 0xff).toString(16).padStart(2, '0')).join('') + '...' + [...Array(4)].map(() => Math.floor(Math.random() * 0xff).toString(16).padStart(2, '0')).join('');
+            addressText.textContent = mockAddress;
+            addressContainer.classList.remove('hidden');
+            addressContainer.classList.add('flex');
+            
+            const currency = chainData[chainId]?.currency || 'Tokens';
+            const balance = (Math.random() * 20).toFixed(2);
+            const chainName = chainData[chainId]?.name || 'Unknown Chain';
+
+            buttonsContainer.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                    <button class="action-button btn-view-balance" onclick="openViewBalanceModal('${chainName}', '${mockAddress}', '${balance} ${currency}')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>View Balance</button>
+                    <button class="action-button btn-fund-wallet" onclick="openFundModal('${chainName}', '${mockAddress}', '${balance} ${currency}')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M21 12a9 9 0 1 1-18 0"/></svg>Fund Wallet</button>
+                    <button class="action-button btn-withdraw" onclick="openWithdrawModal('${chainName}', '${mockAddress}', '${balance} ${currency}')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V7"/><path d="m5 12 7-7 7 7"/></svg>Withdraw</button>
+                </div>
+            `;
+        }
+        
+        function openViewBalanceModal(chain, address, balance) {
+            document.getElementById('balance-modal-address').textContent = address;
+            document.getElementById('balance-modal-chain').innerHTML = `<img src="${chainData[chain.toLowerCase()]?.logo}" alt="${chain} logo" /> ${chain}`;
+            document.getElementById('balance-modal-balance').textContent = balance;
+            document.getElementById('balance-modal-subtext').textContent = `This is the available amount in your smart contract wallet on ${chain}.`;
+            modalBackdrop.classList.remove('hidden');
+            viewBalanceModal.classList.remove('hidden');
+        }
+
+        function openFundModal(chain, address, balance) {
+            document.getElementById('fund-modal-address').textContent = address;
+            document.getElementById('fund-modal-chain').innerHTML = `<img src="${chainData[chain.toLowerCase()]?.logo}" alt="${chain} logo" /> ${chain}`;
+            document.getElementById('fund-modal-balance').textContent = balance;
+            document.getElementById('fund-modal-currency').textContent = chainData[chain.toLowerCase()]?.currency || 'Tokens';
+            modalBackdrop.classList.remove('hidden');
+            fundWalletModal.classList.remove('hidden');
+        }
+        
+        function openWithdrawModal(chain, address, balance) {
+            document.getElementById('withdraw-modal-address').textContent = address;
+            document.getElementById('withdraw-modal-chain').innerHTML = `<img src="${chainData[chain.toLowerCase()]?.logo}" alt="${chain} logo" /> ${chain}`;
+            document.getElementById('withdraw-modal-balance').textContent = balance;
+            document.getElementById('withdraw-modal-currency').textContent = chainData[chain.toLowerCase()]?.currency || 'Tokens';
+            modalBackdrop.classList.remove('hidden');
+            withdrawModal.classList.remove('hidden');
+        }
+
+        function closeAllModals() {
+            modalBackdrop.classList.add('hidden');
+            allModals.forEach(modal => modal.classList.add('hidden'));
+        }
+
+    </script>
+</body>
+</html>
