@@ -38,4 +38,34 @@ router.get("/:testator", async (req, res) => {
   }
 });
 
+router.delete("/:testator", async (req, res) => {
+  try {
+    const { testator } = req.params;
+
+    if (!testator) {
+      return res.status(400).json({ error: "Testator address is required" });
+    }
+
+    // Find and delete the will by testator address
+    const deletedWill = await Will.findOneAndDelete({ testator });
+
+    if (!deletedWill) {
+      return res.status(404).json({ error: "Will not found for this testator" });
+    }
+
+    res.status(200).json({ 
+      message: "Will deleted successfully", 
+      deletedWill: {
+        testator: deletedWill.testator,
+        beneficiariesCount: deletedWill.beneficiaries.length,
+        deletedAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error("Error deleting will:", error);
+    res.status(500).json({ error: "Failed to delete will" });
+  }
+});
+
+
 export default router

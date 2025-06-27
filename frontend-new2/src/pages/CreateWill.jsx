@@ -1098,6 +1098,8 @@ const CreateWill = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(willObject),
       });
+      
+      console.log("willObject", willObject);
 
       if (!res.ok) {
         const errorText = await res.text();
