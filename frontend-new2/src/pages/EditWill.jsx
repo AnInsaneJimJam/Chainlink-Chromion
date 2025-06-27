@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ethers } from "ethers";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -175,6 +175,22 @@ const EditWill = () => {
     );
   };
 
+  // Check if allocations are valid (don't exceed 100% for any chain)
+  const isAllocationValid = () => {
+    return Object.keys(wallets).every(chainKey => {
+      const total = getTotalAllocations(chainKey);
+      return total <= 100;
+    });
+  };
+
+  // Get chains that exceed 100%
+  const getInvalidChains = () => {
+    return Object.keys(wallets).filter(chainKey => {
+      const total = getTotalAllocations(chainKey);
+      return total > 100;
+    });
+  };
+
   const editWill = async (_beneficiaries, _testatorAddr) => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -203,6 +219,14 @@ const EditWill = () => {
   };
 
   const handleUpdateWill = async () => {
+    // Check allocation validity before proceeding
+    if (!isAllocationValid()) {
+      const invalidChains = getInvalidChains();
+      const chainNames = invalidChains.map(chain => chainToSymbol[chain]).join(', ');
+      alert(`Cannot update will: Total allocation exceeds 100% for ${chainNames}. Please adjust allocations.`);
+      return;
+    }
+
     const willObject = {
       testator: walletAddress,
       beneficiaries: beneficiaries.map((b) => ({
@@ -289,6 +313,22 @@ const EditWill = () => {
 
         {status && <p className="text-center text-gray-500 mb-4">{status}</p>}
 
+        {/* Allocation Warning */}
+        {!isAllocationValid() && (
+          <Card className="p-4 mb-6 border-red-300 bg-red-50">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertTriangle className="w-5 h-5" />
+              <h3 className="font-semibold">Allocation Error</h3>
+            </div>
+            <p className="text-red-700 mt-2">
+              Total allocation exceeds 100% for: {getInvalidChains().map(chain => chainToSymbol[chain]).join(', ')}
+            </p>
+            <p className="text-red-600 text-sm mt-1">
+              Please adjust allocations before updating your will.
+            </p>
+          </Card>
+        )}
+
         <div className="grid gap-6">
           {Object.entries(wallets).map(([chainKey, address]) => (
             <Card key={chainKey} className="p-4 border border-gray-300">
@@ -353,23 +393,30 @@ const EditWill = () => {
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(wallets).map(([chainKey]) => (
-                    <div key={chainKey}>
-                      <label className="text-sm font-medium text-gray-700">
-                        {chainToSymbol[chainKey]} Allocation (%) — Total: {getTotalAllocations(chainKey)}%
-                      </label>
-                      <Input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={b.allocations[chainKey] || ""}
-                        onChange={(e) =>
-                          updateBeneficiary(b.id, "allocation", e.target.value, chainKey)
-                        }
-                        placeholder={`% of ${chainToSymbol[chainKey]}`}
-                      />
-                    </div>
-                  ))}
+                  {Object.entries(wallets).map(([chainKey]) => {
+                    const totalAllocation = getTotalAllocations(chainKey);
+                    const isOverAllocation = totalAllocation > 100;
+                    
+                    return (
+                      <div key={chainKey}>
+                        <label className={`text-sm font-medium ${isOverAllocation ? 'text-red-700' : 'text-gray-700'}`}>
+                          {chainToSymbol[chainKey]} Allocation (%) — Total: {totalAllocation}%
+                          {isOverAllocation && <span className="text-red-600 ml-1">⚠️</span>}
+                        </label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={b.allocations[chainKey] || ""}
+                          onChange={(e) =>
+                            updateBeneficiary(b.id, "allocation", e.target.value, chainKey)
+                          }
+                          placeholder={`% of ${chainToSymbol[chainKey]}`}
+                          className={isOverAllocation ? 'border-red-300 focus:border-red-500' : ''}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </Card>
             ))
@@ -379,8 +426,8 @@ const EditWill = () => {
         <div className="mt-10 flex justify-end">
           <Button
             onClick={handleUpdateWill}
-            className="bg-blue-600 text-white hover:bg-blue-700"
-            disabled={beneficiaries.length === 0}
+            className="bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={beneficiaries.length === 0 || !isAllocationValid()}
           >
             Update Will (Save to Backend + Chain)
           </Button>

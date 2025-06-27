@@ -74,8 +74,8 @@ contract Will is Ownable, AutomationCompatibleInterface {
 
     ////////////////////////// CONSTANTS ////////////////////////////////////
 
-    uint256 public constant MIN_INITIATOR_BOND = 0.1 ether;
-    uint256 public constant MIN_CHALLENGE_BOND = 0.01 ether;
+    uint256 public constant MIN_INITIATOR_BOND = 0.001 ether;
+    uint256 public constant MIN_CHALLENGE_BOND = 0.001 ether;
     uint256 public constant CHALLENGE_DURATION = 10 days;
     uint256 public constant CONTRACT_FEE = 0.01 ether;
 
@@ -397,6 +397,10 @@ contract Will is Ownable, AutomationCompatibleInterface {
     }
     function getVerificationStatus(address _testator) external view returns (Status) {
     return s_verificationStatus[_testator];
+    }
+
+    function getChallengeEndTime(address _testator) external view returns (uint256) {
+    return s_challenges[_testator].endTime;
     }
     
     function getTestatorName(address _testator) external view returns (string memory) {
