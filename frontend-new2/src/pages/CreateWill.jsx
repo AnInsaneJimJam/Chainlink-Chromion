@@ -902,7 +902,6 @@
 // };
 
 // export default CreateWill;
-
 import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ethers } from "ethers";
@@ -1051,6 +1050,26 @@ const CreateWill = () => {
     );
   };
 
+  const validateAllocations = () => {
+    const errors = [];
+    
+    // Check if all beneficiaries have addresses
+    const missingAddresses = beneficiaries.some(b => !b.address.trim());
+    if (missingAddresses) {
+      errors.push("All beneficiaries must have wallet addresses.");
+    }
+
+    // Check if total allocations for each chain don't exceed 100%
+    Object.keys(wallets).forEach(chainKey => {
+      const total = getTotalAllocations(chainKey);
+      if (total > 100) {
+        errors.push(`Total allocation for ${chainToSymbol[chainKey]} exceeds 100% (current: ${total}%)`);
+      }
+    });
+
+    return errors;
+  };
+
   const createWill = async (_beneficiaries, _testatorAddr) => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -1079,6 +1098,19 @@ const CreateWill = () => {
   };
 
   const handleSaveWill = async () => {
+    // Validate allocations before saving
+    const validationErrors = validateAllocations();
+    if (validationErrors.length > 0) {
+      alert("Please fix the following errors:\n\n" + validationErrors.join("\n"));
+      return;
+    }
+
+    // Validate testator info
+    if (!testatorName.trim() || !yearOfBirth.trim()) {
+      alert("Please provide both testator name and year of birth.");
+      return;
+    }
+
     const willObject = {
       testator: walletAddress,
       beneficiaries: beneficiaries.map((b) => ({
@@ -1208,23 +1240,30 @@ const CreateWill = () => {
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(wallets).map(([chainKey]) => (
-                  <div key={chainKey}>
-                    <label className="text-sm font-medium text-gray-700">
-                      {chainToSymbol[chainKey]} Allocation (%) — Total: {getTotalAllocations(chainKey)}%
-                    </label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={b.allocations[chainKey] || ""}
-                      onChange={(e) =>
-                        updateBeneficiary(b.id, "allocation", e.target.value, chainKey)
-                      }
-                      placeholder={`% of ${chainToSymbol[chainKey]}`}
-                    />
-                  </div>
-                ))}
+                {Object.entries(wallets).map(([chainKey]) => {
+                  const totalAllocation = getTotalAllocations(chainKey);
+                  const isOverAllocated = totalAllocation > 100;
+                  
+                  return (
+                    <div key={chainKey}>
+                      <label className={`text-sm font-medium ${isOverAllocated ? 'text-red-600' : 'text-gray-700'}`}>
+                        {chainToSymbol[chainKey]} Allocation (%) — Total: {totalAllocation}%
+                        {isOverAllocated && <span className="ml-1">⚠️ Exceeds 100%</span>}
+                      </label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={b.allocations[chainKey] || ""}
+                        onChange={(e) =>
+                          updateBeneficiary(b.id, "allocation", e.target.value, chainKey)
+                        }
+                        placeholder={`% of ${chainToSymbol[chainKey]}`}
+                        className={isOverAllocated ? "border-red-500" : ""}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </Card>
           ))}
