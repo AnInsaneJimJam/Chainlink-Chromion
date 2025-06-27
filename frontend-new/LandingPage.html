@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InheritChain - Digital Inheritance with Blockchain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+        Figma Specification Styles (Responsive)
+        ========================================
+        This CSS is generated from the detailed Figma 
+        specifications, with responsiveness adjustments.
+        */
+
+        /* Main Body & Background */
+        body {
+            position: relative;
+            font-family: 'Inter', sans-serif; /* Default font */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        /* NEW: Fixed container for all background layers */
+        .fixed-background {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background: radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%);
+            z-index: 0;
+            overflow: hidden; /* Contains the oversized pseudo-elements */
+        }
+
+        /* Background Hue Layer (moved to fixed-background) */
+        .fixed-background::before {
+            content: '';
+            position: absolute;
+            width: 150vmax; /* Responsive sizing */
+            height: 150vmax;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-9.478deg);
+            background: #CDEFFF;
+            mix-blend-mode: hue;
+        }
+
+        /* Background Logo Layer (moved to fixed-background) */
+        .fixed-background::after {
+            content: '';
+            position: absolute;
+            width: 150vmax; /* Responsive sizing */
+            height: 150vmax;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30.74deg);
+            background: url('https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg') lightgray 50% / cover no-repeat;
+            opacity: 0.25;
+            box-shadow: 0px 0px 114.717px 0px #CDEFFF;
+        }
+        
+        .main-content {
+            position: relative;
+            z-index: 2; /* Ensure content is above background layers */
+        }
+
+        /* Typography from Specs - base sizes for desktop */
+        .font-clash { font-family: 'Clash Display', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+
+        .heading-1 {
+            color: #25292A;
+            font-size: clamp(40px, 5.5vw, 79px); /* Responsive font size */
+            font-weight: 600;
+            line-height: 1.1;
+        }
+        .heading-1-blue {
+            color: #0469AB;
+        }
+
+        .subheading {
+            color: #767676;
+            font-size: clamp(16px, 1.5vw, 22px); /* Responsive font size */
+            font-weight: 500;
+        }
+
+        .stats-number {
+            color: #25292A;
+            font-size: clamp(32px, 3vw, 40px); /* Responsive font size */
+            font-weight: 600;
+        }
+        
+        .stats-label {
+            color: #767676;
+            font-size: clamp(16px, 1.5vw, 22px); /* Responsive font size */
+            font-weight: 500;
+        }
+        
+        /* Action Card Styles */
+        .action-card {
+            width: 100%;
+            max-width: 460px; /* Max width from spec */
+            min-height: 276px; /* Min height from spec */
+            border-radius: 25px;
+            border: 2px solid rgba(4, 105, 171, 0.50);
+            background: rgba(255, 255, 255, 0.34);
+            box-shadow: 4px 4px 4px 0px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(25px);
+            opacity: 0.8;
+        }
+
+        .card-icon-container {
+            width: 62px;
+            height: 62px;
+            background-color: #0167AF;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-title-prefix {
+            color: #25292A;
+            font-size: clamp(28px, 2.5vw, 35px); /* Responsive font size */
+            font-weight: 500;
+        }
+
+        .card-title-main {
+            color: #07AAF4;
+            font-size: clamp(28px, 2.5vw, 35px); /* Responsive font size */
+            font-weight: 500;
+        }
+        
+        .card-body-text {
+            color: #767676;
+            font-size: clamp(16px, 1.4vw, 20px); /* Responsive font size */
+            font-weight: 500;
+        }
+        
+        .card-cta {
+            color: #146397;
+            font-size: clamp(18px, 1.6vw, 24px); /* Responsive font size */
+            font-weight: 600;
+        }
+        
+        /* "Why Choose Us" Section Styles */
+        .why-us-title {
+            color: #25292A;
+            font-size: clamp(32px, 3vw, 40px); /* Responsive font size */
+            font-weight: 600;
+        }
+        
+        .feature-title {
+            color: #25292A;
+            font-size: clamp(20px, 1.8vw, 26px); /* Responsive font size */
+            font-weight: 500;
+        }
+        
+        .feature-subheading {
+            color: #767676;
+            font-size: clamp(16px, 1.4vw, 20px); /* Responsive font size */
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-background"></div>
+
+    <div class="main-content min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
+        <div class="w-full max-w-7xl mx-auto">
+
+            <!-- Hero Section -->
+            <header class="text-center">
+                <h1 class="font-clash heading-1">DIGITAL INHERITANCE WITH</h1>
+                <h2 class="font-clash heading-1 heading-1-blue">BLOCKCHAIN</h2>
+                <p class="font-inter subheading mt-4 max-w-4xl mx-auto">Secure your digital assets for your loved ones. Create tamper-proof wills and ensure seamless asset transfer when it matters most.</p>
+                <div class="mt-8 flex justify-center items-center gap-8 sm:gap-16">
+                    <div class="text-center">
+                        <p class="font-clash stats-number">100%</p>
+                        <p class="font-inter stats-label">Secure</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="font-clash stats-number">24/7</p>
+                        <p class="font-inter stats-label">Available</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="font-clash stats-number">0</p>
+                        <p class="font-inter stats-label">Intermediaries</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Action Cards Section -->
+            <main class="flex flex-col lg:flex-row justify-center items-center gap-8 my-8 lg:my-10">
+                <!-- Testator Card -->
+                <div class="action-card p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-4">
+                            <div class="card-icon-container">
+                                <img src="testator.png" alt="Testator Icon" class="w-10 h-10">
+                            </div>
+                            <h3 class="font-clash">
+                                <span class="card-title-prefix">I'm a </span>
+                                <span class="card-title-main">Testator</span>
+                            </h3>
+                        </div>
+                        <p class="font-inter card-body-text mt-4">Create and manage your digital will. Distribute your assets to your beneficiaries according to your wishes.</p>
+                    </div>
+                    <a href="#" class="font-inter card-cta flex items-center mt-4">Create Will →</a>
+                </div>
+
+                <!-- Beneficiary Card -->
+                <div class="action-card p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-4">
+                            <div class="card-icon-container">
+                                <img src="beneficiary.png" alt="Beneficiary Icon" class="w-10 h-10">
+                            </div>
+                            <h3 class="font-clash">
+                                <span class="card-title-prefix">I'm a </span>
+                                <span class="card-title-main">Beneficiary</span>
+                            </h3>
+                        </div>
+                        <p class="font-inter card-body-text mt-4">View wills where you are named as a beneficiary. Track status and initiate inheritance processes.</p>
+                    </div>
+                    <a href="#" class="font-inter card-cta flex items-center mt-4">View Inheritances →</a>
+                </div>
+            </main>
+
+            <!-- Why Choose Us Section -->
+            <section class="text-center pb-8">
+                <h3 class="font-clash why-us-title">Why Choose InheritChain?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+                    <!-- Feature 1 -->
+                    <div class="flex flex-col items-center text-center">
+                        <div class="card-icon-container mb-3"><img src="secure and immutable.png" alt="Secure Icon" class="w-10 h-10"></div>
+                        <h4 class="font-clash feature-title">Secure & Immutable</h4>
+                        <p class="font-inter feature-subheading max-w-xs mx-auto">Your will is stored on blockchain, making it tamper-proof and permanently accessible.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="flex flex-col items-center text-center">
+                        <div class="card-icon-container mb-3"><img src="easy management.png" alt="Management Icon" class="w-10 h-10"></div>
+                        <h4 class="font-clash feature-title">Easy Management</h4>
+                        <p class="font-inter feature-subheading max-w-xs mx-auto">Simple interface to create, edit, and manage your digital inheritance plans.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="flex flex-col items-center text-center">
+                        <div class="card-icon-container mb-3"><img src="automated transfer.png" alt="Transfer Icon" class="w-10 h-10"></div>
+                        <h4 class="font-clash feature-title">Automated Transfer</h4>
+                        <p class="font-inter feature-subheading max-w-xs mx-auto">Assets are automatically transferred to beneficiaries when conditions are met.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</body>
+</html>
