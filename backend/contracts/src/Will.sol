@@ -25,9 +25,11 @@
 
 pragma solidity ^0.8.19;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
 // Interface to communicate with the Functions Consumer contract
 import {IGettingStartedFunctionsConsumer} from "./IGettingStartedFunctionsConsumer.sol";
+import {AutomationCompatibleInterface} from
+    "../lib/chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 
 /**
  * @title A Digital Will Contract with a Challenge Period Verification Method
@@ -36,7 +38,7 @@ import {IGettingStartedFunctionsConsumer} from "./IGettingStartedFunctionsConsum
  * It is designed to be paired with an off-chain oracle for dispute resolution.
  * @dev The will's sensitive details are stored off-chain. This contract only manages the verification trigger.
  */
-contract Will is Ownable {
+contract Will is Ownable, AutomationCompatibleInterface {
     ///////////////////////// ERRORS //////////////////////////////////////
     error Will_WillAlreadyCreated();
     error Will_WillDoesNotExist();
@@ -91,6 +93,9 @@ contract Will is Ownable {
     mapping(address => string) private s_testatorName; // Testator -> Challenge Info
     mapping(address => string) public s_testatorYearOfBirth; // Testator -> Year of Birth
 
+     address[] private s_activeChallengeTestators;
+
+
     ////////////////////// EVENTS ///////////////////////////////////////
 
     event WillCreated(address indexed testator, bytes32 indexed willHash);
@@ -102,6 +107,7 @@ contract Will is Ownable {
     event WillVerified(address indexed testator);
     event TestatorNameUpdated(address indexed testator, string newName);
     event TestatorInfoUpdated(address indexed testator, string name, string yearOfBirth);
+     event UpkeepFinalizedWill(address indexed testator);
 
     modifier onlyTestator() {
         if (!s_willExists[msg.sender]) revert Will_WillDoesNotExist();
@@ -207,6 +213,8 @@ contract Will is Ownable {
         challenge.initiator = msg.sender;
         challenge.initiatorBond = msg.value;
         challenge.endTime = block.timestamp + CHALLENGE_DURATION;
+        s_activeChallengeTestators.push(_testator);
+
 
         emit ExecutionInitiated(_testator, msg.sender, msg.value, challenge.endTime);
     }
@@ -240,7 +248,7 @@ contract Will is Ownable {
         emit ExecutionChallenged(_testator, msg.sender, msg.value);
     }
 
-    function finalizeExecution(address _testator) external {
+    function finalizeExecution(address _testator) public {
         if (s_verificationStatus[_testator] != Status.ChallengePeriodActive) {
             revert Will_VerificationNotInCorrectState(s_verificationStatus[_testator]);
         }
@@ -268,7 +276,57 @@ contract Will is Ownable {
 
         emit WillVerified(_testator);
         delete s_challenges[_testator];
+        _removeTestatorFromActive(_testator);
+
     }
+
+    // --- AUTOMATION LOGIC ---
+
+    /**
+     * @notice This is the function that the Chainlink Automation nodes call off-chain to check if
+     * any work needs to be done.
+     * @dev It iterates through the list of wills in an active challenge period and checks their timers.
+     * @return upkeepNeeded A boolean to indicate if performUpkeep should be called.
+     * @return performData The data to be passed to performUpkeep, containing the testator address.
+     */
+    function checkUpkeep(bytes calldata /* checkData */)
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory performData)
+    {
+        upkeepNeeded = false;
+        performData = "";
+        for (uint256 i = 0; i < s_activeChallengeTestators.length; i++) {
+            address testator = s_activeChallengeTestators[i];
+            if (s_verificationStatus[testator] == Status.ChallengePeriodActive && block.timestamp > s_challenges[testator].endTime) {
+                upkeepNeeded = true;
+                performData = abi.encode(testator);
+                break; // Found one, no need to check further
+            }
+        }
+        return (upkeepNeeded, performData);
+    }
+
+    /**
+     * @notice This is the function that the Chainlink Automation nodes call on-chain when checkUpkeep returns true.
+     * @dev It calls the finalizeExecution function for the testator address passed in performData.
+     */
+    function performUpkeep(bytes calldata performData) external override {
+        address testator = abi.decode(performData, (address));
+        finalizeExecution(testator);
+        emit UpkeepFinalizedWill(testator);
+    }
+
+    function _removeTestatorFromActive(address _testator) internal {
+    for (uint256 i = 0; i < s_activeChallengeTestators.length; i++) {
+        if (s_activeChallengeTestators[i] == _testator) {
+            s_activeChallengeTestators[i] = s_activeChallengeTestators[s_activeChallengeTestators.length - 1];
+            s_activeChallengeTestators.pop();
+            break;
+        }
+    }
+}
 
     /**
      * @notice Resolves a dispute after a challenge period ends with challengers.
@@ -336,5 +394,12 @@ contract Will is Ownable {
             if (beneficiaries[i] == _user) return true;
         }
         return false;
+    }
+    function getVerificationStatus(address _testator) external view returns (Status) {
+    return s_verificationStatus[_testator];
+    }
+    
+    function getTestatorName(address _testator) external view returns (string memory) {
+    return s_testatorName[_testator];
     }
 }
