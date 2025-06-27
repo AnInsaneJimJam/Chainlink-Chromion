@@ -912,29 +912,785 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 
 // --- Contract Info ---
-const CONTRACT_ADDRESS = "0x076af07022a92cCFdAF1aB6CA42AfA9Ed0360097";
+const CONTRACT_ADDRESS = "0x910187850ed335706d3393815a0ec1f84ac6e958";
 const CONTRACT_ABI = [
-  {
-    inputs: [
-      { internalType: "address[]", name: "_beneficiaries", type: "address[]" },
-      { internalType: "bytes32", name: "_willHash", type: "bytes32" },
-    ],
-    name: "createWill",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "string", name: "_name", type: "string" },
-      { internalType: "string", name: "_yearOfBirth", type: "string" },
-    ],
-    name: "setTestatorInfo",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-];
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			}
+		],
+		"name": "challengeWillExecution",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "_beneficiaries",
+				"type": "address[]"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_willHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "createWill",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address[]",
+				"name": "_newBeneficiaries",
+				"type": "address[]"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_newWillHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "editWill",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			}
+		],
+		"name": "finalizeExecution",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "OwnableInvalidOwner",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "OwnableUnauthorizedAccount",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_AlreadyChallenged",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_ChallengePeriodNotOver",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_ChallengePeriodOver",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_FunctionsConsumerNotSet",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_IncorrectBondAmount",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_NoActiveChallenge",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_NotABeneficiary",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_TestatorInfoNotSet",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_TransferFailed",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_VerificationAlreadyInProgressOrCompleted",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "enum Will.Status",
+				"name": "currentStatus",
+				"type": "uint8"
+			}
+		],
+		"name": "Will_VerificationNotInCorrectState",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_WillAlreadyCreated",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "Will_WillDoesNotExist",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "wasInitiationCorrect",
+				"type": "bool"
+			}
+		],
+		"name": "DisputeResolved",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "challenger",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "bond",
+				"type": "uint256"
+			}
+		],
+		"name": "ExecutionChallenged",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "initiator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "bond",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "endTime",
+				"type": "uint256"
+			}
+		],
+		"name": "ExecutionInitiated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "initiator",
+				"type": "address"
+			}
+		],
+		"name": "ExecutionSlashed",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			}
+		],
+		"name": "initiateWillExecution",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "performData",
+				"type": "bytes"
+			}
+		],
+		"name": "performUpkeep",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "_wasInitiationCorrect",
+				"type": "bool"
+			}
+		],
+		"name": "resolveDispute",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_consumerAddress",
+				"type": "address"
+			}
+		],
+		"name": "setFunctionsConsumer",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint64",
+				"name": "_subscriptionId",
+				"type": "uint64"
+			}
+		],
+		"name": "setFunctionsSubscriptionId",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_yearOfBirth",
+				"type": "string"
+			}
+		],
+		"name": "setTestatorInfo",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "yearOfBirth",
+				"type": "string"
+			}
+		],
+		"name": "TestatorInfoUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "newName",
+				"type": "string"
+			}
+		],
+		"name": "TestatorNameUpdated",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			}
+		],
+		"name": "UpkeepFinalizedWill",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "willHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "WillCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "newWillHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "WillEdited",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "testator",
+				"type": "address"
+			}
+		],
+		"name": "WillVerified",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "CHALLENGE_DURATION",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"name": "checkUpkeep",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "upkeepNeeded",
+				"type": "bool"
+			},
+			{
+				"internalType": "bytes",
+				"name": "performData",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "CONTRACT_FEE",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "functionsConsumerAddress",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "functionsSubscriptionId",
+		"outputs": [
+			{
+				"internalType": "uint64",
+				"name": "",
+				"type": "uint64"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			}
+		],
+		"name": "getBeneficiaries",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			}
+		],
+		"name": "getChallengeEndTime",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			}
+		],
+		"name": "getTestatorName",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_beneficiary",
+				"type": "address"
+			}
+		],
+		"name": "getTestatorsForBeneficiary",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_testator",
+				"type": "address"
+			}
+		],
+		"name": "getVerificationStatus",
+		"outputs": [
+			{
+				"internalType": "enum Will.Status",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MIN_CHALLENGE_BOND",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MIN_INITIATOR_BOND",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "s_testatorYearOfBirth",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "s_verificationStatus",
+		"outputs": [
+			{
+				"internalType": "enum Will.Status",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "s_willExists",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "s_willHashes",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+
 
 const chainToSymbol = {
   polygon: "MATIC",
@@ -1077,17 +1833,17 @@ const CreateWill = () => {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
       const newBeneficiaries = _beneficiaries.map((b) => b.address);
-
+      
       const res = await fetch(`http://localhost:5000/api/wills/${_testatorAddr}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
-
       const data = await res.json();
       const jsonStr = JSON.stringify(data);
       const bytes = ethers.toUtf8Bytes(jsonStr);
       const createdWillHash = ethers.keccak256(bytes);
-
+      console.log("Will hash:", createdWillHash);
+      console.log("Beneficiaries:", newBeneficiaries);
       const tx = await contract.createWill(newBeneficiaries, createdWillHash);
       await tx.wait();
 
@@ -1274,7 +2030,7 @@ const CreateWill = () => {
             onClick={handleSaveWill}
             className="bg-blue-600 text-white hover:bg-blue-700"
           >
-            Create Will (Save to Backend + Chain)
+            Create Will
           </Button>
         </div>
       </div>
