@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Wallet - InheritChain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+        Base Styles (Reused from Landing Page)
+        ======================================== */
+        body {
+            position: relative;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent all scrolling */
+        }
+
+        .fixed-background {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            background: radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%);
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .fixed-background::before {
+            content: '';
+            position: absolute;
+            width: 150vmax;
+            height: 150vmax;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-9.478deg);
+            background: #CDEFFF;
+            mix-blend-mode: hue;
+        }
+
+        .fixed-background::after {
+            content: '';
+            position: absolute;
+            width: 150vmax;
+            height: 150vmax;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30.74deg);
+            background: url('https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg') lightgray 50% / cover no-repeat;
+            opacity: 0.25;
+            box-shadow: 0px 0px 114.717px 0px #CDEFFF;
+        }
+        
+        .main-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ========================================
+        Connect Wallet Page Specific Styles
+        ======================================== */
+        .font-clash { font-family: 'Clash Display', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+
+        .page-header-text {
+            color: #25292A;
+            font-family: "Clash Display";
+            font-size: 32px;
+            font-weight: 600;
+        }
+        
+        .connect-wallet-box {
+            width: 541px;
+            height: 407px;
+            flex-shrink: 0;
+            border-radius: 25px;
+            border: 2px solid rgba(4, 105, 171, 0.50);
+            background: rgba(255, 255, 255, 0.34);
+            box-shadow: 4px 4px 4px 0px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(25px);
+            opacity: 0.8;
+        }
+
+        .wallet-icon-container {
+            width: 72px; /* Adjusted for better visuals */
+            height: 72px;
+            background-color: #0167AF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .connect-title-prefix {
+            color: #25292A;
+            font-family: "Clash Display";
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .connect-title-main {
+            color: #0469AB;
+            font-family: "Clash Display";
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .connect-subtext {
+            color: #767676;
+            font-family: 'Inter', sans-serif;
+            font-size: 22px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .connect-button {
+            width: 224px;
+            height: 48px;
+            flex-shrink: 0;
+            border-radius: 25px;
+            background: #0167AF;
+            color: #FFF;
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .connect-button:hover {
+            background: #00A6F8;
+        }
+        
+        .supported-wallets-text {
+            color: #767676;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-background"></div>
+
+    <div class="main-content min-h-screen">
+        <header class="absolute top-0 left-0 p-8 lg:p-12">
+            <div class="flex items-center gap-4">
+                <img src="logo.png" alt="InheritChain Logo" class="w-12 h-12">
+                <span class="page-header-text">InheritChain</span>
+            </div>
+        </header>
+
+        <div class="min-h-screen flex items-center justify-center">
+            <div class="connect-wallet-box p-8 flex flex-col items-center justify-around text-center">
+                
+                <div class="wallet-icon-container">
+                    <img src="Wallet.png" alt="Wallet Icon" class="w-12 h-12">
+                </div>
+
+                <h1 class="font-clash">
+                    <span class="connect-title-prefix">Connect your </span>
+                    <span class="connect-title-main">wallet</span>
+                </h1>
+
+                <p class="connect-subtext">Login to your Smart Contract Wallet<br>using your connected wallet</p>
+                
+                <button class="connect-button">
+                    Connect Wallet
+                </button>
+
+                <p class="supported-wallets-text">We support MetaMask, WalletConnect, and other Web3 wallets</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
