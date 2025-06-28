@@ -910,9 +910,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
+import SmartWalletManager from "./smartwalletmanager";
 
 // --- Contract Info ---
-const CONTRACT_ADDRESS = "0xce7085553C88BeC5Da3f1A2688b4Cf8Cd0d03dFb";
+const CONTRACT_ADDRESS = "0x1F08307D976f7fEE660886f9C40AAD8217645135";
 const CONTRACT_ABI = [
 	{
 		"inputs": [
@@ -1724,14 +1725,21 @@ const CreateWill = () => {
 			setStatus("Could not fetch wallets. Using local state.");
 		}
 	}, []);
-
+  const RPC_URLS = {
+    sepolia: "https://sepolia.infura.io/v3/YOUR_INFURA_ID", // optional, in case needed
+    polygon: "https://rpc-amoy.polygon.technology/",
+    avalanche: "https://api.avax-test.network/ext/bc/C/rpc"
+  };
 	const updateBalance = useCallback(async (chainKey, walletAddress) => {
 		try {
-			const provider = new ethers.BrowserProvider(window.ethereum);
-			const balance = await provider.getBalance(walletAddress);
+      const rpcUrl = RPC_URLS[chainKey];
+          if (!rpcUrl) throw new Error(`Unsupported chain: ${chain}`);
+      
+          const chainProvider = new ethers.JsonRpcProvider(rpcUrl);
+          const walletBalance = await chainProvider.getBalance(walletAddress);
 			setBalances((prev) => ({
 				...prev,
-				[chainKey]: ethers.formatEther(balance),
+				[chainKey]: ethers.formatEther(walletBalance),
 			}));
 		} catch (err) {
 			console.error(`Failed to fetch balance for ${chainKey}:`, err);
@@ -2033,24 +2041,34 @@ const CreateWill = () => {
 							</div>
 						</div>
 						{/* Allocation Summary Section */}
-						<div className="form-section bg-[rgba(234,246,255,0.5)] border border-[rgba(4,105,171,0.3)] rounded-[15px] backdrop-blur-[10px] p-6">
-							<h3 className="font-clash text-2xl font-semibold">Allocation Summary</h3>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-								{Object.keys(wallets).map(chainKey => {
-									const total = getTotalAllocations(chainKey);
-									const isValid = total === 100;
-									return (
-										<div
-											key={chainKey}
-											className={`allocation-summary-box rounded-lg p-4 text-center ${isValid ? 'summary-green bg-[#D5FFE6] text-[#12703D] border border-[#12703D]' : 'summary-red bg-[#FEE2E2] text-[#B91C1C] border border-[#DC2626]'}`}
-										>
-											<p className="font-semibold">{chainToSymbol[chainKey]}</p>
-											<p className="text-xl font-bold">{total}% Allocated {isValid ? '✔' : '⊗'}</p>
-										</div>
-									);
-								})}
-							</div>
-						</div>
+                <div className="form-section bg-[rgba(234,246,255,0.5)] border border-[rgba(4,105,171,0.3)] rounded-[15px] backdrop-blur-[10px] p-6">
+                  <h3 className="font-clash text-2xl font-semibold">Allocation Summary</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    {Object.keys(wallets).map(chainKey => {
+                      const total = getTotalAllocations(chainKey);
+                      const isValid = total === 100;
+                      const balance = balances[chainKey];
+
+                      return (
+                        <div
+                          key={chainKey}
+                          className={`allocation-summary-box rounded-lg p-4 text-center ${
+                            isValid
+                              ? 'summary-green bg-[#D5FFE6] text-[#12703D] border border-[#12703D]'
+                              : 'summary-red bg-[#FEE2E2] text-[#B91C1C] border border-[#DC2626]'
+                          }`}
+                        >
+                          <p className="font-semibold">{chainToSymbol[chainKey]}</p>
+                          <p className="text-xl font-bold">{total}% Allocated {isValid ? '✔' : '⊗'}</p>
+                          <p className="text-sm font-medium mt-1">
+                            Balance: {balance ? `${Number(balance).toFixed(4)} ${chainToSymbol[chainKey]}` : "Loading..."}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
 						{/* Save/Cancel Buttons */}
 						<div className="flex justify-end items-center pt-6 gap-4">
 							<button
@@ -2075,4 +2093,4 @@ const CreateWill = () => {
 	);
 };
 
-export default CreateWill;
+export default CreateWill

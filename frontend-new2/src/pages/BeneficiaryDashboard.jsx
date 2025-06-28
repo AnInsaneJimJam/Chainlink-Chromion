@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ethers } from 'ethers';
 import { FileClock, ShieldCheck, Play, ChevronsRight } from 'lucide-react';
 
-const CONTRACT_ADDRESS = "0xce7085553C88BeC5Da3f1A2688b4Cf8Cd0d03dFb";
+const CONTRACT_ADDRESS = "0x1F08307D976f7fEE660886f9C40AAD8217645135";
 const InheritanceABI = [
 	{
 		"inputs": [
