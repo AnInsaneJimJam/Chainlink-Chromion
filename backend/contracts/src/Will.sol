@@ -25,12 +25,11 @@
 
 pragma solidity ^0.8.19;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
+import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 // Interface to communicate with the Functions Consumer contract
 import {IGettingStartedFunctionsConsumer} from "./IGettingStartedFunctionsConsumer.sol";
 import {AutomationCompatibleInterface} from
-    "https://github.com/smartcontractkit/chainlink-brownie-contracts/blob/main/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
-
+    "../lib/chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 
 /**
  * @title A Digital Will Contract with a Challenge Period Verification Method
@@ -77,7 +76,7 @@ contract Will is Ownable, AutomationCompatibleInterface {
 
     uint256 public constant MIN_INITIATOR_BOND = 0.001 ether;
     uint256 public constant MIN_CHALLENGE_BOND = 0.001 ether;
-    uint256 public constant CHALLENGE_DURATION = 10 days;
+    uint256 public constant CHALLENGE_DURATION = 1 hours;
     uint256 public constant CONTRACT_FEE = 0.01 ether;
 
     //////////////////////// STATE VARIABLES ///////////////////////////////
