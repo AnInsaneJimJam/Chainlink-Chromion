@@ -1,122 +1,210 @@
-# InheritChain - Digital Inheritance DApp
+# 🪙 InheritChain — Cross-Chain Decentralized Will Execution Protocol
 
-A decentralized application for managing digital inheritance across multiple blockchain networks.
+InheritChain is a decentralized, cross-chain inheritance management system that allows a **testator** to create a legally binding, multi-chain digital will, and enables **beneficiaries** to securely claim their inheritance — with **dispute resolution**, **Chainlink-powered truth verification**, and **automated CCIP-based asset transfers** across Ethereum, Polygon, Avalanche, and more.
 
-## Features
+---
 
-- **Multi-Chain Support**: Ethereum, Solana, Base, Avalanche, Polygon
-- **Digital Will Creation**: Create and manage wills with asset distribution
-- **Beneficiary Management**: Add and manage beneficiaries with custom allocations
-- **Asset Overview**: View all digital assets across different blockchains
-- **Investigation Process**: Beneficiaries can initiate inheritance investigations
-- **Responsive Design**: Works on desktop and mobile devices
+## 🔗 Live on: Sepolia (Primary), Polygon, Avalanche
 
-## Tech Stack
+---
 
-- **Frontend**: React 18, React Router DOM
-- **Styling**: Tailwind CSS
-- **UI Components**: Radix UI primitives
-- **Icons**: Lucide React
-- **State Management**: React hooks with localStorage
-- **Build Tool**: Create React App
+## 📌 Features
 
-## Getting Started
+* **Smart Will Registry**: Create will with off-chain metadata and on-chain proof.
+* **Smart Wallet Deployment**: Deploy vaults on any supported chain to hold testator's assets.
+* **Challenge Window**: A transparent 10-day contestation window to allow dispute of false claims.
+* **Automated Finalization**: Uses Chainlink Automation to trigger execution after challenge period.
+* **Chainlink Any API**: Verifies if the testator has passed away.
+* **Chainlink CCIP**: Transfers funds to beneficiaries across chains.
+* **Multi-party Challenge Protocol**: Stake-based dispute mechanism between beneficiaries.
+* **MongoDB-Backed Off-chain Storage**: Efficient off-chain will metadata and asset records.
 
-### Prerequisites
+---
 
-- Node.js 16+ 
-- npm or yarn
+## 🧹 Architecture Overview
 
-### Installation
+```
+Frontend (React)
+   |
+   |----> WillCreator (Sepolia): Creates will → stores metadata in MongoDB → stores hash+beneficiaries on-chain
+   |
+   |----> SmartWalletManager: Deploys smart wallets on Polygon, Avalanche, Sepolia via contracts
+   |
+   |----> BeneficiaryDashboard: Shows wills involving the current user
+   |
+   |----> InheritanceActions:
+         - Initiate Inheritance (0.1 ETH stake)
+         - Challenge (0.01 ETH)
+         - View Countdown / Status
+   |
+   ↓
+Chainlink Automation — polls wills that crossed 10-day window
+   ↓
+If Challenged → Chainlink Any API → Fetch testator death status
+If Not Challenged → CCIP Transfer auto-executes
 
-1. Clone the repository:
-\`\`\`bash
-git clone <repository-url>
-cd inheritchain-dapp
-\`\`\`
+MongoDB ↔ Backend (Node.js/Express) ↔ Smart Contracts ↔ Chainlink
+```
 
-2. Install dependencies:
-\`\`\`bash
-npm install
-\`\`\`
+---
 
-3. Run the development server:
-\`\`\`bash
-npm start
-\`\`\`
+## 📝 Inheritance Workflow
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+1. **Will Creation** (Testator)
 
-## Project Structure
+   * Creates a will from Sepolia network
+   * Will object is stored in **MongoDB** with:
 
-\`\`\`
-├── public/                 # Static files
-│   ├── index.html         # HTML template
-│   ├── manifest.json      # PWA manifest
-│   └── robots.txt         # SEO robots file
-├── src/                   # Source code
-│   ├── components/        # Reusable UI components
-│   │   └── ui/           # shadcn/ui components
-│   ├── pages/            # Page components
-│   │   ├── testator/     # Testator-specific pages
-│   │   └── beneficiary/  # Beneficiary-specific pages
-│   ├── hooks/            # Custom React hooks
-│   ├── data/             # Mock data and constants
-│   ├── lib/              # Utility functions
-│   ├── App.js            # Main app component with routing
-│   ├── index.js          # React entry point
-│   └── index.css         # Global styles
-└── package.json          # Dependencies and scripts
-\`\`\`
+     * Testator address
+     * Will content hash
+     * Beneficiary details and allocations
+   * On-chain `WillContract` stores the hash and beneficiary addresses.
 
-## Key Components
+2. **Smart Wallet Deployment**
 
-### Testator Flow
-1. **Dashboard**: Overview of will status and quick actions
-2. **Create Will**: Multi-step form for creating digital wills
-3. **Edit Will**: Modify existing wills and beneficiaries
-4. **Asset Management**: View and allocate multi-chain assets
+   * From the `SmartWalletManager`, the testator deploys **smart wallets** (vaults) on multiple chains.
+   * These vaults hold assets to be distributed to beneficiaries.
+   * Mapping of `chain → smart wallet address` is saved in MongoDB.
 
-### Beneficiary Flow
-1. **Dashboard**: View inherited assets and investigation status
-2. **Investigation**: Start inheritance claim processes
-3. **Asset Details**: Detailed view of inherited assets
+3. **Initiation of Inheritance** (Any Beneficiary)
 
-## Blockchain Integration
+   * A beneficiary starts the inheritance process by staking **0.1 ETH**.
+   * Status is set to `PendingExecution`.
+   * Timestamp is recorded to enforce the **10-day challenge window**.
 
-The app supports assets across:
-- **Ethereum**: ETH + USDC
-- **Solana**: SOL + USDC  
-- **Base**: ETH + USDC
-- **Avalanche**: AVAX + USDC
-- **Polygon**: MATIC + USDC
-- **Stablecoins**: Total USDC across chains
-- **NFTs**: Cross-chain NFT collections
+4. **Challenge Phase**
 
-## Development
+   * Any other beneficiary can challenge by staking **0.01 ETH**.
+   * The testator can challenge **for free** (auto-cancels the process).
+   * Multiple challenges can be made within the 10-day window.
 
-### Available Scripts
+5. **Automation-Triggered Finalization**
 
-- `npm start` - Start development server
-- `npm run build` - Build for production
-- `npm test` - Run tests
-- `npm run eject` - Eject from Create React App
+   * After 10 days, Chainlink Automation checks each will:
 
-### Adding New Features
+     * If **no challenges**: the 0.1 ETH is returned to initiator and execution begins.
+     * If **challenges present**: a **Chainlink Any API call** is triggered.
 
-1. Create components in `src/components/` directory
-2. Add pages in `src/pages/` directory
-3. Use React Router for navigation
-4. Follow the established patterns for state management
+6. **Verification**
 
-## Contributing
+   * Chainlink Any API (external adapter or oracle) checks off-chain truth (e.g., obituary database).
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+     * If **testator is confirmed deceased**:
 
-## License
+       * Will executes.
+       * Challengers lose 0.01 ETH each, which is kept by the contract.
+     * If **testator is alive**:
 
-This project is licensed under the MIT License.
+       * Initiator loses 0.1 ETH.
+       * Challengers split it equally (minus a 0.01 ETH protocol fee).
+
+7. **Cross-Chain Inheritance Execution**
+
+   * `MainCoordinator` on Sepolia initiates a **CCIP message** to each chain.
+   * For every destination chain:
+
+     * Encodes a message: `"transfer"`, `wallet`, `to`, `amount`
+     * CCIP sends to the `LogicContractReceiver` deployed on that chain.
+
+8. **Receiver-side Logic**
+
+   * On Polygon/Avalanche:
+
+     * `LogicContractReceiver` receives the CCIP message.
+     * Extracts target wallet, beneficiary, and amount.
+     * Calls `SmartWallet.transfer(to, amount)` — transferring native tokens from vault to the beneficiary.
+
+---
+
+## ♻️ Chainlink Integrations
+
+### ✅ 1. Chainlink CCIP (Cross-Chain Interoperability Protocol)
+
+Used for **cross-chain value + instruction transfer**.
+
+* `MainCoordinator.sol` (Sepolia):
+
+  * Constructs and sends `EVM2AnyMessage`
+  * Contains: target chain selector, receiver address, ABI-encoded action
+
+* `LogicContractReceiver.sol` (Polygon, Avalanche):
+
+  * Receives CCIP payload
+  * Calls transfer on smart wallet contract on that chain
+
+### ✅ 2. Chainlink Any API
+
+Used to **verify testator death** status off-chain.
+
+* Triggered during `finalizeExecution()` if the will is challenged
+* Example API: `https://my-death-check-api.com/isDeceased?address=0x...`
+* Oracle verifies off-chain status and returns boolean
+
+### ✅ 3. Chainlink Automation
+
+Used to **trigger `finalizeExecution()`** automatically after 10-day timeout.
+
+* Registered Upkeep watches all `PendingExecution` wills
+* Executes logic:
+
+  * No challenge → proceed directly
+  * Challenge → trigger Chainlink API
+  * Updates will status + starts CCIP transfers
+
+---
+
+## 🧠 Tech Stack
+
+| Layer       | Tools                         |
+| ----------- | ----------------------------- |
+| Language    | Solidity, JavaScript          |
+| Contracts   | Hardhat                       |
+| Frontend    | React + Tailwind              |
+| Backend     | Node.js + Express             |
+| Database    | MongoDB                       |
+| Chainlink   | CCIP, Automation, Any API     |
+| EVM Chains  | Sepolia, Polygon, Avalanche   |
+| Wallet      | MetaMask                      |
+| Cross-Chain | CCIP Selector-based Messaging |
+
+---
+
+## 📂 Key Contracts
+
+| Contract                    | Role                                      |
+| --------------------------- | ----------------------------------------- |
+| `WillRegistry.sol`          | Registers wills, stores on-chain metadata |
+| `MainCoordinator.sol`       | Initiates inheritance CCIP requests       |
+| `LogicContractReceiver.sol` | Executes instructions on target chains    |
+| `SmartWallet.sol`           | Custodial vault per testator per chain    |
+| `SmartWalletFactory.sol`    | Deploys smart wallets                     |
+| `AutomationManager.sol`     | Chainlink-compatible keeper               |
+
+---
+
+## 🧪 Testing & Deployment
+
+* Hardhat used for local testnet simulation
+* Chainlink CCIP tested using Amoy + Fuji + Sepolia networks
+* MongoDB Atlas for hosted DB
+* Frontend tested with Metamask interaction flow
+
+---
+
+## 🚧 Future Work
+
+* ZK-based private challenge protocol
+* NFT-based proof of inheritance
+* Dynamic Chainlink Functions integration
+
+---
+
+## 🤝 Contributing
+
+Pull requests welcome! Please ensure PRs target a feature branch and include unit tests for Solidity functions.
+
+---
+
+## 📜 License
+
+MIT
