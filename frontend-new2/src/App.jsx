@@ -10,27 +10,13 @@ import BeneficiaryDashboard from "./pages/BeneficiaryDashboard";
 import EditWill from "./pages/EditWill";
 import CreateWill from "./pages/CreateWill";
 import NotFound from "./pages/NotFound";
-import Deploysmartwallet from "./pages/Deploysmartwallet";
-import useWalletStore from "./EtherJs/walletStore.js";
+import Deploysmartwallet from "./pages/Deploysmartwallet.jsx";
 import SmartWalletManager from "./pages/smartwalletmanager.jsx";
-import { useState } from 'react';
 import AppLayout from "./AppLayout";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-
-  const [contract, setContract] = useState(null)
-  const { provider, address, signer, isConnected } = useWalletStore()
-
-  let count = 0;
-  if (isConnected && count == 1) {
-      
-      const contractInstance = getContract(signer);
-      setContract(contractInstance);
-      count++;
-      console.log("app if couunt", contract);
-  } 
 
 
   return(
