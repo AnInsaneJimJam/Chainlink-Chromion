@@ -838,48 +838,51 @@ const SmartWalletManager = () => {
           </span>
         </div>
       </header>
-      <div className="min-h-screen relative overflow-hidden"
-      >
-      {/* Fixed Background */}
-      <div
-        className="fixed inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)",
-        }}
-      >
-        {/* Background overlays */}
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Fixed Background */}
         <div
-          className="absolute inset-0 opacity-25"
+          className="fixed inset-0 z-0"
           style={{
             background:
-              'url("https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg") lightgray 50% / cover no-repeat',
-            boxShadow: "0px 0px 114.717px 0px #CDEFFF",
+              "radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)",
           }}
-        />
-      </div>
+        >
+          {/* Background overlays */}
+          <div
+            className="absolute inset-0 opacity-25"
+            style={{
+              background:
+                'url("https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg") lightgray 50% / cover no-repeat',
+              boxShadow: "0px 0px 114.717px 0px #CDEFFF",
+            }}
+          />
+        </div>
 
-
-
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-blue-700 mb-3 tracking-tight">
+        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-24 pb-12 px-4">
+          <div className="text-center">
+            <h1
+              className="text-[#0469AB] text-4xl lg:text-[54px] font-semibold mb-8"
+              style={{ fontFamily: "Clash Display, sans-serif" }}
+            >
               Deploy Your Smart Contract Wallets
             </h1>
-
-            <p className="text-gray-600 mb-4 text-lg">
+            <p
+              className="text-[#767676] text-xl lg:text-[22px] font-medium"
+              style={{ fontFamily: "Inter, sans-serif" }}
+            >
               Please ensure you're on the correct network when funding or
               withdrawing
             </p>
-
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium shadow-sm">
-              <AlertTriangle className="w-4 h-4" />
-              Make sure your MetaMask network matches the selected chain
-            </div>
           </div>
 
+          {/* Warning Box */}
+          <div className="max-w-[741px] w-full h-11 mt-6 rounded-[10px] border-[0.5px] border-[#8F6112] bg-yellow-100 flex items-center justify-center px-4">
+            <p className="text-amber-700 text-lg lg:text-[23px] font-medium text-center">
+              Make sure your MetaMask network matches the selected chain
+            </p>
+          </div>
 
-          {/* Main Container */}
+          {/* Chain Cards */}
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
             <div className="space-y-4">
               {Object.entries(CHAIN_CONFIGS).map(([chainKey, cfg]) => {
@@ -992,6 +995,8 @@ const SmartWalletManager = () => {
             </div>
           </div>
         </div>
+
+
 
         {/* Withdraw Modal */}
         {isModalOpen && (
