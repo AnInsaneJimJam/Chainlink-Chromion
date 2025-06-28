@@ -883,120 +883,156 @@ const SmartWalletManager = () => {
           </div>
 
           {/* Chain Cards */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-            <div className="space-y-4">
-              {Object.entries(CHAIN_CONFIGS).map(([chainKey, cfg]) => {
-                const wallet = wallets[chainKey];
-                const bal = balances[chainKey];
-                const statusInfo = chainStatus[chainKey] || {};
-                const isDeployed = !!wallet;
+          <div className="space-y-6 mt-8 w-full flex flex-col items-center">
+            {Object.entries(CHAIN_CONFIGS).map(([chainKey, cfg]) => {
+              const wallet = wallets[chainKey];
+              const bal = balances[chainKey];
+              const statusInfo = chainStatus[chainKey] || {};
+              const isDeployed = !!wallet;
 
-                return (
-                  <div
-                    key={chainKey}
-                    className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-4 hover:shadow-md transition-all duration-200"
-                  >
-                    {isDeployed ? (
-                      <div className="flex items-center justify-between">
-                        {/* Left side - Chain info */}
-                        <div className="flex items-center gap-4">
-                          <ChainLogo chainKey={chainKey} config={cfg} />
-                          <div>
-                            <h3 className="font-semibold text-gray-800 text-lg">
-                              {cfg.name}
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <span>Status:</span>
-                              <StatusBadge
-                                isDeployed={isDeployed}
-                                statusInfo={statusInfo}
-                              />
-                            </div>
-                            <div className="text-sm text-gray-600 mt-1">
-                              <span>Address: </span>
-                              <a
-                                href={`${cfg.blockExplorerUrls[0]}/address/${wallet}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-mono text-blue-600 hover:text-blue-800 hover:underline"
-                              >
-                                {truncateAddress(wallet)}
-                              </a>
-                            </div>
+              return (
+                <div className="w-full max-w-[1126px] min-h-[170px] rounded-[9px] border-2 border-blue-500/50 bg-[rgba(167,217,255,0.18)] backdrop-blur-2xl opacity-89 p-6 flex items-center justify-between gap-4">
+                  {isDeployed ? (
+                    <>
+                      <div className="flex-grow flex items-center gap-6">
+                        <ChainLogo chainKey={chainKey} config={cfg} />
+                        <h2
+                          className="text-[#59595a] text-3xl font-semibold text-start"
+                          style={{ fontFamily: "Inter, sans-serif" }}
+                        >
+                          {cfg.name}
+                        </h2>
+                        <div className="info-container">
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-gray-600 text-lg font-semibold">
+                              Status:
+                            </span>
+
+                            {/* //// edit karna hai  status badge ko*/}
+                            {/* <span
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold ${
+                    isDeployed
+                      ? "border border-green-700 bg-green-100 text-green-700 shadow-md shadow-green-800/30"
+                      : "border border-amber-700 bg-amber-100 text-amber-700 shadow-md shadow-amber-800/30"
+                  }`}
+                >
+                  {isDeployed ? "✔ Deployed" : "⊗ Not Deployed"}
+                </span> */}
+                            {/* yahan tk  */}
+                            <StatusBadge
+                              isDeployed={isDeployed}
+                              statusInfo={statusInfo}
+                            />
+                          </div>
+
+                          {/* <div className="flex items-center gap-2 mt-1">
+                <span className="text-gray-600 text-lg font-semibold">
+                  Address:
+                </span>
+                <span className="text-gray-800 text-lg font-semibold">
+                  {isDeployed.address}
+                </span>
+              </div> */}
+
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-gray-600 text-lg font-semibold">
+                              Address:{" "}
+                            </span>
+                            <a
+                              href={`${cfg.blockExplorerUrls[0]}/address/${wallet}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-mono text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              {truncateAddress(wallet)}
+                            </a>
                           </div>
                         </div>
-
-                        {/* Right side - Actions */}
-                        <div className="flex items-center gap-3">
-                          <Button
-                            onClick={() => updateBalance(chainKey, wallet)}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+                      </div>
+                      <div className="buttons-container flex-shrink-0">
+                        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+                          <button
+                            onClick={() => openModal("balance", chainId)}
+                            className="w-52 h-12 bg-sky-400 hover:bg-sky-400 text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 transition-transform hover:scale-105"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye size={20} />
                             View Balance
-                          </Button>
-                          <Button
-                            onClick={() => openFundModal(chainKey, wallet)}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+                          </button>
+                          <button
+                            onClick={() => openModal("fund", chainId)}
+                            className="w-52 h-12 bg-[#0685e0] hover:bg-[#0685e0] text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 shadow-md shadow-gray-600/25 transition-transform hover:scale-105"
                           >
-                            <ArrowDown className="w-4 h-4" />
+                            <ArrowDown size={20} />
                             Fund Wallet
-                          </Button>
-                          <Button
-                            onClick={() => openWithdrawModal(chainKey, wallet)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+                          </button>
+                          <button
+                            onClick={() => openModal("withdraw", chainId)}
+                            className="w-52 h-12 bg-[#8c5cfa] hover:bg-[#8c5cfa] text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 transition-transform hover:scale-105"
                           >
-                            <ArrowUp className="w-4 h-4" />
+                            <ArrowUp size={20} />
                             Withdraw
-                          </Button>
+                          </button>
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-between">
-                        {/* Left side - Chain info */}
-                        <div className="flex items-center gap-4">
-                          <ChainLogo chainKey={chainKey} config={cfg} />
-                          <div>
-                            <h3 className="font-semibold text-gray-800 text-lg">
-                              {cfg.name}
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <span>Status:</span>
-                              <StatusBadge
-                                isDeployed={isDeployed}
-                                statusInfo={statusInfo}
-                              />
-                            </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex-grow flex items-center gap-6">
+                        <ChainLogo chainKey={chainKey} config={cfg} />
+                        <h2
+                          className="text-[#59595a] text-3xl font-semibold text-start"
+                          style={{ fontFamily: "Inter, sans-serif" }}
+                        >
+                          {cfg.name}
+                        </h2>
+                        <div className="info-container">
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-gray-600 text-lg font-semibold">
+                              Status:
+                            </span>
+
+                            {/* //// edit karna hai  status badge ko*/}
+                            {/* <span
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold ${
+                      isDeployed
+                        ? "border border-green-700 bg-green-100 text-green-700 shadow-md shadow-green-800/30"
+                        : "border border-amber-700 bg-amber-100 text-amber-700 shadow-md shadow-amber-800/30"
+                    }`}
+                  >
+                    {isDeployed ? "✔ Deployed" : "⊗ Not Deployed"}
+                  </span> */}
+                            {/* yahan tk  */}
+                            <StatusBadge
+                              isDeployed={isDeployed}
+                              statusInfo={statusInfo}
+                            />
                           </div>
                         </div>
-
-                        {/* Right side - Deploy button */}
-                        <div>
-                          <Button
-                            onClick={() => handleDeploy(chainKey)}
-                            disabled={statusInfo.type === "loading"}
-                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                          >
-                            {statusInfo.type === "loading" ? (
-                              <>
-                                <Loader className="mr-2 h-4 w-4 animate-spin" />
-                                Deploying...
-                              </>
-                            ) : (
-                              "Deploy Wallet"
-                            )}
-                          </Button>
-                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+
+                      <div className="buttons-container flex-shrink-0">
+                        <Button
+                          onClick={() => handleDeploy(chainKey)}
+                          disabled={statusInfo.type === "loading"}
+                          className="w-52 h-12 bg-[#3b8dc7] hover:bg-[#3b8dc7] text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 shadow-sm shadow-blue-900/50 transition-transform hover:scale-105"
+                        >
+                          {statusInfo.type === "loading" ? (
+                            <>
+                              <Loader className="mr-2 h-4 w-4 animate-spin" />
+                              Deploying...
+                            </>
+                          ) : (
+                            "Deploy Wallet"
+                          )}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
-
-
 
         {/* Withdraw Modal */}
         {isModalOpen && (
