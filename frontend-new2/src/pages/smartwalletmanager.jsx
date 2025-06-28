@@ -1,4 +1,3 @@
-// export default SmartWalletManager;
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,6 +93,7 @@ const SmartWalletManager = () => {
   const [isFundModalOpen, setIsFundModalOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
   const [modalData, setModalData] = useState({});
+  const [modalInputAmount, setModalInputAmount] = useState("");
 
   const getProviderAndSigner = useCallback(async () => {
     if (!window.ethereum) throw new Error("MetaMask is not installed.");
@@ -277,12 +277,11 @@ const SmartWalletManager = () => {
     try {
       await switchNetwork(chainKey);
       const { signer } = await getProviderAndSigner();
-      await (
-        await signer.sendTransaction({
-          to: walletAddress,
-          value: ethers.parseEther(fundAmount),
-        })
-      ).wait();
+      const tx = await signer.sendTransaction({
+        to: walletAddress,
+        value: ethers.parseEther(fundAmount),
+      });
+      await tx.wait();
 
       setChainStatus((ps) => ({
         ...ps,
@@ -309,7 +308,7 @@ const SmartWalletManager = () => {
     ) {
       setChainStatus((ps) => ({
         ...ps,
-        [withdrawConfig.chainKey]: {
+        [withdrawConfig?.chainKey]: {
           message: "Invalid amount.",
           type: "error",
         },
@@ -331,7 +330,8 @@ const SmartWalletManager = () => {
         smartWalletABI,
         signer,
       );
-      await (await contract.withdraw(ethers.parseEther(withdrawAmount))).wait();
+      const tx = await contract.withdraw(ethers.parseEther(withdrawAmount));
+      await tx.wait();
 
       setChainStatus((ps) => ({
         ...ps,
@@ -394,16 +394,44 @@ const SmartWalletManager = () => {
       chain: chain.name,
       chainKey,
       address: walletAddr,
-      balance: `11101111`,
+      balance: balances[chainKey] || "0",
       currency: chain.nativeCurrency.symbol,
       logo: chain.logo,
     });
     setActiveModal(type);
+    setModalInputAmount("");
   };
 
   const closeModal = () => {
     setActiveModal(null);
     setModalData({});
+  };
+
+  const handleModalAction = () => {
+    if (!modalInputAmount || isNaN(modalInputAmount) || +modalInputAmount <= 0) {
+      setChainStatus((ps) => ({
+        ...ps,
+        [modalData.chainKey]: { message: "Invalid amount", type: "error" },
+      }));
+      return;
+    }
+
+    if (activeModal === "fund") {
+      setFundAmount(modalInputAmount);
+      setFundConfig({
+        chainKey: modalData.chainKey,
+        walletAddress: modalData.address,
+      });
+      handleFund();
+    } else if (activeModal === "withdraw") {
+      setWithdrawAmount(modalInputAmount);
+      setWithdrawConfig({
+        chainKey: modalData.chainKey,
+        walletAddress: modalData.address,
+      });
+      handleWithdraw();
+    }
+    closeModal();
   };
 
   const StatusBadge = ({ isDeployed, statusInfo }) => {
@@ -421,7 +449,18 @@ const SmartWalletManager = () => {
         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 border border-green-200">
           <CheckCircle className="w-3 h-3 text-green-600" />
           <span className="text-xs font-medium text-green-700">
-            Funded successfully
+            {statusInfo.message || "Success"}
+          </span>
+        </div>
+      );
+    }
+
+    if (statusInfo?.type === "error") {
+      return (
+        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 border border-red-200">
+          <XCircle className="w-3 h-3 text-red-600" />
+          <span className="text-xs font-medium text-red-700">
+            {statusInfo.message || "Error"}
           </span>
         </div>
       );
@@ -445,211 +484,7 @@ const SmartWalletManager = () => {
       </span>
     );
   };
-  const Modal = () => {
-    if (!activeModal) return null;
 
-    const renderModalContent = () => {
-      switch (activeModal) {
-        case "balance":
-          return (
-            <div className="flex flex-col items-center gap-6 text-center">
-              <h2 className="text-[#0469AB] text-[28px] font-semibold font-clash">
-                Your Smart Contract Wallet Balance
-              </h2>
-              <div className="w-full space-y-4">
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Address:
-                  </span>
-                  <span className="text-gray-600 text-xl font-medium">
-                    {truncateAddressForModals(modalData.address)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Chain:
-                  </span>
-                  <div className="flex items-center gap-2 text-gray-600 text-xl font-medium">
-                    <div className="flex items-center gap-2 text-gray-600 text-xl font-medium">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden`}
-                      >
-                        <img
-                          src={modalData.logo}
-                          alt="logo"
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      {/* You can show a label or name here if needed */}
-                    </div>
-                    {modalData.chain}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Balance:
-                  </span>
-                  <span className="text-gray-600 text-xl font-medium">
-                    {modalData.balance}
-                  </span>
-                </div>
-              </div>
-              <p className="text-gray-600 text-base font-medium">
-                This is the available amount in your smart contract wallet on{" "}
-                {modalData.chain}.
-              </p>
-            </div>
-          );
-
-        case "fund":
-          return (
-            <div className="flex flex-col items-center gap-5 text-center">
-              <h2 className="text-[#0469AB] text-3xl font-semibold font-clash">
-                Fund Your Wallet
-              </h2>
-              <div className="w-full space-y-3">
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Address:
-                  </span>
-                  <span className="text-gray-600 text-xl font-medium">
-                    {truncateAddressForModals(modalData.address)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Chain:
-                  </span>
-                  <div className="flex items-center gap-2 text-gray-600 text-xl font-medium">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden`}
-                    >
-                      <img
-                        src={modalData.logo}
-                        alt="logo"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    {modalData.chain}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Current Balance:
-                  </span>
-                  <span className="text-gray-600 text-xl font-medium">
-                    {modalData.balance}
-                  </span>
-                </div>
-              </div>
-              <div className="w-full text-left">
-                <label className="text-gray-800 text-lg font-semibold">
-                  Enter amount to Fund in {modalData.currency}
-                </label>
-                <input
-                  type="text"
-                  className="w-full mt-2 p-3 border border-gray-300 rounded-lg text-lg"
-                  placeholder="Eg-0.01"
-                />
-              </div>
-              <button className="w-52 h-12 bg-blue-700 hover:bg-blue-800 text-white rounded-3xl font-semibold text-lg shadow-md shadow-gray-600/25 transition-transform hover:scale-105">
-                Fund Wallet
-              </button>
-              <p className="text-gray-600 text-base font-medium">
-                Funds will be transferred from your connected wallet to your
-                smart contract wallet. Make sure you're on the right chain
-              </p>
-            </div>
-          );
-
-        case "withdraw":
-          return (
-            <div className="flex flex-col items-center gap-5 text-center">
-              <h2 className="text-[#0469AB] text-3xl font-semibold font-clash">
-                Withdraw Funds
-              </h2>
-              <div className="w-full space-y-3">
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Address:
-                  </span>
-                  <span className="text-gray-600 text-xl font-medium">
-                    {truncateAddressForModals(modalData.address)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Chain:
-                  </span>
-                  <div className="flex items-center gap-2 text-gray-600 text-xl font-medium">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden`}
-                    >
-                      <img
-                        src={modalData.logo}
-                        alt="logo"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    {modalData.chain}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-800 text-xl font-semibold">
-                    Current Balance:
-                  </span>
-                  <span className="text-gray-600 text-xl font-medium">
-                    {modalData.balance}
-                  </span>
-                </div>
-              </div>
-              <div className="w-full text-left">
-                <label className="text-gray-800 text-lg font-semibold">
-                  Enter Withdrawal Amount in {modalData.currency}
-                </label>
-                <input
-                  type="text"
-                  className="w-full mt-2 p-3 border border-gray-300 rounded-lg text-lg"
-                  placeholder="Eg-0.01"
-                />
-              </div>
-              <button className="w-52 h-12 bg-purple-600 hover:bg-purple-700 text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 transition-transform hover:scale-105">
-                <ArrowUp size={20} />
-                Withdraw
-              </button>
-              <p className="text-gray-600 text-base font-medium">
-                Withdrawals will send funds from your smart contract wallet back
-                to your connected wallet. Make sure you're on the right chain
-              </p>
-            </div>
-          );
-
-        default:
-          return null;
-      }
-    };
-
-    return (
-      <>
-        {/* Backdrop */}
-        <div
-          className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40"
-          onClick={closeModal}
-        />
-
-        {/* Modal */}
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl z-50 w-[541px] max-w-[90vw] p-8">
-          <button
-            onClick={closeModal}
-            className="absolute top-5 right-5 bg-transparent hover:bg-transparent text-black"
-          >
-            <X size={24} />
-          </button>
-          {renderModalContent()}
-        </div>
-      </>
-    );
-  };
   const truncateAddress = (address) => {
     if (!address) return "";
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -748,7 +583,6 @@ const SmartWalletManager = () => {
                             <span className="text-gray-600 text-lg font-semibold">
                               Status:
                             </span>
-
                             <StatusBadge
                               isDeployed={isDeployed}
                               statusInfo={statusInfo}
@@ -811,18 +645,6 @@ const SmartWalletManager = () => {
                             <span className="text-gray-600 text-lg font-semibold">
                               Status:
                             </span>
-
-                            {/* //// edit karna hai  status badge ko*/}
-                            {/* <span
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold ${
-                      isDeployed
-                        ? "border border-green-700 bg-green-100 text-green-700 shadow-md shadow-green-800/30"
-                        : "border border-amber-700 bg-amber-100 text-amber-700 shadow-md shadow-amber-800/30"
-                    }`}
-                  >
-                    {isDeployed ? "✔ Deployed" : "⊗ Not Deployed"}
-                  </span> */}
-                            {/* yahan tk  */}
                             <StatusBadge
                               isDeployed={isDeployed}
                               statusInfo={statusInfo}
@@ -855,9 +677,145 @@ const SmartWalletManager = () => {
           </div>
         </div>
 
-        {/* models  */}
+        {/* Modal */}
+        {activeModal && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/10 backdrop-blur-sm z-40"
+              onClick={closeModal}
+            />
 
-        <Modal />
+            {/* Modal */}
+            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl z-50 w-[541px] max-w-[90vw] p-8">
+              <button
+                onClick={closeModal}
+                className="absolute top-5 right-5 bg-transparent hover:bg-transparent text-black"
+              >
+                <X size={24} />
+              </button>
+              
+              {activeModal === "balance" && (
+                <div className="flex flex-col items-center gap-6 text-center">
+                  <h2 className="text-[#0469AB] text-[28px] font-semibold font-clash">
+                    Your Smart Contract Wallet Balance
+                  </h2>
+                  <div className="w-full space-y-4">
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-gray-800 text-xl font-semibold">
+                        Address:
+                      </span>
+                      <span className="text-gray-600 text-xl font-medium">
+                        {truncateAddressForModals(modalData.address)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-gray-800 text-xl font-semibold">
+                        Chain:
+                      </span>
+                      <div className="flex items-center gap-2 text-gray-600 text-xl font-medium">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
+                          <img
+                            src={modalData.logo}
+                            alt="logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        {modalData.chain}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-gray-800 text-xl font-semibold">
+                        Balance:
+                      </span>
+                      <span className="text-gray-600 text-xl font-medium">
+                        {modalData.balance} {modalData.currency}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 text-base font-medium">
+                    This is the available amount in your smart contract wallet on{" "}
+                    {modalData.chain}.
+                  </p>
+                </div>
+              )}
+
+              {(activeModal === "fund" || activeModal === "withdraw") && (
+                <div className="flex flex-col items-center gap-5 text-center">
+                  <h2 className="text-[#0469AB] text-3xl font-semibold font-clash">
+                    {activeModal === "fund" ? "Fund Your Wallet" : "Withdraw Funds"}
+                  </h2>
+                  <div className="w-full space-y-3">
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-gray-800 text-xl font-semibold">
+                        Address:
+                      </span>
+                      <span className="text-gray-600 text-xl font-medium">
+                        {truncateAddressForModals(modalData.address)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-gray-800 text-xl font-semibold">
+                        Chain:
+                      </span>
+                      <div className="flex items-center gap-2 text-gray-600 text-xl font-medium">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
+                          <img
+                            src={modalData.logo}
+                            alt="logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        {modalData.chain}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center w-full">
+                      <span className="text-gray-800 text-xl font-semibold">
+                        Current Balance:
+                      </span>
+                      <span className="text-gray-600 text-xl font-medium">
+                        {modalData.balance} {modalData.currency}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-full text-left">
+                    <label className="text-gray-800 text-lg font-semibold">
+                      Enter amount to {activeModal === "fund" ? "Fund" : "Withdraw"} in{" "}
+                      {modalData.currency}
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full mt-2 p-3 border border-gray-300 rounded-lg text-lg"
+                      placeholder={`Eg-0.01`}
+                      value={modalInputAmount}
+                      onChange={(e) => setModalInputAmount(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    onClick={handleModalAction}
+                    className={`w-52 h-12 ${
+                      activeModal === "fund"
+                        ? "bg-blue-700 hover:bg-blue-800"
+                        : "bg-purple-600 hover:bg-purple-700"
+                    } text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 transition-transform hover:scale-105`}
+                  >
+                    {activeModal === "fund" ? (
+                      <ArrowDown size={20} />
+                    ) : (
+                      <ArrowUp size={20} />
+                    )}
+                    {activeModal === "fund" ? "Fund Wallet" : "Withdraw"}
+                  </button>
+                  <p className="text-gray-600 text-base font-medium">
+                    {activeModal === "fund"
+                      ? "Funds will be transferred from your connected wallet to your smart contract wallet. Make sure you're on the right chain"
+                      : "Withdrawals will send funds from your smart contract wallet back to your connected wallet. Make sure you're on the right chain"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
         {/* Withdraw Modal */}
         {isModalOpen && (
