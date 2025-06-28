@@ -180,6 +180,20 @@ const handleConnectWallet = async () => {
         .connect-button:hover {
             background: #00A6F8;
         }
+
+        .connected-button {
+            background: #00A6F8;
+            width: 224px;
+            height: 48px;
+            flex-shrink: 0;
+            border-radius: 25px;
+            color: #FFF;
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            border: none;
+        }
         
         .supported-wallets-text {
             color: #767676;
@@ -328,7 +342,7 @@ const handleConnectWallet = async () => {
 
                   <p className="connect-subtext">Your wallet has been successfully connected</p>
 
-                  <div className="connect-button bg-green-500">
+                  <div className="connected-button bg-green-500 flex items-center justify-center">
                     ✓ Connected
                   </div>
 
@@ -357,7 +371,7 @@ const handleConnectWallet = async () => {
 
                   <p className="connect-subtext">Redirecting to your dashboard...</p>
 
-                  <div className="connect-button bg-green-500">
+                  <div className="connected-button bg-green-500 flex items-center justify-center">
                     🎉 Success!
                   </div>
 
