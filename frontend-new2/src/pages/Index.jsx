@@ -226,6 +226,7 @@ const Index = () => {
                   onClick={handleTestatorClick}
                   className="text-[#146397] font-semibold flex items-center mt-4 hover:underline"
                   style={{
+                    backgroundColor: 'transparent',
                     fontSize: 'clamp(18px, 1.6vw, 24px)',
                     fontFamily: "'Inter', sans-serif"
                   }}
@@ -277,6 +278,7 @@ const Index = () => {
                   onClick={handleBeneficiaryClick}
                   className="text-[#146397] font-semibold flex items-center mt-4 hover:underline"
                   style={{
+                    backgroundColor: 'transparent',
                     fontSize: 'clamp(18px, 1.6vw, 24px)',
                     fontFamily: "'Inter', sans-serif"
                   }}

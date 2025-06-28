@@ -259,7 +259,7 @@ const handleConnectWallet = async () => {
                   <p className="connect-subtext">Login to your Smart Contract Wallet<br />using your connected wallet</p>
                   
                   <motion.button 
-                    className="connect-button"
+                    className="connect-button flex items-center justify-center"
                     onClick={handleConnectWallet}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
