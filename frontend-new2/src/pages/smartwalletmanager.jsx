@@ -447,6 +447,7 @@ const CHAIN_CONFIGS = {
     blockExplorerUrls: ["https://testnet.snowtrace.io"],
     name: "Avalanche",
     logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png",
+    logicContractAddress: "0xE60f79571E7EDba477ff98BAdeE618b5605DF7aE"
   },
   solana: {
     chainId: "0x65",
