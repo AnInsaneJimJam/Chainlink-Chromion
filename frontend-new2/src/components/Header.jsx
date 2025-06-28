@@ -1,29 +1,27 @@
-import { Button } from "@/components/ui/button";
-import { Shield } from "lucide-react";
 import PropTypes from "prop-types";
 
-const Header = ({ showDisconnect = false, onDisconnect }) => {
+const Header = ({ showDisconnect = false, onDisconnect, walletAddress }) => {
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-brand-primary to-brand-deep-ocean rounded-full flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-800">
-              InheritChain
+    <header className="bg-transparent fixed top-0 left-0 w-full z-50">
+      <div className="flex justify-between items-center px-8 lg:px-10 py-6">
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="InheritChain Logo" className="w-12 h-12 rounded-full bg-white border border-gray-200" />
+          <span className="header-text font-clash text-2xl font-semibold text-[#25292A]">InheritChain</span>
+        </div>
+        <div className="flex items-center gap-4">
+          {walletAddress && (
+            <span className="font-inter font-semibold text-gray-700 bg-gray-100 px-4 py-2 rounded-full text-sm border border-gray-200">
+              {walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4)}
             </span>
-          </div>
-
+          )}
           {showDisconnect && (
-            <Button
-              variant="outline"
+            <button
               onClick={onDisconnect}
-              className="text-gray-600 border-gray-300 hover:bg-gray-50"
+              className="header-btn border border-[#0469AB] text-[#0469AB] font-semibold rounded-[25px] px-6 py-2 transition-all hover:bg-[#0469AB1A] bg-white"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
               Disconnect
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -34,6 +32,7 @@ const Header = ({ showDisconnect = false, onDisconnect }) => {
 Header.propTypes = {
   showDisconnect: PropTypes.bool,
   onDisconnect: PropTypes.func,
+  walletAddress: PropTypes.string,
 };
 
 export default Header;
