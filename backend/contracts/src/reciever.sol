@@ -46,7 +46,7 @@ contract LogicContractReceiver is CCIPReceiver {
             // Informational only — deposit must be handled by UI
         } else {
             revert("Unknown action");
-        }
+        } 
     }
 
     function _sendBalanceBack(address user, uint256 balance) internal {

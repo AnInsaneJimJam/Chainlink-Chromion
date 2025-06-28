@@ -912,7 +912,7 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 
 // --- Contract Info ---
-const CONTRACT_ADDRESS = "0x910187850ed335706d3393815a0ec1f84ac6e958";
+const CONTRACT_ADDRESS = "0xbf4055c69A2A2a0D362421b8a4D48fcC5a477CD6";
 const CONTRACT_ABI = [
 	{
 		"inputs": [

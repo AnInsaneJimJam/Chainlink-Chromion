@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ethers } from 'ethers';
 import { FileClock, ShieldCheck, Play, ChevronsRight } from 'lucide-react';
 
-const CONTRACT_ADDRESS = "0x910187850ed335706d3393815a0ec1f84ac6e958";
+const CONTRACT_ADDRESS = "0xbf4055c69A2A2a0D362421b8a4D48fcC5a477CD6";
 const InheritanceABI = [
 	{
 		"inputs": [
@@ -835,17 +835,22 @@ const InheritanceCard = ({ inheritance, onInitiate, onChallenge, onInherit }) =>
     );
   };
 
-  const statusIcons = {
+    const statusIcons = {
     NotStarted: <Play size={16} />,
     ChallengePeriodActive: <FileClock size={16} />,
-    Verified: <ShieldCheck size={16} />
-  };
+    PendingResolution: <FileClock size={16} />,
+    Verified: <ShieldCheck size={16} />,
+    Slashed: <ShieldCheck className="text-red-600" size={16} />
+    };
 
-  const statusColors = {
+    const statusColors = {
     NotStarted: "bg-gray-200 text-gray-700",
     ChallengePeriodActive: "bg-amber-100 text-amber-800",
-    Verified: "bg-green-100 text-green-800"
-  };
+    PendingResolution: "bg-blue-100 text-blue-800",
+    Verified: "bg-green-100 text-green-800",
+    Slashed: "bg-red-100 text-red-800"
+    };
+
 
   return (
     <motion.div
@@ -890,14 +895,22 @@ const InheritanceCard = ({ inheritance, onInitiate, onChallenge, onInherit }) =>
         </button>
         )}
         {inheritance.status === "ChallengePeriodActive" && (
-          <button onClick={() => onChallenge(inheritance.address)} className="flex items-center gap-2 py-2 px-4 text-sm font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white">
-            Challenge <ChevronsRight size={16} />
+        //   <button onClick={() => onChallenge(inheritance.address)} className="flex items-center gap-2 py-2 px-4 text-sm font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white">
+        //     Challenge <ChevronsRight size={16} />
+        //   </button>
+          <button onClick={() => onInherit(inheritance.address)} className="flex items-center gap-2 py-2 px-4 text-sm font-semibold rounded-lg bg-green-600 hover:bg-green-700 text-white">
+            Inherit Inheritance <ChevronsRight size={16} />
           </button>
         )}
         {inheritance.status === "Verified" && (
           <button onClick={() => onInherit(inheritance.address)} className="flex items-center gap-2 py-2 px-4 text-sm font-semibold rounded-lg bg-green-600 hover:bg-green-700 text-white">
             Inherit Inheritance <ChevronsRight size={16} />
           </button>
+        )}
+        {inheritance.status === "PendingResolution" && (
+            <div className="px-4 py-2 text-sm text-blue-800 bg-blue-50 font-medium rounded-lg">
+                Will is under dispute – Pending Resolution
+            </div>
         )}
       </div>
     </motion.div>
@@ -985,15 +998,350 @@ const BeneficiaryDashboard = () => {
 };
 
 
-  const handleChallenge = async (addr) => {
-    console.log("Challenge execution for", addr);
-    // Call challengeWillExecution here
-  };
+  const handleChallenge = async (testatorAddress) => {
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, InheritanceABI, signer);
 
-  const handleInherit = async (addr) => {
-    console.log("Inherit from", addr);
-    // Logic for inheriting assets
-  };
+    const tx = await contract.challengeWillExecution(testatorAddress, {
+      value: ethers.parseEther("0.001"), // MIN_CHALLENGE_BOND
+    });
+    await tx.wait();
+
+    alert("Challenge submitted! Waiting for dispute resolution.");
+    fetchTestators(); // refresh UI
+  } catch (err) {
+    console.error("Challenge failed:", err);
+    alert("Challenge failed. See console for details.");
+  }
+};
+
+const RPC_URLS = {
+  sepolia: "https://sepolia.infura.io/v3/YOUR_INFURA_ID", // optional, in case needed
+  polygon: "https://rpc-amoy.polygon.technology/",
+  avalanche: "https://api.avax-test.network/ext/bc/C/rpc"
+};
+
+
+const handleInherit = async (testatorAddress) => {
+    console.log("handleInherit called")
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const beneficiaryAddress = await signer.getAddress();
+
+  // 1. Fetch smart wallets of testator
+  const walletsRes = await fetch(`http://localhost:5000/api/wallets/${testatorAddress}`);
+  const { wallets: testatorSmartWallets } = await walletsRes.json();
+  // 2. Fetch will allocations for this testator
+  const willRes = await fetch(`http://localhost:5000/api/wills/${testatorAddress}`);
+  const willData = await willRes.json(); // ensure this returns full will, not wrapped
+  const beneficiary = willData.beneficiaries.find(
+    (b) => b.address.toLowerCase() === beneficiaryAddress.toLowerCase()
+  );
+  const batchTransfers = [];
+
+  // 3. Iterate through each allocation
+   for (const { chain, percentage } of beneficiary.allocations) {
+    const smartWallet = testatorSmartWallets[chain];
+    console.log(`Checking smart wallet on ${chain}:`, smartWallet);
+    if (!smartWallet) throw new Error(`Smart wallet not found for chain: ${chain}`);
+
+    const rpcUrl = RPC_URLS[chain];
+    if (!rpcUrl) throw new Error(`Unsupported chain: ${chain}`);
+
+    const chainProvider = new ethers.JsonRpcProvider(rpcUrl);
+    const walletBalance = await chainProvider.getBalance(smartWallet); // returns BigInt
+    console.log(`Balance on ${chain}:`, walletBalance.toString());
+
+    const share = walletBalance * BigInt(percentage) / BigInt(100);
+
+    // Truncate to 4 decimal places (in ETH)
+    const shareInEthFloat = parseFloat(ethers.formatEther(share)).toFixed(4);
+    const finalShare = ethers.parseEther(shareInEthFloat); // convert back to BigInt
+
+    batchTransfers.push({
+      destChainName: chain,
+      amount: finalShare,
+      destChainWallet: smartWallet
+    });
+  }
+  console.log(batchTransfers)
+  const MAIN_COORDINATOR_ADDRESS="0xD3B2010d2CD19A6B8C53588Afc46483f70367dFA";
+  const ABI=[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_router",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "BatchCannotBeEmpty",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "balance",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "required",
+				"type": "uint256"
+			}
+		],
+		"name": "NotEnoughNative",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint64",
+				"name": "destChainSelector",
+				"type": "uint64"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "action",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "CrossChainActionInitiated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "messageId",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint64",
+				"name": "destinationChainSelector",
+				"type": "uint64"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "receiver",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "action",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "feeToken",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "fees",
+				"type": "uint256"
+			}
+		],
+		"name": "MessageSent",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint64",
+				"name": "chainSelector",
+				"type": "uint64"
+			},
+			{
+				"internalType": "uint256",
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"name": "receiveBalance",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint64",
+				"name": "chainSelector",
+				"type": "uint64"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"name": "ReceivedBalance",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "destChainName",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "destChainWallet",
+						"type": "address"
+					}
+				],
+				"internalType": "struct MainCoordinator.BatchTransfer[]",
+				"name": "_transfers",
+				"type": "tuple[]"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "requestActionBatch",
+		"outputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "messageIds",
+				"type": "bytes32[]"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "s_destChainInfo",
+		"outputs": [
+			{
+				"internalType": "uint64",
+				"name": "selector",
+				"type": "uint64"
+			},
+			{
+				"internalType": "address",
+				"name": "logicContract",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+  // 4. Prepare and call MainCoordinator contract
+  const coordinator = new ethers.Contract(MAIN_COORDINATOR_ADDRESS, ABI, signer);
+
+  // Optional: Estimate fees first by looping over s_router.getFee(...) off-chain
+
+  // Call contract: _to = beneficiaryAddress
+  const tx = await coordinator.requestActionBatch(batchTransfers, beneficiaryAddress, {
+    value: ethers.parseEther("0.002") // rough overpayment for gas fee
+  });
+//     await coordinator.requestActionBatch(
+//   [
+//     {
+//       destChainName: "polygon",
+//       amount: 250000000000000000n,
+//       destChainWallet: "0x3914AC378A3D94192fC902C4b8e328ED2611F849"
+//     },
+//     {
+//       destChainName: "avalanche",
+//       amount: 50000000000000000n,
+//       destChainWallet: "0x7D0cd861fAC3E694511946695c353534C7c3808B"
+//     }
+//   ],
+//   "0x8dd2dFFBc2eaf6daa0bFF956fF5bc24D00724c1A", // <-- passed separately here
+//   { value: ethers.parseEther("0.02") }
+// );
+
+
+  await tx.wait();
+  console.log("Inheritance claim triggered via CCIP");
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">
