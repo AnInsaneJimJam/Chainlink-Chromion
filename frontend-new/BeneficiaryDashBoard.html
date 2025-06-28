@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficiary Dashboard - InheritChain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+        Base & Page Styles
+        ======================================== */
+        body {
+            position: relative;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #EAF6FF;
+        }
+
+        .fixed-background {
+            position: fixed; width: 100vw; height: 100vh; top: 0; left: 0;
+            background: radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%);
+            z-index: 0; overflow: hidden;
+        }
+        .fixed-background::before { content: ''; position: absolute; width: 150vmax; height: 150vmax; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-9.478deg); background: #CDEFFF; mix-blend-mode: hue; }
+        .fixed-background::after { content: ''; position: absolute; width: 150vmax; height: 150vmax; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30.74deg); background: url('https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg') lightgray 50% / cover no-repeat; opacity: 0.25; box-shadow: 0px 0px 114.717px 0px #CDEFFF; }
+        
+        .main-content { position: relative; z-index: 2; }
+        .font-clash { font-family: 'Clash Display', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+
+        /* ========================================
+        Dashboard Specific Styles
+        ======================================== */
+        .header-text { color: #25292A; font-family: "Clash Display"; font-size: 32px; font-weight: 600; }
+        .disconnect-btn {
+            border-radius: 25px; border: 1px solid #0469AB; padding: 8px 16px;
+            color: #0469AB; font-weight: 600; transition: all 0.2s;
+        }
+        .disconnect-btn:hover { background-color: rgba(4, 105, 171, 0.1); }
+        .page-title { color: #2D2D2D; font-size: 48px; font-weight: 600; }
+        .page-subtitle { color: #767676; font-size: 22px; font-weight: 500; }
+        
+        .stat-card {
+            border-radius: 15px; border: 1px solid rgba(4, 105, 171, 0.3);
+            background: rgba(255, 255, 255, 0.5); padding: 20px; text-align: center;
+        }
+        .stat-value { color: #25292A; font-size: 36px; font-weight: 600; }
+        .stat-label { color: #767676; font-size: 18px; font-weight: 500; }
+        
+        .section-title { color: #2D2D2D; font-size: 36px; font-weight: 600; }
+        
+        .inheritance-card {
+            border-radius: 15px; border: 1.5px solid rgba(4, 105, 171, 0.3);
+            background: rgba(234, 246, 255, 0.5); backdrop-filter: blur(10px);
+            padding: 24px;
+        }
+        .card-name { color: #2D2D2D; font-size: 24px; font-weight: 600; }
+        .card-label { color: #767676; font-size: 16px; font-weight: 500; }
+        .card-value { color: #2D2D2D; font-size: 16px; font-weight: 500; }
+        .card-description { color: #767676; font-size: 16px; font-style: italic; }
+        
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+        .status-green { background-color: #D5FFE6; color: #12703D; border: 1px solid #12703D; }
+        .status-orange { background-color: #FEF3C7; color: #B45309; border: 1px solid #B45309; }
+        .status-gray { background-color: #F3F4F6; color: #4B5563; border: 1px solid #9CA3AF; }
+        .status-purple { background-color: #E0E7FF; color: #4338CA; border: 1px solid #6366F1; }
+        .status-red { background-color: #FEE2E2; color: #B91C1C; border: 1px solid #DC2626; }
+        
+        .card-button {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 24px; border-radius: 25px; font-size: 16px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-green { background-color: #12703D; color: white; box-shadow: 2px 2px 4px 0px #096934; }
+        .btn-orange { background-color: #D97706; color: white; box-shadow: 2px 2px 4px 0px #92400E; }
+        .btn-blue { background: #0167AF; color: white; box-shadow: 2px 2px 4px 0px #002844; }
+        .btn-gray { background-color: #D1D5DB; color: #4B5563; cursor: not-allowed; }
+        .btn-red { background-color: #DC2626; color: white; cursor: not-allowed; }
+
+    </style>
+</head>
+<body>
+    <div class="fixed-background"></div>
+
+    <div class="main-content min-h-screen">
+        <!-- Page Header -->
+        <header class="absolute top-0 left-0 w-full p-8 lg:p-10 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <img src="https://placehold.co/50x50/FFFFFF/000000?text=L" alt="InheritChain Logo" class="w-12 h-12">
+                <span class="header-text font-clash">InheritChain</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="font-inter font-semibold text-gray-700">0x1234...7890</span>
+                <button class="disconnect-btn font-inter">Disconnect</button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <div class="flex flex-col items-start justify-center pt-28 pb-12 px-8 lg:px-12">
+            <h1 class="font-clash page-title">Beneficiary Dashboard</h1>
+            <p class="font-inter page-subtitle mt-1">View and manage inheritances where you are named as a beneficiary</p>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full my-8">
+                <div class="stat-card">
+                    <p class="font-clash stat-value">3</p>
+                    <p class="font-inter stat-label">Total Inheritances</p>
+                </div>
+                <div class="stat-card">
+                    <p class="font-clash stat-value">1</p>
+                    <p class="font-inter stat-label">Pending Investigation</p>
+                </div>
+            </div>
+
+            <h2 class="font-clash section-title mb-6">Your Inheritances</h2>
+            
+            <div class="w-full space-y-6">
+                <!-- Card State 1: Active/Inheritable -->
+                <div class="inheritance-card flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-4">
+                            <h3 class="card-name font-inter">John Smith</h3>
+                            <span class="status-badge status-green">✔ Active</span>
+                        </div>
+                        <div class="mt-2 space-y-1">
+                            <p><span class="card-label">Address:</span> <span class="card-value">0x161..48865</span></p>
+                            <p><span class="card-label">Last Updated:</span> <span class="card-value">2023-06-19</span></p>
+                            <p><span class="card-label">Estimated Value:</span> <span class="card-value">2.5 ETH</span></p>
+                        </div>
+                        <p class="card-description mt-2">Will successfully executed and assets distributed</p>
+                    </div>
+                    <button class="card-button btn-green">✔ Inheritable</button>
+                </div>
+                
+                <!-- Card State 2: Pending Investigation -->
+                <div class="inheritance-card flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-4">
+                            <h3 class="card-name font-inter">Sarah Johnson</h3>
+                            <span class="status-badge status-orange">⊗ Pending Investigation</span>
+                        </div>
+                        <div class="mt-2 space-y-1">
+                            <p><span class="card-label">Initiated by:</span> <span class="card-value">0x41B2...9F34</span></p>
+                            <p><span class="card-label">Staked:</span> <span class="card-value">0.1 ETH</span></p>
+                            <p><span class="card-label">Last Updated:</span> <span class="card-value">2023-06-19</span></p>
+                            <p><span class="card-label">Estimated Value:</span> <span class="card-value">1.8 ETH</span></p>
+                        </div>
+                        <p class="card-description mt-2 text-orange-600 font-semibold">9d 23h 19m left to challenge</p>
+                    </div>
+                    <button class="card-button btn-orange">Challenge</button>
+                </div>
+
+                <!-- Card State 3: Not Yet Initiated -->
+                <div class="inheritance-card flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-4">
+                            <h3 class="card-name font-inter">Michael Brown</h3>
+                            <span class="status-badge status-gray">⊗ Not Yet Initiated</span>
+                        </div>
+                        <div class="mt-2 space-y-1">
+                            <p><span class="card-label">Address:</span> <span class="card-value">0x987..457581</span></p>
+                            <p><span class="card-label">Last Updated:</span> <span class="card-value">2023-06-19</span></p>
+                            <p><span class="card-label">Estimated Value:</span> <span class="card-value">1.8 ETH</span></p>
+                        </div>
+                    </div>
+                    <button class="card-button btn-blue">Initiate Inheritance</button>
+                </div>
+
+                <!-- Card State 4: Under Oracle Review -->
+                <div class="inheritance-card flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-4">
+                            <h3 class="card-name font-inter">Michael Brown</h3>
+                            <span class="status-badge status-purple">⟳ Under Oracle Review</span>
+                        </div>
+                         <div class="mt-2 space-y-1">
+                            <p><span class="card-label">Owned by:</span> <span class="card-value">2 Beneficiaries</span></p>
+                            <p><span class="card-label">Last Updated:</span> <span class="card-value">2023-06-19</span></p>
+                            <p><span class="card-label">Estimated Value:</span> <span class="card-value">1.8 ETH</span></p>
+                        </div>
+                        <p class="card-description mt-2 text-purple-600 font-semibold">Calling Chainlink API...</p>
+                    </div>
+                    <button class="card-button btn-gray">Reviewing</button>
+                </div>
+
+                <!-- Card State 5: Canceled -->
+                <div class="inheritance-card flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-4">
+                            <h3 class="card-name font-inter">Michael Brown</h3>
+                            <span class="status-badge status-red">⊗ Canceled by Testator</span>
+                        </div>
+                         <div class="mt-2 space-y-1">
+                            <p><span class="card-label">Address:</span> <span class="card-value">0x987..457581</span></p>
+                            <p><span class="card-label">Last Updated:</span> <span class="card-value">2023-06-19</span></p>
+                            <p><span class="card-label">Estimated Value:</span> <span class="card-value">1.8 ETH</span></p>
+                        </div>
+                    </div>
+                    <button class="card-button btn-red">Will Rejected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
