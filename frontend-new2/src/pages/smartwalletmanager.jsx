@@ -838,19 +838,31 @@ const SmartWalletManager = () => {
           </span>
         </div>
       </header>
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-700">
-                InheritChain
-              </span>
-            </div>
+      <div className="min-h-screen relative overflow-hidden"
+      >
+      {/* Fixed Background */}
+      <div
+        className="fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)",
+        }}
+      >
+        {/* Background overlays */}
+        <div
+          className="absolute inset-0 opacity-25"
+          style={{
+            background:
+              'url("https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg") lightgray 50% / cover no-repeat',
+            boxShadow: "0px 0px 114.717px 0px #CDEFFF",
+          }}
+        />
+      </div>
 
+
+
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-blue-700 mb-3 tracking-tight">
               Deploy Your Smart Contract Wallets
             </h1>
@@ -866,25 +878,6 @@ const SmartWalletManager = () => {
             </div>
           </div>
 
-          {/* Global Status Banner */}
-          {chainStatus.global && (
-            <div
-              className="flex items-center justify-center gap-3 p-4 rounded-xl mb-6 shadow-sm"
-              style={{
-                backgroundColor:
-                  chainStatus.global.type === "error" ? "#FEF2F2" : "#FFFBEB",
-                color:
-                  chainStatus.global.type === "error" ? "#DC2626" : "#D97706",
-                border:
-                  chainStatus.global.type === "error"
-                    ? "1px solid #FECACA"
-                    : "1px solid #FDE68A",
-              }}
-            >
-              <AlertTriangle className="w-5 h-5" />
-              <span>{chainStatus.global.message}</span>
-            </div>
-          )}
 
           {/* Main Container */}
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
