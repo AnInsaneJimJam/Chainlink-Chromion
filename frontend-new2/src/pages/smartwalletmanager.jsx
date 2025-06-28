@@ -91,7 +91,6 @@
 //     }
 //   }, [getProviderAndSigner]);
 
-
 //   const fetchWallets = useCallback(async (address) => {
 //     setStatus("Fetching deployed wallets...");
 //     try {
@@ -124,7 +123,6 @@
 //     }
 //   }, [getProviderAndSigner, fetchWallets]);
 
-
 //   useEffect(() => {
 //     connectWallet();
 //   }, [connectWallet]);
@@ -151,7 +149,6 @@
 //       }
 //     });
 //   }, [wallets, updateBalance]);
-
 
 //   const saveToBackend = async (userAddress, chain, walletAddress) => {
 //     try {
@@ -238,7 +235,6 @@
 //       return;
 //     }
 
-
 //     const { chainKey, walletAddress } = withdrawConfig;
 //     setChainStatus(prev => ({ ...prev, [chainKey]: { message: "Withdrawing...", type: 'loading' } }));
 //     setIsModalOpen(false);
@@ -262,7 +258,6 @@
 //     }
 //   };
 
-
 //   const StatusIcon = ({ status }) => {
 //     if (!status) return null;
 //     switch (status.type) {
@@ -276,7 +271,6 @@
 //         return null;
 //     }
 //   };
-
 
 //   return (
 //     <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8 font-sans">
@@ -354,7 +348,7 @@
 //                   ) : (
 //                     <div className="flex flex-col items-center justify-center h-full">
 //                         <p className="text-gray-400 mb-4">This wallet has not been deployed yet.</p>
-//                         <Button 
+//                         <Button
 //                             onClick={() => handleDeploy(chainKey)}
 //                             disabled={statusInfo.type === 'loading'}
 //                             className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -405,7 +399,17 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, XCircle, Loader, Wallet, ArrowDown, ArrowUp, Shield, Eye } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Loader,
+  Wallet,
+  ArrowDown,
+  ArrowUp,
+  Shield,
+  Eye,
+} from "lucide-react";
 import { ethers } from "https://esm.sh/ethers@6.12.1";
 import { smartWalletABI, smartWalletBytecode } from "../abi/smartwallet";
 
@@ -418,7 +422,7 @@ const CHAIN_CONFIGS = {
     blockExplorerUrls: ["https://www.oklink.com/amoy"],
     name: "Polygon",
     logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png",
-    logicContractAddress: "0xeE12fF2A08BAF07c719adB07EFeE5DC62dE23fbd"
+    logicContractAddress: "0xeE12fF2A08BAF07c719adB07EFeE5DC62dE23fbd",
   },
   ethereum: {
     chainId: "0xaa36a7",
@@ -428,7 +432,7 @@ const CHAIN_CONFIGS = {
     blockExplorerUrls: ["https://sepolia.etherscan.io"],
     name: "Ethereum",
     logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png",
-    logicContractAddress: "0x3996AC2788485e56b25F48E5825fed4f409c8cB7"
+    logicContractAddress: "0x3996AC2788485e56b25F48E5825fed4f409c8cB7",
   },
   base: {
     chainId: "0x14a34",
@@ -437,7 +441,7 @@ const CHAIN_CONFIGS = {
     rpcUrls: ["https://sepolia.base.org"],
     blockExplorerUrls: ["https://sepolia-explorer.base.org"],
     name: "Base",
-    logo: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/base/info/logo.png"
+    logo: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/base/info/logo.png",
   },
   avalanche: {
     chainId: "0xa869",
@@ -447,7 +451,7 @@ const CHAIN_CONFIGS = {
     blockExplorerUrls: ["https://testnet.snowtrace.io"],
     name: "Avalanche",
     logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png",
-    logicContractAddress: "0xE60f79571E7EDba477ff98BAdeE618b5605DF7aE"
+    logicContractAddress: "0xE60f79571E7EDba477ff98BAdeE618b5605DF7aE",
   },
   solana: {
     chainId: "0x65",
@@ -492,30 +496,39 @@ const SmartWalletManager = () => {
     return { provider, signer };
   }, []);
 
-  const switchNetwork = useCallback(async (chainKey) => {
-    try {
-      const { provider } = await getProviderAndSigner();
-      const cfg = CHAIN_CONFIGS[chainKey];
-      await provider.send("wallet_switchEthereumChain", [{ chainId: cfg.chainId }]);
-    } catch (e) {
-      if (e.code === 4902) {
+  const switchNetwork = useCallback(
+    async (chainKey) => {
+      try {
+        const { provider } = await getProviderAndSigner();
         const cfg = CHAIN_CONFIGS[chainKey];
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: cfg.chainId,
-            chainName: cfg.chainName,
-            rpcUrls: cfg.rpcUrls,
-            nativeCurrency: cfg.nativeCurrency,
-            blockExplorerUrls: cfg.blockExplorerUrls,
-          }],
-        });
-      } else {
-        console.error(e);
-        throw new Error(`Failed to switch network to ${CHAIN_CONFIGS[chainKey].name}`);
+        await provider.send("wallet_switchEthereumChain", [
+          { chainId: cfg.chainId },
+        ]);
+      } catch (e) {
+        if (e.code === 4902) {
+          const cfg = CHAIN_CONFIGS[chainKey];
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: cfg.chainId,
+                chainName: cfg.chainName,
+                rpcUrls: cfg.rpcUrls,
+                nativeCurrency: cfg.nativeCurrency,
+                blockExplorerUrls: cfg.blockExplorerUrls,
+              },
+            ],
+          });
+        } else {
+          console.error(e);
+          throw new Error(
+            `Failed to switch network to ${CHAIN_CONFIGS[chainKey].name}`,
+          );
+        }
       }
-    }
-  }, [getProviderAndSigner]);
+    },
+    [getProviderAndSigner],
+  );
 
   const fetchWallets = useCallback(async (address) => {
     setStatus("Fetching deployed wallets...");
@@ -540,46 +553,74 @@ const SmartWalletManager = () => {
     } catch (e) {
       console.error(e);
       setStatus(e.message || "Failed to connect wallet.");
-      setChainStatus(ps => ({ ...ps, global: { message: e.message, type: 'error' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        global: { message: e.message, type: "error" },
+      }));
     }
   }, [getProviderAndSigner, fetchWallets]);
 
-  useEffect(() => { connectWallet(); }, [connectWallet]);
+  useEffect(() => {
+    connectWallet();
+  }, [connectWallet]);
 
-  const updateBalance = useCallback(async (chainKey, walletAddress) => {
-    try {
-      await switchNetwork(chainKey);
-      const { provider } = await getProviderAndSigner();
-      const bal = await provider.getBalance(walletAddress);
-      setBalances(ps => ({ ...ps, [chainKey]: ethers.formatEther(bal) }));
-    } catch (e) {
-      console.error(e);
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: `Balance fetch failed: ${e.message}`, type: 'error' } }));
-    }
-  }, [getProviderAndSigner, switchNetwork]);
+  const updateBalance = useCallback(
+    async (chainKey, walletAddress) => {
+      try {
+        await switchNetwork(chainKey);
+        const { provider } = await getProviderAndSigner();
+        const bal = await provider.getBalance(walletAddress);
+        setBalances((ps) => ({ ...ps, [chainKey]: ethers.formatEther(bal) }));
+      } catch (e) {
+        console.error(e);
+        setChainStatus((ps) => ({
+          ...ps,
+          [chainKey]: {
+            message: `Balance fetch failed: ${e.message}`,
+            type: "error",
+          },
+        }));
+      }
+    },
+    [getProviderAndSigner, switchNetwork],
+  );
 
   useEffect(() => {
-    Object.entries(wallets).forEach(([k, addr]) => addr && updateBalance(k, addr));
+    Object.entries(wallets).forEach(
+      ([k, addr]) => addr && updateBalance(k, addr),
+    );
   }, [wallets, updateBalance]);
 
   const saveToBackend = async (ua, chain, wa) => {
     const res = await fetch("http://localhost:5000/api/wallets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userAddress: ua, chain, walletAddress: wa })
+      body: JSON.stringify({ userAddress: ua, chain, walletAddress: wa }),
     });
-    if (!res.ok) throw new Error((await res.json()).message || "Failed to save wallet.");
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to save wallet.");
     return res.json();
   };
 
   const handleDeploy = async (chainKey) => {
-    setChainStatus(ps => ({ ...ps, [chainKey]: { message: "Deploying...", type: 'loading' } }));
+    setChainStatus((ps) => ({
+      ...ps,
+      [chainKey]: { message: "Deploying...", type: "loading" },
+    }));
     try {
       await switchNetwork(chainKey);
       const { signer } = await getProviderAndSigner();
-      if (!smartWalletBytecode || smartWalletBytecode === "YOUR_SMART_WALLET_BYTECODE") throw new Error("Bytecode not configured.");
+      if (
+        !smartWalletBytecode ||
+        smartWalletBytecode === "YOUR_SMART_WALLET_BYTECODE"
+      )
+        throw new Error("Bytecode not configured.");
 
-      const factory = new ethers.ContractFactory(smartWalletABI, smartWalletBytecode, signer);
+      const factory = new ethers.ContractFactory(
+        smartWalletABI,
+        smartWalletBytecode,
+        signer,
+      );
       const contract = await factory.deploy();
       await contract.waitForDeployment();
       const address = await contract.getAddress();
@@ -588,64 +629,117 @@ const SmartWalletManager = () => {
       if (!logic) throw new Error(`Missing logic contract for ${chainKey}`);
       await (await contract.setLogicContract(logic)).wait();
 
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: "Saving to backend...", type: 'loading' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [chainKey]: { message: "Saving to backend...", type: "loading" },
+      }));
       await saveToBackend(userAddress, chainKey, address);
 
-      setWallets(ps => ({ ...ps, [chainKey]: address }));
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: "Deployed", type: 'success' } }));
+      setWallets((ps) => ({ ...ps, [chainKey]: address }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [chainKey]: { message: "Deployed", type: "success" },
+      }));
       updateBalance(chainKey, address);
     } catch (e) {
       console.error(e);
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: `Deployment failed: ${e.message}`, type: 'error' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [chainKey]: {
+          message: `Deployment failed: ${e.message}`,
+          type: "error",
+        },
+      }));
     }
   };
 
   const handleFund = async () => {
     if (!fundConfig || !fundAmount || isNaN(fundAmount) || +fundAmount <= 0) {
-      setChainStatus(ps => ({ ...ps, [fundConfig?.chainKey]: { message: 'Invalid amount.', type: 'error' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [fundConfig?.chainKey]: { message: "Invalid amount.", type: "error" },
+      }));
       return;
     }
     const { chainKey, walletAddress } = fundConfig;
-    setChainStatus(ps => ({ ...ps, [chainKey]: { message: "Funding...", type: 'loading' } }));
+    setChainStatus((ps) => ({
+      ...ps,
+      [chainKey]: { message: "Funding...", type: "loading" },
+    }));
     setIsFundModalOpen(false);
 
     try {
       await switchNetwork(chainKey);
       const { signer } = await getProviderAndSigner();
-      await (await signer.sendTransaction({ to: walletAddress, value: ethers.parseEther(fundAmount) })).wait();
+      await (
+        await signer.sendTransaction({
+          to: walletAddress,
+          value: ethers.parseEther(fundAmount),
+        })
+      ).wait();
 
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: "Funded successfully!", type: 'success' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [chainKey]: { message: "Funded successfully!", type: "success" },
+      }));
       updateBalance(chainKey, walletAddress);
       setFundAmount("");
       setFundConfig(null);
     } catch (e) {
       console.error(e);
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: `Funding failed: ${e.message}`, type: 'error' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [chainKey]: { message: `Funding failed: ${e.message}`, type: "error" },
+      }));
     }
   };
 
   const handleWithdraw = async () => {
-    if (!withdrawConfig || !withdrawAmount || isNaN(withdrawAmount) || +withdrawAmount <= 0) {
-      setChainStatus(ps => ({ ...ps, [withdrawConfig.chainKey]: { message: 'Invalid amount.', type: 'error' } }));
+    if (
+      !withdrawConfig ||
+      !withdrawAmount ||
+      isNaN(withdrawAmount) ||
+      +withdrawAmount <= 0
+    ) {
+      setChainStatus((ps) => ({
+        ...ps,
+        [withdrawConfig.chainKey]: {
+          message: "Invalid amount.",
+          type: "error",
+        },
+      }));
       return;
     }
     const { chainKey, walletAddress } = withdrawConfig;
-    setChainStatus(ps => ({ ...ps, [chainKey]: { message: "Withdrawing...", type: 'loading' } }));
+    setChainStatus((ps) => ({
+      ...ps,
+      [chainKey]: { message: "Withdrawing...", type: "loading" },
+    }));
     setIsModalOpen(false);
 
     try {
       await switchNetwork(chainKey);
       const { signer } = await getProviderAndSigner();
-      const contract = new ethers.Contract(walletAddress, smartWalletABI, signer);
+      const contract = new ethers.Contract(
+        walletAddress,
+        smartWalletABI,
+        signer,
+      );
       await (await contract.withdraw(ethers.parseEther(withdrawAmount))).wait();
 
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: "Withdraw successful!", type: 'success' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [chainKey]: { message: "Withdraw successful!", type: "success" },
+      }));
       updateBalance(chainKey, walletAddress);
       setWithdrawAmount("");
       setWithdrawConfig(null);
     } catch (e) {
       console.error(e);
-      setChainStatus(ps => ({ ...ps, [chainKey]: { message: `Withdraw failed: ${e.message}`, type: 'error' } }));
+      setChainStatus((ps) => ({
+        ...ps,
+        [chainKey]: { message: `Withdraw failed: ${e.message}`, type: "error" },
+      }));
     }
   };
 
@@ -662,8 +756,18 @@ const SmartWalletManager = () => {
   const ChainLogo = ({ chainKey, config }) => {
     const [err, setErr] = useState(false);
     if (err) {
-      const icons = { polygon: "🔷", ethereum: "🔵", base: "🔶", avalanche: "❄️", solana: "☀️" };
-      return <div className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full text-sm">{icons[chainKey] || "⚫"}</div>;
+      const icons = {
+        polygon: "🔷",
+        ethereum: "🔵",
+        base: "🔶",
+        avalanche: "❄️",
+        solana: "☀️",
+      };
+      return (
+        <div className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full text-sm">
+          {icons[chainKey] || "⚫"}
+        </div>
+      );
     }
     return (
       <img
@@ -676,7 +780,7 @@ const SmartWalletManager = () => {
   };
 
   const StatusBadge = ({ isDeployed, statusInfo }) => {
-    if (statusInfo?.type === 'loading') {
+    if (statusInfo?.type === "loading") {
       return (
         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 border border-blue-200">
           <Loader className="w-3 h-3 animate-spin text-blue-600" />
@@ -684,16 +788,18 @@ const SmartWalletManager = () => {
         </div>
       );
     }
-    
-    if (statusInfo?.type === 'success') {
+
+    if (statusInfo?.type === "success") {
       return (
         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 border border-green-200">
           <CheckCircle className="w-3 h-3 text-green-600" />
-          <span className="text-xs font-medium text-green-700">Funded successfully</span>
+          <span className="text-xs font-medium text-green-700">
+            Funded successfully
+          </span>
         </div>
       );
     }
-    
+
     if (isDeployed) {
       return (
         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 border border-green-200">
@@ -702,247 +808,306 @@ const SmartWalletManager = () => {
         </div>
       );
     }
-    
+
     return (
       <div className="px-2 py-1 rounded-full bg-orange-50 border border-orange-200">
-        <span className="text-xs font-medium text-orange-700">Not Deployed</span>
+        <span className="text-xs font-medium text-orange-700">
+          Not Deployed
+        </span>
       </div>
     );
   };
 
   const truncateAddress = (address) => {
-    if (!address) return '';
+    if (!address) return "";
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-700">InheritChain</span>
+    <>
+      <header className="fixed top-0 left-0 p-8 lg:p-12 z-10 w-full">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-black text-2xl font-bold">
+            L
           </div>
-          
-          <h1 className="text-4xl font-bold text-blue-700 mb-3 tracking-tight">
-            Deploy Your Smart Contract Wallets
-          </h1>
-          
-          <p className="text-gray-600 mb-4 text-lg">
-            Please ensure you're on the correct network when funding or withdrawing
-          </p>
-          
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium shadow-sm">
-            <AlertTriangle className="w-4 h-4" />
-            Make sure your MetaMask network matches the selected chain
+          <span
+            className="text-gray-800 text-[32px] font-semibold"
+            style={{ fontFamily: "Clash Display, sans-serif" }}
+          >
+            InheritChain
+          </span>
+        </div>
+      </header>
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-700">
+                InheritChain
+              </span>
+            </div>
+
+            <h1 className="text-4xl font-bold text-blue-700 mb-3 tracking-tight">
+              Deploy Your Smart Contract Wallets
+            </h1>
+
+            <p className="text-gray-600 mb-4 text-lg">
+              Please ensure you're on the correct network when funding or
+              withdrawing
+            </p>
+
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium shadow-sm">
+              <AlertTriangle className="w-4 h-4" />
+              Make sure your MetaMask network matches the selected chain
+            </div>
+          </div>
+
+          {/* Global Status Banner */}
+          {chainStatus.global && (
+            <div
+              className="flex items-center justify-center gap-3 p-4 rounded-xl mb-6 shadow-sm"
+              style={{
+                backgroundColor:
+                  chainStatus.global.type === "error" ? "#FEF2F2" : "#FFFBEB",
+                color:
+                  chainStatus.global.type === "error" ? "#DC2626" : "#D97706",
+                border:
+                  chainStatus.global.type === "error"
+                    ? "1px solid #FECACA"
+                    : "1px solid #FDE68A",
+              }}
+            >
+              <AlertTriangle className="w-5 h-5" />
+              <span>{chainStatus.global.message}</span>
+            </div>
+          )}
+
+          {/* Main Container */}
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
+            <div className="space-y-4">
+              {Object.entries(CHAIN_CONFIGS).map(([chainKey, cfg]) => {
+                const wallet = wallets[chainKey];
+                const bal = balances[chainKey];
+                const statusInfo = chainStatus[chainKey] || {};
+                const isDeployed = !!wallet;
+
+                return (
+                  <div
+                    key={chainKey}
+                    className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-4 hover:shadow-md transition-all duration-200"
+                  >
+                    {isDeployed ? (
+                      <div className="flex items-center justify-between">
+                        {/* Left side - Chain info */}
+                        <div className="flex items-center gap-4">
+                          <ChainLogo chainKey={chainKey} config={cfg} />
+                          <div>
+                            <h3 className="font-semibold text-gray-800 text-lg">
+                              {cfg.name}
+                            </h3>
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <span>Status:</span>
+                              <StatusBadge
+                                isDeployed={isDeployed}
+                                statusInfo={statusInfo}
+                              />
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              <span>Address: </span>
+                              <a
+                                href={`${cfg.blockExplorerUrls[0]}/address/${wallet}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-mono text-blue-600 hover:text-blue-800 hover:underline"
+                              >
+                                {truncateAddress(wallet)}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right side - Actions */}
+                        <div className="flex items-center gap-3">
+                          <Button
+                            onClick={() => updateBalance(chainKey, wallet)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View Balance
+                          </Button>
+                          <Button
+                            onClick={() => openFundModal(chainKey, wallet)}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                            Fund Wallet
+                          </Button>
+                          <Button
+                            onClick={() => openWithdrawModal(chainKey, wallet)}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                            Withdraw
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        {/* Left side - Chain info */}
+                        <div className="flex items-center gap-4">
+                          <ChainLogo chainKey={chainKey} config={cfg} />
+                          <div>
+                            <h3 className="font-semibold text-gray-800 text-lg">
+                              {cfg.name}
+                            </h3>
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <span>Status:</span>
+                              <StatusBadge
+                                isDeployed={isDeployed}
+                                statusInfo={statusInfo}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right side - Deploy button */}
+                        <div>
+                          <Button
+                            onClick={() => handleDeploy(chainKey)}
+                            disabled={statusInfo.type === "loading"}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                          >
+                            {statusInfo.type === "loading" ? (
+                              <>
+                                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                                Deploying...
+                              </>
+                            ) : (
+                              "Deploy Wallet"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Global Status Banner */}
-        {chainStatus.global && (
-          <div className="flex items-center justify-center gap-3 p-4 rounded-xl mb-6 shadow-sm"
-            style={{
-              backgroundColor: chainStatus.global.type === "error" ? "#FEF2F2" : "#FFFBEB",
-              color: chainStatus.global.type === "error" ? "#DC2626" : "#D97706",
-              border: chainStatus.global.type === "error" ? "1px solid #FECACA" : "1px solid #FDE68A",
-            }}
-          >
-            <AlertTriangle className="w-5 h-5" />
-            <span>{chainStatus.global.message}</span>
+        {/* Withdraw Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black/25 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-200">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                  Withdraw Funds
+                </h2>
+                <p className="text-gray-600 mb-2">
+                  From: {CHAIN_CONFIGS[withdrawConfig.chainKey].name}
+                </p>
+                <p className="text-gray-600 mb-4 font-mono text-sm break-all bg-gray-50 p-2 rounded">
+                  {withdrawConfig.walletAddress}
+                </p>
+
+                <div className="mb-6">
+                  <label
+                    htmlFor="withdrawAmount"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Amount in{" "}
+                    {
+                      CHAIN_CONFIGS[withdrawConfig.chainKey].nativeCurrency
+                        .symbol
+                    }
+                  </label>
+                  <input
+                    type="text"
+                    id="withdrawAmount"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="e.g., 0.01"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <Button
+                    onClick={() => setIsModalOpen(false)}
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleWithdraw}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium"
+                  >
+                    Confirm Withdraw
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Main Container */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
-          <div className="space-y-4">
-            {Object.entries(CHAIN_CONFIGS).map(([chainKey, cfg]) => {
-              const wallet = wallets[chainKey];
-              const bal = balances[chainKey];
-              const statusInfo = chainStatus[chainKey] || {};
-              const isDeployed = !!wallet;
+        {/* Fund Modal */}
+        {isFundModalOpen && (
+          <div className="fixed inset-0 bg-black/25 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-200">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                  Fund Wallet
+                </h2>
+                <p className="text-gray-600 mb-2">
+                  To: {CHAIN_CONFIGS[fundConfig.chainKey].name}
+                </p>
+                <p className="text-gray-600 mb-4 font-mono text-sm break-all bg-gray-50 p-2 rounded">
+                  {fundConfig.walletAddress}
+                </p>
 
-              return (
-                <div
-                  key={chainKey}
-                  className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-4 hover:shadow-md transition-all duration-200"
-                >
-                  {isDeployed ? (
-                    <div className="flex items-center justify-between">
-                      {/* Left side - Chain info */}
-                      <div className="flex items-center gap-4">
-                        <ChainLogo chainKey={chainKey} config={cfg} />
-                        <div>
-                          <h3 className="font-semibold text-gray-800 text-lg">{cfg.name}</h3>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span>Status:</span>
-                            <StatusBadge isDeployed={isDeployed} statusInfo={statusInfo} />
-                          </div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            <span>Address: </span>
-                            <a
-                              href={`${cfg.blockExplorerUrls[0]}/address/${wallet}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-mono text-blue-600 hover:text-blue-800 hover:underline"
-                            >
-                              {truncateAddress(wallet)}
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right side - Actions */}
-                      <div className="flex items-center gap-3">
-                        <Button
-                          onClick={() => updateBalance(chainKey, wallet)}
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          View Balance
-                        </Button>
-                        <Button
-                          onClick={() => openFundModal(chainKey, wallet)}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
-                        >
-                          <ArrowDown className="w-4 h-4" />
-                          Fund Wallet
-                        </Button>
-                        <Button
-                          onClick={() => openWithdrawModal(chainKey, wallet)}
-                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
-                        >
-                          <ArrowUp className="w-4 h-4" />
-                          Withdraw
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      {/* Left side - Chain info */}
-                      <div className="flex items-center gap-4">
-                        <ChainLogo chainKey={chainKey} config={cfg} />
-                        <div>
-                          <h3 className="font-semibold text-gray-800 text-lg">{cfg.name}</h3>
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <span>Status:</span>
-                            <StatusBadge isDeployed={isDeployed} statusInfo={statusInfo} />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right side - Deploy button */}
-                      <div>
-                        <Button
-                          onClick={() => handleDeploy(chainKey)}
-                          disabled={statusInfo.type === 'loading'}
-                          className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
-                        >
-                          {statusInfo.type === 'loading' ? (
-                            <>
-                              <Loader className="mr-2 h-4 w-4 animate-spin" />
-                              Deploying...
-                            </>
-                          ) : (
-                            'Deploy Wallet'
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                <div className="mb-6">
+                  <label
+                    htmlFor="fundAmount"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Amount in{" "}
+                    {CHAIN_CONFIGS[fundConfig.chainKey].nativeCurrency.symbol}
+                  </label>
+                  <input
+                    type="text"
+                    id="fundAmount"
+                    value={fundAmount}
+                    onChange={(e) => setFundAmount(e.target.value)}
+                    placeholder="e.g., 0.01"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
-              );
-            })}
+
+                <div className="flex justify-end gap-3">
+                  <Button
+                    onClick={() => setIsFundModalOpen(false)}
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleFund}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
+                  >
+                    Confirm Fund
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
-
-      {/* Withdraw Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/25 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-200">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">Withdraw Funds</h2>
-              <p className="text-gray-600 mb-2">From: {CHAIN_CONFIGS[withdrawConfig.chainKey].name}</p>
-              <p className="text-gray-600 mb-4 font-mono text-sm break-all bg-gray-50 p-2 rounded">{withdrawConfig.walletAddress}</p>
-
-              <div className="mb-6">
-                <label htmlFor="withdrawAmount" className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount in {CHAIN_CONFIGS[withdrawConfig.chainKey].nativeCurrency.symbol}
-                </label>
-                <input
-                  type="text"
-                  id="withdrawAmount"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="e.g., 0.01"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <Button 
-                  onClick={() => setIsModalOpen(false)} 
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleWithdraw} 
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium"
-                >
-                  Confirm Withdraw
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Fund Modal */}
-      {isFundModalOpen && (
-        <div className="fixed inset-0 bg-black/25 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-200">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">Fund Wallet</h2>
-              <p className="text-gray-600 mb-2">To: {CHAIN_CONFIGS[fundConfig.chainKey].name}</p>
-              <p className="text-gray-600 mb-4 font-mono text-sm break-all bg-gray-50 p-2 rounded">{fundConfig.walletAddress}</p>
-
-              <div className="mb-6">
-                <label htmlFor="fundAmount" className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount in {CHAIN_CONFIGS[fundConfig.chainKey].nativeCurrency.symbol}
-                </label>
-                <input
-                  type="text"
-                  id="fundAmount"
-                  value={fundAmount}
-                  onChange={(e) => setFundAmount(e.target.value)}
-                  placeholder="e.g., 0.01"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <Button 
-                  onClick={() => setIsFundModalOpen(false)} 
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-medium"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleFund} 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
-                >
-                  Confirm Fund
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 
