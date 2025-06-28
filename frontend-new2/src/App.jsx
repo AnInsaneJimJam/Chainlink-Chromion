@@ -29,6 +29,7 @@ const App = () => {
         <Routes>
           <Route element={<AppLayout />}/>
           <Route path="/" element={<Index />} />
+          <Route path="/deploysw" element={<Deploysmartwallet />} />
           <Route path="/connect" element={<Connect />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-will" element={<CreateWill />} />
