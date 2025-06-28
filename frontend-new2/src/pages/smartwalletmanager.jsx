@@ -802,19 +802,19 @@ const SmartWalletManager = () => {
 
     if (isDeployed) {
       return (
-        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 border border-green-200">
-          <CheckCircle className="w-3 h-3 text-green-600" />
-          <span className="text-xs font-medium text-green-700">Deployed</span>
-        </div>
+        <span
+          className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold border border-green-700 bg-green-100 text-green-700 shadow-md shadow-green-800/30`}        >
+          ✔ Deployed
+        </span>
       );
     }
 
     return (
-      <div className="px-2 py-1 rounded-full bg-orange-50 border border-orange-200">
-        <span className="text-xs font-medium text-orange-700">
-          Not Deployed
-        </span>
-      </div>
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold border border-amber-700 bg-amber-100 text-amber-700 shadow-md shadow-amber-800/30`}
+      >
+        ⊗ Not Deployed
+      </span>
     );
   };
 
@@ -896,29 +896,18 @@ const SmartWalletManager = () => {
                     <>
                       <div className="flex-grow flex items-center gap-6">
                         <ChainLogo chainKey={chainKey} config={cfg} />
-                        <h2
-                          className="text-[#59595a] text-3xl font-semibold text-start"
-                          style={{ fontFamily: "Inter, sans-serif" }}
-                        >
-                          {cfg.name}
-                        </h2>
                         <div className="info-container">
+                          <h2
+                            className="text-[#59595a] text-3xl font-semibold text-start"
+                            style={{ fontFamily: "Inter, sans-serif" }}
+                          >
+                            {cfg.name}
+                          </h2>
                           <div className="flex items-center gap-2 mt-2">
                             <span className="text-gray-600 text-lg font-semibold">
                               Status:
                             </span>
 
-                            {/* //// edit karna hai  status badge ko*/}
-                            {/* <span
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold ${
-                    isDeployed
-                      ? "border border-green-700 bg-green-100 text-green-700 shadow-md shadow-green-800/30"
-                      : "border border-amber-700 bg-amber-100 text-amber-700 shadow-md shadow-amber-800/30"
-                  }`}
-                >
-                  {isDeployed ? "✔ Deployed" : "⊗ Not Deployed"}
-                </span> */}
-                            {/* yahan tk  */}
                             <StatusBadge
                               isDeployed={isDeployed}
                               statusInfo={statusInfo}
@@ -979,13 +968,13 @@ const SmartWalletManager = () => {
                     <>
                       <div className="flex-grow flex items-center gap-6">
                         <ChainLogo chainKey={chainKey} config={cfg} />
-                        <h2
-                          className="text-[#59595a] text-3xl font-semibold text-start"
-                          style={{ fontFamily: "Inter, sans-serif" }}
-                        >
-                          {cfg.name}
-                        </h2>
                         <div className="info-container">
+                          <h2
+                            className="text-[#59595a] text-3xl font-semibold text-start"
+                            style={{ fontFamily: "Inter, sans-serif" }}
+                          >
+                            {cfg.name}
+                          </h2>
                           <div className="flex items-center gap-2 mt-2">
                             <span className="text-gray-600 text-lg font-semibold">
                               Status:
