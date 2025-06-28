@@ -25,11 +25,12 @@
 
 pragma solidity ^0.8.19;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 // Interface to communicate with the Functions Consumer contract
 import {IGettingStartedFunctionsConsumer} from "./IGettingStartedFunctionsConsumer.sol";
 import {AutomationCompatibleInterface} from
-    "../lib/chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+    "https://github.com/smartcontractkit/chainlink-brownie-contracts/blob/main/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+
 
 /**
  * @title A Digital Will Contract with a Challenge Period Verification Method
@@ -244,7 +245,7 @@ contract Will is Ownable, AutomationCompatibleInterface {
         challenge.challengers[msg.sender] = msg.value;
         challenge.challengerList.push(msg.sender);
         challenge.totalChallengeBond += msg.value;
-
+        s_verificationStatus[_testator] = Status.PendingResolution;
         emit ExecutionChallenged(_testator, msg.sender, msg.value);
     }
 
@@ -381,7 +382,9 @@ contract Will is Ownable, AutomationCompatibleInterface {
     function getTestatorsForBeneficiary(address _beneficiary) external view returns (address[] memory) {
         return s_testators[_beneficiary];
     }
-
+    function getWIllhash(address testator) external view returns (bytes32) {
+        return s_willHashes[testator];
+    }
     // --- View & Internal Functions ---
     function getBeneficiaries(address _testator) external view returns (address[] memory) {
         if (!s_willExists[_testator]) revert Will_WillDoesNotExist();
@@ -406,4 +409,5 @@ contract Will is Ownable, AutomationCompatibleInterface {
     function getTestatorName(address _testator) external view returns (string memory) {
     return s_testatorName[_testator];
     }
+
 }
