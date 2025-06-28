@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testator Dashboard - InheritChain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+        Base & Global Styles
+        ======================================== */
+        body { position: relative; font-family: 'Inter', sans-serif; overflow-x: hidden; background-color: #EAF6FF; }
+        .fixed-background { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; background: radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%); z-index: 0; overflow: hidden; }
+        .fixed-background::before { content: ''; position: absolute; width: 150vmax; height: 150vmax; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-9.478deg); background: #CDEFFF; mix-blend-mode: hue; }
+        .fixed-background::after { content: ''; position: absolute; width: 150vmax; height: 150vmax; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30.74deg); background: url('https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg') lightgray 50% / cover no-repeat; opacity: 0.25; box-shadow: 0px 0px 114.717px 0px #CDEFFF; }
+        .main-content { position: relative; z-index: 2; }
+        .font-clash { font-family: 'Clash Display', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .header-text { color: #25292A; font-family: "Clash Display"; font-size: 32px; font-weight: 600; }
+        .header-btn { border-radius: 25px; border: 1px solid #0469AB; padding: 8px 16px; color: #0469AB; font-weight: 600; transition: all 0.2s; }
+        .header-btn:hover { background-color: rgba(4, 105, 171, 0.1); }
+        .page-title { color: #2D2D2D; font-size: 48px; font-weight: 600; }
+        .page-subtitle { color: #767676; font-size: 22px; font-weight: 500; }
+        .btn-primary { background: #0167AF; color: white; box-shadow: 2px 2px 4px 0px #002844; }
+        .btn-primary:hover { background: #0469AB; }
+
+        /* ========================================
+        Dashboard-Specific Styles
+        ======================================== */
+        .dashboard-card { border-radius: 15px; border: 1.5px solid rgba(4, 105, 171, 0.3); background: rgba(234, 246, 255, 0.5); backdrop-filter: blur(10px); padding: 24px; }
+        .dashboard-card.disabled { filter: blur(4px); opacity: 0.6; pointer-events: none; }
+        .label { color: #767676; font-size: 16px; font-weight: 500; }
+        .value { color: #2D2D2D; font-size: 18px; font-weight: 600; }
+        .status-badge-green { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 600; background-color: #D5FFE6; color: #12703D; border: 1px solid #12703D; }
+
+        /* ========================================
+        Create/Edit Will Form Styles
+        ======================================== */
+        .form-section { border-radius: 15px; border: 1.5px solid rgba(4, 105, 171, 0.3); background: rgba(234, 246, 255, 0.5); backdrop-filter: blur(10px); padding: 24px; }
+        .form-label { color: #25292A; font-weight: 600; }
+        .form-input { border-radius: 8px; border: 1px solid #CBD5E1; background: rgba(255,255,255,0.7); padding: 8px 12px; }
+        .btn-add-beneficiary { background-color: #07AAF4; color: white; border-radius: 20px; padding: 8px 16px; font-weight: 600; }
+        .btn-delete-beneficiary { color: #EF4444; }
+        .allocation-summary-box { border-radius: 10px; padding: 16px; text-align: center; }
+        .summary-red { background-color: #FEE2E2; color: #B91C1C; border: 1px solid #DC2626; }
+        .summary-green { background-color: #D5FFE6; color: #12703D; border: 1px solid #12703D; }
+        .btn-secondary { background-color: #E5E7EB; color: #374151; }
+        .btn-danger { background-color: #EF4444; color: white; }
+
+    </style>
+</head>
+<body>
+    <div class="fixed-background"></div>
+
+    <div class="main-content min-h-screen">
+        <!-- Page Header -->
+        <header class="absolute top-0 left-0 w-full p-8 lg:p-10 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <img src="https://placehold.co/50x50/FFFFFF/000000?text=L" alt="InheritChain Logo" class="w-12 h-12">
+                <span class="header-text font-clash">InheritChain</span>
+            </div>
+            <div id="header-actions" class="flex items-center gap-4">
+                <span class="font-inter font-semibold text-gray-700">0x1234...7890</span>
+                <button id="disconnect-btn" class="header-btn font-inter">Disconnect</button>
+                <button id="back-to-dashboard-btn" class="header-btn font-inter hidden">Back to Dashboard</button>
+            </div>
+        </header>
+
+        <!-- VIEWS CONTAINER -->
+        <div class="pt-32 pb-12 px-8 lg:px-12">
+        
+            <!-- STATE 1: NO WILL VIEW -->
+            <div id="no-will-view">
+                <div class="text-center">
+                    <h1 class="font-clash page-title">Testator Dashboard</h1>
+                    <p class="font-inter page-subtitle mt-1">Create and manage your digital will to secure your assets for your beneficiaries</p>
+                </div>
+
+                <div class="dashboard-card text-center my-8 max-w-4xl mx-auto p-10">
+                    <h2 class="font-clash text-3xl font-semibold text-gray-700">START YOUR DIGITAL LEGACY BY CREATING YOUR FIRST SMART WILL</h2>
+                    <button id="create-will-btn" class="btn-primary font-inter font-semibold rounded-full px-8 py-3 text-xl mt-6 inline-flex items-center gap-2">+ Create Will</button>
+                </div>
+                
+                <p class="text-center page-subtitle text-xl">Create a will to unlock these options.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6 max-w-5xl mx-auto">
+                    <div class="dashboard-card disabled">
+                        <h3 class="font-clash text-2xl font-semibold">Manage Beneficiaries</h3>
+                        <p class="mt-2 text-gray-600">Add, remove, or update beneficiaries and their asset allocations</p>
+                        <button class="header-btn mt-4">Manage</button>
+                    </div>
+                    <div class="dashboard-card disabled">
+                        <h3 class="font-clash text-2xl font-semibold">Manage Smart Wallets</h3>
+                        <p class="mt-2 text-gray-600">View and control your deployed smart contract wallets across blockchains</p>
+                        <button class="header-btn mt-4">Manage</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATE 2A: CREATE WILL VIEW -->
+            <div id="create-will-view" class="hidden">
+                 <div class="text-center">
+                    <h1 class="font-clash page-title">Create Your Will</h1>
+                    <p class="font-inter page-subtitle mt-1">Define your beneficiaries and how your assets will be distributed.</p>
+                </div>
+
+                <div class="space-y-6 mt-8 max-w-5xl mx-auto">
+                    <div class="form-section">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-clash text-2xl font-semibold">Beneficiaries & Asset Distribution</h3>
+                            <button id="add-beneficiary-btn-create" class="btn-add-beneficiary">+ Add Beneficiary</button>
+                        </div>
+                        <div id="beneficiaries-container-create" class="space-y-6 mt-4">
+                            <!-- Beneficiary template will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="font-clash text-2xl font-semibold">Allocation Summary</h3>
+                        <div id="allocation-summary-container-create" class="grid grid-cols-2 gap-6 mt-4">
+                            <!-- Summary boxes will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end items-center pt-6">
+                        <button id="cancel-creation-btn" class="header-btn bg-white">Cancel</button>
+                        <button id="save-new-will-btn" class="btn-primary header-btn text-white px-8 ml-4">Save Will</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATE 2B: EDIT WILL VIEW -->
+            <div id="edit-will-view" class="hidden">
+                 <div class="text-center">
+                    <h1 class="font-clash page-title">Edit Your Will</h1>
+                    <p class="font-inter page-subtitle mt-1">Update your digital inheritance by modifying beneficiaries and asset distributions</p>
+                </div>
+
+                <div class="space-y-6 mt-8 max-w-5xl mx-auto">
+                    <div class="form-section">
+                        <h3 class="font-clash text-2xl font-semibold">Will Information</h3>
+                        <div class="grid grid-cols-3 gap-6 mt-4">
+                            <div><span class="label">Created:</span> <span class="value">2025-06-18</span></div>
+                            <div><span class="label">Last Updated:</span> <span class="value">2025-06-18</span></div>
+                            <div><span class="label">Status:</span> <span class="status-badge-green">Active</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-clash text-2xl font-semibold">Beneficiaries & Asset Distribution</h3>
+                            <button id="add-beneficiary-btn-edit" class="btn-add-beneficiary">+ Add Beneficiary</button>
+                        </div>
+                        <div id="beneficiaries-container-edit" class="space-y-6 mt-4">
+                            <!-- Beneficiary template will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="font-clash text-2xl font-semibold">Allocation Summary</h3>
+                        <div id="allocation-summary-container-edit" class="grid grid-cols-2 gap-6 mt-4">
+                            <!-- Summary boxes will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-6">
+                        <div>
+                            <button id="cancel-changes-btn" class="header-btn bg-white">Cancel Changes</button>
+                            <button class="header-btn btn-danger ml-4">Delete Will</button>
+                        </div>
+                        <button id="save-changes-btn" class="btn-primary header-btn text-white px-8">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+            
+             <!-- STATE 3: WILL EXISTS VIEW -->
+            <div id="will-exists-view" class="hidden">
+                 <div class="text-center">
+                    <h1 class="font-clash page-title">Testator Dashboard</h1>
+                    <p class="font-inter page-subtitle mt-1">Create and manage your digital will to secure your assets for your beneficiaries</p>
+                </div>
+
+                <div class="dashboard-card my-8 max-w-4xl mx-auto p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="font-clash text-3xl font-semibold flex items-center gap-4">Your Digital Will <span class="status-badge-green">Active</span></h2>
+                             <div class="grid grid-cols-4 gap-x-8 gap-y-2 mt-4">
+                                <span class="label">Created</span>
+                                <span class="label">Last Updated</span>
+                                <span class="label">Beneficiaries</span>
+                                <span class="label">Total Assets</span>
+                                <span class="value">2025-06-18</span>
+                                <span class="value">2025-06-18</span>
+                                <span class="value">3</span>
+                                <span class="value">5.2 ETH</span>
+                             </div>
+                        </div>
+                         <button id="edit-will-btn" class="btn-primary header-btn text-white">Edit Will</button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6 max-w-5xl mx-auto">
+                    <div class="dashboard-card">
+                        <h3 class="font-clash text-2xl font-semibold">Manage Beneficiaries</h3>
+                        <p class="mt-2 text-gray-600">Add, remove, or update beneficiaries and their asset allocations</p>
+                        <button class="header-btn mt-4">Manage</button>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3 class="font-clash text-2xl font-semibold">Manage Smart Wallets</h3>
+                        <p class="mt-2 text-gray-600">View and control your deployed smart contract wallets across blockchains</p>
+                        <button class="header-btn mt-4">Manage</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script>
+    // --- DOM Elements ---
+    const noWillView = document.getElementById('no-will-view');
+    const createWillView = document.getElementById('create-will-view');
+    const editWillView = document.getElementById('edit-will-view');
+    const willExistsView = document.getElementById('will-exists-view');
+
+    const createWillBtn = document.getElementById('create-will-btn');
+    const editWillBtn = document.getElementById('edit-will-btn');
+    const saveNewWillBtn = document.getElementById('save-new-will-btn');
+    const saveChangesBtn = document.getElementById('save-changes-btn');
+    const cancelCreationBtn = document.getElementById('cancel-creation-btn');
+    const cancelChangesBtn = document.getElementById('cancel-changes-btn');
+
+    const disconnectBtn = document.getElementById('disconnect-btn');
+    const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
+    
+    // Create Mode Elements
+    const beneficiariesContainerCreate = document.getElementById('beneficiaries-container-create');
+    const addBeneficiaryBtnCreate = document.getElementById('add-beneficiary-btn-create');
+    const allocationSummaryContainerCreate = document.getElementById('allocation-summary-container-create');
+
+    // Edit Mode Elements
+    const beneficiariesContainerEdit = document.getElementById('beneficiaries-container-edit');
+    const addBeneficiaryBtnEdit = document.getElementById('add-beneficiary-btn-edit');
+    const allocationSummaryContainerEdit = document.getElementById('allocation-summary-container-edit');
+
+    // --- State & Data ---
+    const ASSETS = ['ETH', 'USDC'];
+    let beneficiaryIdCounter = 0;
+    let currentView = 'none';
+
+    // --- Functions ---
+    function showView(viewToShow) {
+        [noWillView, createWillView, editWillView, willExistsView].forEach(view => view.classList.add('hidden'));
+        viewToShow.classList.remove('hidden');
+        currentView = viewToShow.id;
+
+        const isFormView = viewToShow === createWillView || viewToShow === editWillView;
+        disconnectBtn.classList.toggle('hidden', isFormView);
+        backToDashboardBtn.classList.toggle('hidden', !isFormView);
+    }
+
+    function createBeneficiaryHTML(id, mode) {
+        const assetInputs = ASSETS.map(asset => `
+            <div class="flex-1">
+                <label class="form-label text-sm">${asset} <span class="text-gray-400">Total: 100%</span></label>
+                <input type="number" class="form-input w-full allocation-input-${mode}" data-asset="${asset}" value="0" min="0" max="100">
+            </div>
+        `).join('');
+
+        return `
+            <div id="beneficiary-${mode}-${id}" class="beneficiary-card border-t border-gray-300 pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-clash text-xl font-semibold">Beneficiary</h4>
+                    <button class="btn-delete-beneficiary" onclick="deleteBeneficiary('${id}', '${mode}')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="form-label">Name</label><input type="text" class="form-input w-full" placeholder="Beneficiary Name"></div>
+                    <div><label class="form-label">Wallet Address</label><input type="text" class="form-input w-full" placeholder="0x..."></div>
+                </div>
+                <div class="mt-4">
+                    <p class="form-label mb-2">Asset Allocation(%)</p>
+                    <div class="flex gap-4">${assetInputs}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function addBeneficiary(mode) {
+        beneficiaryIdCounter++;
+        const beneficiaryHTML = createBeneficiaryHTML(beneficiaryIdCounter, mode);
+        const container = mode === 'create' ? beneficiariesContainerCreate : beneficiariesContainerEdit;
+        container.insertAdjacentHTML('beforeend', beneficiaryHTML);
+        addInputListeners(mode);
+        updateAllocationSummary(mode);
+    }
+    
+    function deleteBeneficiary(id, mode) {
+        document.getElementById(`beneficiary-${mode}-${id}`).remove();
+        updateAllocationSummary(mode);
+    }
+    
+    function updateAllocationSummary(mode) {
+        const container = mode === 'create' ? allocationSummaryContainerCreate : allocationSummaryContainerEdit;
+        let summaryHTML = '';
+        ASSETS.forEach(asset => {
+            const inputs = document.querySelectorAll(`.allocation-input-${mode}[data-asset="${asset}"]`);
+            let total = 0;
+            inputs.forEach(input => { total += parseInt(input.value) || 0; });
+
+            let summaryClass = (total === 100) ? 'summary-green' : 'summary-red';
+            let icon = (total === 100) ? '✔' : '⊗';
+            
+            summaryHTML += `
+                <div class="allocation-summary-box ${summaryClass}">
+                    <p class="font-semibold">${asset}</p>
+                    <p class="text-xl font-bold">${total}% Allocated ${icon}</p>
+                </div>
+            `;
+        });
+        container.innerHTML = summaryHTML;
+    }
+
+    function addInputListeners(mode) {
+        const inputs = document.querySelectorAll(`.allocation-input-${mode}`);
+        inputs.forEach(input => {
+            input.removeEventListener('input', () => updateAllocationSummary(mode));
+            input.addEventListener('input', () => updateAllocationSummary(mode));
+        });
+    }
+
+    // --- Event Listeners ---
+    createWillBtn.addEventListener('click', () => {
+        beneficiariesContainerCreate.innerHTML = '';
+        beneficiaryIdCounter = 0;
+        addBeneficiary('create');
+        showView(createWillView);
+    });
+    
+    editWillBtn.addEventListener('click', () => {
+        // In a real app, you would load existing data here.
+        beneficiariesContainerEdit.innerHTML = '';
+        beneficiaryIdCounter = 0;
+        addBeneficiary('edit');
+        addBeneficiary('edit');
+        showView(editWillView);
+    });
+
+    saveNewWillBtn.addEventListener('click', () => showView(willExistsView));
+    saveChangesBtn.addEventListener('click', () => showView(willExistsView));
+    cancelCreationBtn.addEventListener('click', () => showView(noWillView));
+    cancelChangesBtn.addEventListener('click', () => showView(willExistsView));
+    backToDashboardBtn.addEventListener('click', () => {
+        // A simple check to see if a will "exists"
+        if (willExistsView.classList.contains('hidden') && noWillView.classList.contains('hidden')) {
+             showView(willExistsView);
+        } else {
+             showView(noWillView);
+        }
+    });
+
+    addBeneficiaryBtnCreate.addEventListener('click', () => addBeneficiary('create'));
+    addBeneficiaryBtnEdit.addEventListener('click', () => addBeneficiary('edit'));
+
+    // --- Initial Load ---
+    showView(noWillView);
+
+    </script>
+</body>
+</html>
