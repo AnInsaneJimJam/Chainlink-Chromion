@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const Header = ({ showDisconnect = false, onDisconnect, walletAddress, showBackToDashboard = false }) => {
   const navigate = useNavigate();
   return (
-    <header className="bg-transparent backdrop-blur-sm fixed top-0 left-0 w-full z-50">
+    <header className="bg-transparent fixed top-0 left-0 w-full z-50">
       <div className="flex justify-between items-center px-8 lg:px-10 py-6">
         <button
           className="flex items-center gap-4 hover:bg-transparent bg-transparent border-0 p-0"
