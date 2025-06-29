@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-// export default CreateWill;
-=======
->>>>>>> Stashed changes
 import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ethers } from "ethers";
@@ -10,12 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
-<<<<<<< Updated upstream
 import	{CONTRACT_ADDRESS, CONTRACT_ABI} from "../EtherJs/constants.js"; 
-=======
 import SmartWalletManager from "./smartwalletmanager";
 import { useNavigate } from "react-router-dom";
->>>>>>> Stashed changes
 
 
 
