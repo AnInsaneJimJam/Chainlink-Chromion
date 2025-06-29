@@ -2,9 +2,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, CheckCircle } from "lucide-react";
-import {ethers} from "ethers"; 
+import { ethers } from "ethers";
 import useWalletStore from "../EtherJs/walletStore.js";
-import {getContract} from "../EtherJs/contract.js";
+import { getContract } from "../EtherJs/contract.js";
+import Header from "../components/Header.jsx";
 
 const Connect = () => {
   const { setContract } = useWalletStore()
@@ -13,48 +14,48 @@ const Connect = () => {
   const userType = searchParams.get("type");
   const [connectionState, setConnectionState] = useState("idle");
 
-const handleConnectWallet = async () => {
-  try {
-    setConnectionState("connecting");
+  const handleConnectWallet = async () => {
+    try {
+      setConnectionState("connecting");
 
-    if (!window.ethereum) {
-      alert("MetaMask is not installed. Please install it to continue.");
-      setConnectionState("idle");
-      return;
-    }
-
-    // Request wallet connection
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const accounts = await provider.send("eth_requestAccounts", []);
-    const signer = await provider.getSigner();
-
-    const address = await signer.getAddress();
-    console.log("Connected wallet address:", address);
-
-    const contractInstance = getContract(signer);
-    setContract(contractInstance);
-    
-    // Simulate connection animations
-    setConnectionState("connected");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    setConnectionState("success");
-
-    // Redirect after short delay
-    setTimeout(() => {
-      if (userType === "testator") {
-        navigate("/dashboard");
-      } else {
-        navigate("/beneficiary-dashboard");
+      if (!window.ethereum) {
+        alert("MetaMask is not installed. Please install it to continue.");
+        setConnectionState("idle");
+        return;
       }
-    }, 1500);
-    return { provider, signer, address }
 
-  } catch (err) {
-    console.error("Wallet connection failed", err);
-    setConnectionState("idle");
-  }
-};
+      // Request wallet connection
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+
+      const address = await signer.getAddress();
+      console.log("Connected wallet address:", address);
+
+      const contractInstance = getContract(signer);
+      setContract(contractInstance);
+
+      // Simulate connection animations
+      setConnectionState("connected");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setConnectionState("success");
+
+      // Redirect after short delay
+      setTimeout(() => {
+        if (userType === "testator") {
+          navigate("/dashboard");
+        } else {
+          navigate("/beneficiary-dashboard");
+        }
+      }, 1500);
+      return { provider, signer, address }
+
+    } catch (err) {
+      console.error("Wallet connection failed", err);
+      setConnectionState("idle");
+    }
+  };
 
   const handleBack = () => {
     navigate("/");
@@ -62,6 +63,7 @@ const handleConnectWallet = async () => {
 
   return (
     <>
+      <Header />
       <style jsx>{`
         body {
             position: relative;
@@ -239,17 +241,9 @@ const handleConnectWallet = async () => {
       <div className="fixed-background"></div>
 
       <div className="main-content min-h-screen">
-        <header className="absolute top-0 left-0 p-8 lg:p-12">
-          <div className="flex items-center gap-4">
-         
-            <img src="logo.png" alt="InheritChain Logo" className="w-12 h-12" />
-            <span className="page-header-text">InheritChain</span>
-          </div>
-        </header>
-
         <div className="min-h-screen flex items-center justify-center">
-          <div className="connect-wallet-box p-8 flex flex-col items-center justify-around text-center">
-            
+          <div className="connect-wallet-box p-8 mt-100 flex flex-col items-center justify-around text-center">
+
             <AnimatePresence mode="wait">
               {connectionState === "idle" && (
                 <motion.div
@@ -271,8 +265,8 @@ const handleConnectWallet = async () => {
                   </h1>
 
                   <p className="connect-subtext">Login to your Smart Contract Wallet<br />using your connected wallet</p>
-                  
-                  <motion.button 
+
+                  <motion.button
                     className="connect-button flex items-center justify-center"
                     onClick={handleConnectWallet}
                     whileHover={{ scale: 1.05 }}
@@ -326,7 +320,7 @@ const handleConnectWallet = async () => {
                   transition={{ duration: 0.3 }}
                   className="flex flex-col items-center justify-around h-full"
                 >
-                  <motion.div 
+                  <motion.div
                     className="w-18 h-18 bg-green-500 rounded-full flex items-center justify-center"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -358,7 +352,7 @@ const handleConnectWallet = async () => {
                   transition={{ duration: 0.5 }}
                   className="flex flex-col items-center justify-around h-full"
                 >
-                  <div 
+                  <div
                     className="w-18 h-18 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center success-pulse"
                     style={{ width: '72px', height: '72px' }}
                   >

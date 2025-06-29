@@ -52,26 +52,27 @@ const EditWill = () => {
   const fetchWillData = useCallback(async (address) => {
     setStatus("Loading will data...");
     try {
-      const res = await fetch(`http://localhost:5000/api/wills/${address}`);
+      const normalizedAddress = address.toLowerCase();
+      const res = await fetch(`http://localhost:5000/api/wills/${normalizedAddress}`);
       if (res.ok) {
         const willData = await res.json();
-        
+
         // Transform the will data to match the beneficiaries state structure
         const transformedBeneficiaries = willData.beneficiaries.map((beneficiary, index) => {
           const allocations = {};
-          
+
           // Convert allocations array to object keyed by chain
           beneficiary.allocations.forEach(allocation => {
             allocations[allocation.chain] = allocation.percentage.toString();
           });
-          
+
           return {
             id: Date.now() + index, // Generate unique ID
             address: beneficiary.address,
             allocations: allocations
           };
         });
-        
+
         setBeneficiaries(transformedBeneficiaries);
         setStatus("");
       } else {
@@ -219,7 +220,6 @@ const EditWill = () => {
   };
 
   const handleUpdateWill = async () => {
-    // Check allocation validity before proceeding
     if (!isAllocationValid()) {
       const invalidChains = getInvalidChains();
       const chainNames = invalidChains.map(chain => chainToSymbol[chain]).join(', ');
@@ -228,7 +228,7 @@ const EditWill = () => {
     }
 
     const willObject = {
-      testator: walletAddress,
+      testator: walletAddress.toLowerCase(),
       beneficiaries: beneficiaries.map((b) => ({
         address: b.address,
         allocations: Object.entries(b.allocations).map(
@@ -240,23 +240,8 @@ const EditWill = () => {
       })),
     };
 
-    // delete the existing database
     try {
-      const res = await fetch(`http://localhost:5000/api/wills/${walletAddress}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      alert("Will deleted successfully!");
-    } catch (error) {
-      console.error("Error deltet will:", error);
-      alert("Failed to dleete will.");
-    }
-    
-
-    // add the database
-    try {
-      // Update in database (override existing data)
+      // Use upsert logic (PUT or POST with upsert on backend)
       const res = await fetch(`http://localhost:5000/api/wills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -272,7 +257,6 @@ const EditWill = () => {
 
       // Update on blockchain
       await editWill(beneficiaries, walletAddress);
-
       alert("Will updated successfully!");
     } catch (error) {
       console.error("Error updating will:", error);
@@ -295,142 +279,172 @@ const EditWill = () => {
 
   return (
     <motion.div
-      className="min-h-screen"
-      style={{ background: "linear-gradient(to bottom, #ffffff, #fafbfc)" }}
+      className="min-h-screen relative font-inter overflow-x-hidden"
+      style={{ background: '#EAF6FF' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      <Header showDisconnect onDisconnect={() => {}} />
-
-      <div className="container mx-auto px-6 py-8 max-w-4xl">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Will</h1>
-          <p className="text-gray-600">
-            Update your digital inheritance structure and beneficiary allocations.
-          </p>
-        </div>
-
-        {status && <p className="text-center text-gray-500 mb-4">{status}</p>}
-
-        {/* Allocation Warning */}
-        {!isAllocationValid() && (
-          <Card className="p-4 mb-6 border-red-300 bg-red-50">
-            <div className="flex items-center gap-2 text-red-800">
-              <AlertTriangle className="w-5 h-5" />
-              <h3 className="font-semibold">Allocation Error</h3>
+      {/* Fixed Background Layers */}
+      <div className="fixed w-full h-full top-0 left-0 z-0 overflow-hidden"
+        style={{
+          background: 'radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)'
+        }}
+      >
+        <div
+          className="absolute w-[150vmax] h-[150vmax] top-1/2 left-1/2"
+          style={{
+            transform: 'translate(-50%, -50%) rotate(-9.478deg)',
+            background: '#CDEFFF',
+            mixBlendMode: 'hue'
+          }}
+        />
+        <div
+          className="absolute w-[150vmax] h-[150vmax] top-1/2 left-1/2 opacity-25"
+          style={{
+            transform: 'translate(-50%, -50%) rotate(-30.74deg)',
+            background: "url('https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg') lightgray 50% / cover no-repeat",
+            boxShadow: '0px 0px 114.717px 0px #CDEFFF'
+          }}
+        />
+      </div>
+      <div className="main-content relative z-10 min-h-screen">
+        <Header showDisconnect onDisconnect={() => { }} walletAddress={walletAddress} />
+        <div className="pt-32 pb-12 px-4 lg:px-12 max-w-5xl mx-auto">
+          <div className="text-center">
+            <h1 className="font-clash text-[48px] font-semibold text-[#2D2D2D]">Edit Your Will</h1>
+            <p className="font-inter text-[22px] text-[#767676] font-medium mt-1">Update your digital inheritance by modifying beneficiaries and asset distributions</p>
+          </div>
+          <div className="space-y-6 mt-8">
+            {/* Will Information Section */}
+            <div className="form-section bg-[rgba(234,246,255,0.5)] border border-[rgba(4,105,171,0.3)] rounded-[15px] backdrop-blur-[10px] p-6">
+              <h3 className="font-clash text-2xl font-semibold mb-4">Will Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+                <div><span className="label font-semibold text-[#0469AB]">Created:</span> <span className="value text-[#25292A]">2025-06-18</span></div>
+                <div><span className="label font-semibold text-[#0469AB]">Last Updated:</span> <span className="value text-[#25292A]">2025-06-18</span></div>
+                <div><span className="label font-semibold text-[#0469AB]">Status:</span> <span className="status-badge-green bg-[#D5FFE6] text-[#12703D] px-3 py-1 rounded-full ml-2">Active</span></div>
+              </div>
             </div>
-            <p className="text-red-700 mt-2">
-              Total allocation exceeds 100% for: {getInvalidChains().map(chain => chainToSymbol[chain]).join(', ')}
-            </p>
-            <p className="text-red-600 text-sm mt-1">
-              Please adjust allocations before updating your will.
-            </p>
-          </Card>
-        )}
-
-        <div className="grid gap-6">
-          {Object.entries(wallets).map(([chainKey, address]) => (
-            <Card key={chainKey} className="p-4 border border-gray-300">
-              <h3 className="text-lg font-semibold mb-2">Wallet on {chainKey}</h3>
-              <p className="text-sm text-gray-700 break-words">{address}</p>
-              <p className="text-sm text-gray-800 mt-2">
-                Balance:{" "}
-                {balances[chainKey]
-                  ? `${balances[chainKey]} ${chainToSymbol[chainKey]}`
-                  : "Loading..."}
-              </p>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-10">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Beneficiaries</h2>
-            <div className="flex items-center gap-4">
-              <p className="text-sm text-gray-600">
-                {beneficiaries.length} beneficiar{beneficiaries.length !== 1 ? "ies" : "y"}
-              </p>
-              <Button 
-                onClick={addBeneficiary}
-                className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+            {/* Beneficiaries & Asset Distribution Section */}
+            <div className="form-section bg-[rgba(234,246,255,0.5)] border border-[rgba(4,105,171,0.3)] rounded-[15px] backdrop-blur-[10px] p-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <h3 className="font-clash text-2xl font-semibold">Beneficiaries & Asset Distribution</h3>
+                <button
+                  type="button"
+                  onClick={addBeneficiary}
+                  className="btn-add-beneficiary bg-[#07AAF4] text-white rounded-full px-6 py-2 font-semibold text-base mt-4 md:mt-0"
+                >
+                  + Add Beneficiary
+                </button>
+              </div>
+              <div className="space-y-6 mt-4">
+                {/* Beneficiary Cards */}
+                {beneficiaries.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <p className="text-gray-500 mb-4">No beneficiaries found in your will.</p>
+                    <button
+                      type="button"
+                      onClick={addBeneficiary}
+                      className="bg-[#07AAF4] text-white rounded-full px-6 py-2 font-semibold text-base"
+                    >
+                      + Add Your First Beneficiary
+                    </button>
+                  </div>
+                ) : (
+                  beneficiaries.map((b, idx) => (
+                    <div key={b.id} className="beneficiary-card border-t border-gray-300 pt-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-clash text-xl font-semibold">Beneficiary {idx + 1}</h4>
+                        <button
+                          type="button"
+                          className="bg-transparent border border-[#EF4444] text-[#EF4444] text-lg"
+                          onClick={() => removeBeneficiary(b.id)}
+                        >
+                          <Trash2 className="w-6 h-6" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="form-label text-[#25292A] font-semibold">Wallet Address</label>
+                          <input
+                            type="text"
+                            className="form-input w-full border border-[#CBD5E1] bg-white/70 rounded-lg px-3 py-2 mt-1"
+                            placeholder="0x..."
+                            value={b.address}
+                            onChange={e => updateBeneficiary(b.id, 'address', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <p className="form-label mb-2 text-[#25292A] font-semibold">Asset Allocation (%)</p>
+                        <div className="flex gap-4 flex-wrap">
+                          {Object.keys(wallets).map(chainKey => (
+                            <div className="flex-1 min-w-[120px]" key={chainKey}>
+                              <label className="form-label text-sm">{chainToSymbol[chainKey]} <span className="text-gray-400">Total: 100%</span></label>
+                              <input
+                                type="number"
+                                className="form-input w-full border border-[#CBD5E1] bg-white/70 rounded-lg px-3 py-2 mt-1"
+                                min="0"
+                                max="100"
+                                value={b.allocations[chainKey] || ""}
+                                onChange={e => updateBeneficiary(b.id, 'allocation', e.target.value, chainKey)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            {/* Allocation Summary Section */}
+            <div className="form-section bg-[rgba(234,246,255,0.5)] border border-[rgba(4,105,171,0.3)] rounded-[15px] backdrop-blur-[10px] p-6">
+              <h3 className="font-clash text-2xl font-semibold">Allocation Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                {Object.keys(wallets).map(chainKey => {
+                  const total = getTotalAllocations(chainKey);
+                  const isValid = total === 100;
+                  return (
+                    <div
+                      key={chainKey}
+                      className={`allocation-summary-box rounded-lg p-4 text-center ${isValid ? 'summary-green bg-[#D5FFE6] text-[#12703D] border border-[#12703D]' : 'summary-red bg-[#FEE2E2] text-[#B91C1C] border border-[#DC2626]'}`}
+                    >
+                      <p className="font-semibold">{chainToSymbol[chainKey]}</p>
+                      <p className="text-xl font-bold">{total}% Allocated {isValid ? '✔' : '⊗'}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Save/Cancel/Delete Buttons */}
+            <div className="flex justify-between items-center pt-6">
+              <div>
+                <button
+                  type="button"
+                  className="header-btn bg-white border border-[#0469AB] text-[#0469AB] font-semibold rounded-[25px] px-6 py-2 transition-all hover:bg-[#0469AB1A]"
+                  onClick={() => window.location.href = '/dashboard'}
+                >
+                  Back to Dashboard
+                </button>
+                <button
+                  type="button"
+                  className="header-btn btn-danger ml-4 bg-[#EF4444] text-white rounded-[25px] px-6 py-2 font-semibold"
+                  onClick={() => alert('Delete Will logic here')}
+                >
+                  Delete Will
+                </button>
+              </div>
+              <button
+                type="button"
+                className="btn-primary header-btn text-white rounded-full px-8 py-3 text-xl bg-[#0167AF] hover:bg-[#0469AB] font-inter font-semibold shadow"
+                onClick={handleUpdateWill}
+                disabled={beneficiaries.length === 0 || !isAllocationValid()}
               >
-                <Plus className="w-4 h-4" />
-                Add Beneficiary
-              </Button>
+                Save Changes
+              </button>
             </div>
           </div>
-
-          {beneficiaries.length === 0 ? (
-            <Card className="p-8 text-center">
-              <p className="text-gray-500 mb-4">No beneficiaries found in your will.</p>
-              <Button 
-                onClick={addBeneficiary}
-                className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 mx-auto"
-              >
-                <Plus className="w-4 h-4" />
-                Add Your First Beneficiary
-              </Button>
-            </Card>
-          ) : (
-            beneficiaries.map((b, idx) => (
-              <Card key={b.id} className="p-4 mb-4 border">
-                <div className="flex justify-between mb-3">
-                  <h3 className="text-lg font-semibold">Beneficiary {idx + 1}</h3>
-                  <Button variant="ghost" onClick={() => removeBeneficiary(b.id)}>
-                    <Trash2 className="text-red-600" />
-                  </Button>
-                </div>
-                <div className="mb-4">
-                  <label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Wallet Address
-                  </label>
-                  <Input
-                    value={b.address}
-                    onChange={(e) => updateBeneficiary(b.id, "address", e.target.value)}
-                    placeholder="Enter beneficiary wallet address (0x...)"
-                    className="w-full font-mono"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(wallets).map(([chainKey]) => {
-                    const totalAllocation = getTotalAllocations(chainKey);
-                    const isOverAllocation = totalAllocation > 100;
-                    
-                    return (
-                      <div key={chainKey}>
-                        <label className={`text-sm font-medium ${isOverAllocation ? 'text-red-700' : 'text-gray-700'}`}>
-                          {chainToSymbol[chainKey]} Allocation (%) — Total: {totalAllocation}%
-                          {isOverAllocation && <span className="text-red-600 ml-1">⚠️</span>}
-                        </label>
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={b.allocations[chainKey] || ""}
-                          onChange={(e) =>
-                            updateBeneficiary(b.id, "allocation", e.target.value, chainKey)
-                          }
-                          placeholder={`% of ${chainToSymbol[chainKey]}`}
-                          className={isOverAllocation ? 'border-red-300 focus:border-red-500' : ''}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card>
-            ))
-          )}
-        </div>
-
-        <div className="mt-10 flex justify-end">
-          <Button
-            onClick={handleUpdateWill}
-            className="bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={beneficiaries.length === 0 || !isAllocationValid()}
-          >
-            Update Will (Save to Backend + Chain)
-          </Button>
         </div>
       </div>
     </motion.div>

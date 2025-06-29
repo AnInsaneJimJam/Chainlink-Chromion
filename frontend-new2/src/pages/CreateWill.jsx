@@ -2000,10 +2000,10 @@ const CreateWill = () => {
 											<h4 className="font-clash text-xl font-semibold">Beneficiary {idx + 1}</h4>
 											<button
 												type="button"
-												className="btn-delete-beneficiary text-[#EF4444] text-lg"
+												className="bg-transparent border border-[#EF4444] text-[#EF4444] text-lg"
 												onClick={() => removeBeneficiary(b.id)}
 											>
-												&#10005;
+												<Trash2 className="w-6 h-6" />
 											</button>
 										</div>
 										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
