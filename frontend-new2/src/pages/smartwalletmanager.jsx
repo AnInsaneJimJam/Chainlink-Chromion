@@ -263,6 +263,7 @@ const SmartWalletManager = () => {
     const logicContracts = {
       polygon: "0xeE12fF2A08BAF07c719adB07EFeE5DC62dE23fbd",
       avalanche: "0xE60f79571E7EDba477ff98BAdeE618b5605DF7aE",
+      base: "0xd946F0bc4292a5b83894df44fc931e7852d728ff",
       sepolia: CHAIN_CONFIGS[chainKey]?.logicContractAddress, // fallback for dev/test
     };
 

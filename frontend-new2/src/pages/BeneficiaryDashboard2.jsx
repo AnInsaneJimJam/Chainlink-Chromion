@@ -259,7 +259,8 @@ const BeneficiaryDashboard = () => {
 	const RPC_URLS = {
 		sepolia: "https://sepolia.infura.io/v3/YOUR_INFURA_ID", // optional, in case needed
 		polygon: "https://rpc-amoy.polygon.technology/",
-		avalanche: "https://api.avax-test.network/ext/bc/C/rpc"
+		avalanche: "https://api.avax-test.network/ext/bc/C/rpc",
+        base: "https://sepolia.base.org"
 	};
 
 
@@ -306,7 +307,7 @@ const BeneficiaryDashboard = () => {
 			});
 		}
 		console.log(batchTransfers)
-		const MAIN_COORDINATOR_ADDRESS = "0xD3B2010d2CD19A6B8C53588Afc46483f70367dFA";
+		const MAIN_COORDINATOR_ADDRESS = "0xECC2D8adD8678612DCbB8B092745e12ed102719e";
 		const ABI = [
 			{
 				"inputs": [
