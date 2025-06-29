@@ -19,6 +19,7 @@ const Dashboard = () => {
   const [walletAddress, setWalletAddress] = useState("");
   const [wallets, setWallets] = useState({});
   const [walletsLoading, setWalletsLoading] = useState(true);
+  const [noWallets, setNoWallets] = useState(false);
 
   const handleDisconnect = () => {
     navigate("/");
@@ -45,13 +46,20 @@ const Dashboard = () => {
     setWalletsLoading(true);
     try {
       const res = await fetch(`http://localhost:5000/api/wallets/${address}`);
-      if (res.ok) {
+      console.log("/api/wallets status:", res.status);
+      if (res.status === 200) {
         const data = await res.json();
         setWallets(data.wallets || {});
+        setNoWallets(false);
+      } else if (res.status === 404) {
+        setNoWallets(true);
+        setWallets({});
       } else {
+        setNoWallets(true);
         setWallets({});
       }
     } catch (err) {
+      setNoWallets(true);
       setWallets({});
     } finally {
       setWalletsLoading(false);
@@ -75,10 +83,11 @@ const Dashboard = () => {
     getConnectedAddressAndWallets();
   }, [fetchWallets]);
 
-  const noWallets = !walletsLoading && Object.keys(wallets).length === 0;
   const isNewTestator = !hasWill;
-  // Blur if: (wallets exist but no will)
-  const blurDashboard = !walletsLoading && !noWallets && isNewTestator;
+  // Blur if: wallets exist and no will, OR no wallets at all
+  const blurForNoWallets = !walletsLoading && noWallets;
+  const blurForNoWill = !walletsLoading && !noWallets && isNewTestator;
+  const blurDashboard = blurForNoWallets || blurForNoWill;
 
   useEffect(() => {
     const fetchWillStatus = async () => {
@@ -89,10 +98,13 @@ const Dashboard = () => {
           const address = await signer.getAddress();
           setWalletAddress(address);
           const res = await fetch(`http://localhost:5000/api/wills/${address}`);
-          if (res.ok) {
+          console.log("/api/wills status:", res.status);
+          if (res.status === 200) {
             const data = await res.json();
             setWillData(data);
             setHasWill(true);
+          } else if (res.status === 404) {
+            setHasWill(false);
           } else {
             setHasWill(false);
           }
@@ -105,6 +117,17 @@ const Dashboard = () => {
     };
     fetchWillStatus();
   }, []);
+
+  // Debugging: log key state values before rendering
+  console.log({
+    wallets,
+    hasWill,
+    blurDashboard,
+    walletsLoading,
+    willData,
+    noWallets,
+    isNewTestator
+  });
 
   return (
     <motion.div
@@ -143,12 +166,18 @@ const Dashboard = () => {
         <Header showDisconnect onDisconnect={handleDisconnect} walletAddress={walletAddress} />
 
         <div className="pt-32 pb-12 px-4 lg:px-12 max-w-7xl mx-auto relative">
-          {/* Overlay for new testator (wallets exist but no will) */}
+          {/* Overlay for no wallets or wallets exist but no will */}
           {blurDashboard && (
             <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[rgba(234,246,255,0.7)] backdrop-blur-[2px] rounded-[15px]">
               <div className="bg-white/90 border border-[#0469AB] rounded-[15px] px-8 py-6 shadow-lg flex flex-col items-center">
-                <h2 className="font-clash text-2xl md:text-3xl font-semibold text-[#0469AB] mb-2 text-center">Create your digital will</h2>
-                <p className="font-inter text-lg text-[#767676] text-center">You have deployed a smart wallet. Now create your digital will to continue.</p>
+                <h2 className="font-clash text-2xl md:text-3xl font-semibold text-[#0469AB] mb-2 text-center">
+                  {blurForNoWallets ? 'Deploy a smart wallet to get started' : 'Create your digital will'}
+                </h2>
+                <p className="font-inter text-lg text-[#767676] text-center">
+                  {blurForNoWallets
+                    ? 'You need to deploy at least one smart wallet before you can create your digital will.'
+                    : 'You have deployed a smart wallet. Now create your digital will to continue.'}
+                </p>
               </div>
             </div>
           )}
@@ -161,8 +190,8 @@ const Dashboard = () => {
             >
               Manage Smart Wallets
             </button>
-            {/* Show Create Will button if at least one wallet exists and no will yet */}
-            {!noWallets && isNewTestator && (
+            {/* Show Create Will button only if wallets exist and no will yet */}
+            {blurForNoWill && (
               <button
                 onClick={handleCreateWill}
                 className="ml-4 btn-primary font-inter font-semibold rounded-full px-8 py-3 text-xl bg-[#0167AF] hover:bg-[#0469AB] text-white shadow"
@@ -171,7 +200,7 @@ const Dashboard = () => {
               </button>
             )}
           </div>
-          {/* Blur all other content if wallets exist but no will */}
+          {/* Blur all other content if wallets = 0 or wallets exist but no will */}
           <div className={blurDashboard ? 'pointer-events-none filter blur-sm select-none opacity-60' : ''}>
             <div className="text-center mb-8">
               <h1 className="font-clash text-[48px] font-semibold text-[#2D2D2D]">Testator Dashboard</h1>
