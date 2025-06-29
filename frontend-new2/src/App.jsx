@@ -6,13 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Connect from "./pages/Connect";
-import BeneficiaryDashboard from "./pages/BeneficiaryDashboard";
+// import BeneficiaryDashboard from "./pages/BeneficiaryDashboard";
 import EditWill from "./pages/EditWill";
 import CreateWill from "./pages/CreateWill";
 import NotFound from "./pages/NotFound";
 import Deploysmartwallet from "./pages/Deploysmartwallet.jsx";
 import SmartWalletManager from "./pages/smartwalletmanager.jsx";
 import AppLayout from "./AppLayout";
+import BeneficiaryDashboard from "./pages/BeneficiaryDashboard2.jsx";
 
 const queryClient = new QueryClient();
 

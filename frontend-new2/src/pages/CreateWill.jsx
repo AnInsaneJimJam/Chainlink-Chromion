@@ -1708,6 +1708,7 @@ const CreateWill = () => {
 	const [beneficiaries, setBeneficiaries] = useState([]);
 	const [testatorName, setTestatorName] = useState("");
 	const [yearOfBirth, setYearOfBirth] = useState("");
+  const [prices, setPrices] = useState({});
 
 	const fetchWallets = useCallback(async (address) => {
 		setStatus("Fetching deployed wallets...");
@@ -1765,14 +1766,43 @@ const CreateWill = () => {
 
 		getConnectedAddress();
 	}, [fetchWallets]);
+  const fetchTokenPrices = useCallback(async () => {
+    try {
+      const newPrices = {};
 
+      for (const chainKey of Object.keys(wallets)) {
+        const feed = PRICE_FEEDS[chainKey];
+        const rpcUrl = RPC_URLS[chainKey];
+        if (!feed || !rpcUrl) continue;
+
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+        const aggregator = new ethers.Contract(
+          feed.address,
+          [
+            "function latestRoundData() view returns (uint80, int256, uint256, uint256, uint80)"
+          ],
+          provider
+        );
+
+        const [, answer] = await aggregator.latestRoundData();
+        newPrices[chainKey] = Number(answer) / 10 ** feed.decimals;
+      }
+
+      setPrices(newPrices);
+    } catch (err) {
+      console.error("Failed to fetch price feeds:", err);
+    }
+  }, [wallets]);
 	useEffect(() => {
+	if (Object.keys(wallets).length > 0) {
 		Object.entries(wallets).forEach(([chainKey, walletAddress]) => {
 			if (walletAddress) {
 				updateBalance(chainKey, walletAddress);
 			}
 		});
-	}, [wallets, updateBalance]);
+		fetchTokenPrices();
+	}
+}, [wallets, updateBalance, fetchTokenPrices]);
 
 	const addBeneficiary = () => {
 		const newBeneficiary = {
@@ -1788,6 +1818,16 @@ const CreateWill = () => {
 	const removeBeneficiary = (id) => {
 		setBeneficiaries((prev) => prev.filter((b) => b.id !== id));
 	};
+  const PRICE_FEEDS = {
+    polygon: {
+      address: "0xdDe6F6F53d1B1c18F31D7857d86eE3B38d58eDd4", // MATIC/USD on Amoy
+      decimals: 8
+    },
+    avalanche: {
+      address: "0x0A77230d17318075983913bC2145DB16C7366156", // AVAX/USD on Fuji
+      decimals: 8
+    }
+  };
 
 	const updateBeneficiary = (id, field, value, chainKey = null) => {
 		setBeneficiaries((prev) =>
@@ -1833,7 +1873,7 @@ const CreateWill = () => {
 
 		return errors;
 	};
-
+  
 	const createWill = async (_beneficiaries, _testatorAddr) => {
 		try {
 			const provider = new ethers.BrowserProvider(window.ethereum);
@@ -2041,33 +2081,42 @@ const CreateWill = () => {
 							</div>
 						</div>
 						{/* Allocation Summary Section */}
-                <div className="form-section bg-[rgba(234,246,255,0.5)] border border-[rgba(4,105,171,0.3)] rounded-[15px] backdrop-blur-[10px] p-6">
-                  <h3 className="font-clash text-2xl font-semibold">Allocation Summary</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    {Object.keys(wallets).map(chainKey => {
-                      const total = getTotalAllocations(chainKey);
-                      const isValid = total === 100;
-                      const balance = balances[chainKey];
+              <div className="form-section bg-[rgba(234,246,255,0.5)] border border-[rgba(4,105,171,0.3)] rounded-[15px] backdrop-blur-[10px] p-6">
+                <h3 className="font-clash text-2xl font-semibold">Allocation Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                  {Object.keys(wallets).map(chainKey => {
+                    const total = getTotalAllocations(chainKey);
+                    const isValid = total === 100;
+                    const tokenBalance = balances[chainKey];
+                    const tokenPrice = prices[chainKey];
 
-                      return (
-                        <div
-                          key={chainKey}
-                          className={`allocation-summary-box rounded-lg p-4 text-center ${
-                            isValid
-                              ? 'summary-green bg-[#D5FFE6] text-[#12703D] border border-[#12703D]'
-                              : 'summary-red bg-[#FEE2E2] text-[#B91C1C] border border-[#DC2626]'
-                          }`}
-                        >
-                          <p className="font-semibold">{chainToSymbol[chainKey]}</p>
-                          <p className="text-xl font-bold">{total}% Allocated {isValid ? '✔' : '⊗'}</p>
-                          <p className="text-sm font-medium mt-1">
-                            Balance: {balance ? `${Number(balance).toFixed(4)} ${chainToSymbol[chainKey]}` : "Loading..."}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
+                    const usdValue =
+                      tokenBalance && tokenPrice
+                        ? (Number(tokenBalance) * tokenPrice).toFixed(2)
+                        : null;
+
+                    return (
+                      <div
+                        key={chainKey}
+                        className={`allocation-summary-box rounded-lg p-4 text-center ${
+                          isValid
+                            ? 'summary-green bg-[#D5FFE6] text-[#12703D] border border-[#12703D]'
+                            : 'summary-red bg-[#FEE2E2] text-[#B91C1C] border border-[#DC2626]'
+                        }`}
+                      >
+                        <p className="font-semibold">{chainToSymbol[chainKey]}</p>
+                        <p className="text-xl font-bold">{total}% Allocated {isValid ? '✔' : '⊗'}</p>
+                        <p className="text-sm font-medium mt-1">
+                          Balance: {tokenBalance ? `${Number(tokenBalance).toFixed(4)} ${chainToSymbol[chainKey]}` : "Loading..."}
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          {usdValue ? `≈ $${usdValue}` : ""}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
 
 						{/* Save/Cancel Buttons */}
 						<div className="flex justify-end items-center pt-6 gap-4">
