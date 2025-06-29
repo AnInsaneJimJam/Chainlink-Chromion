@@ -1,5 +1,6 @@
 // Contract configuration
-export const CONTRACT_ADDRESS = "0x0dBA16959221bB97eD82853B52e1dBD46eb8000F"; // Replace with your deployed contract address
+// final will address
+export const CONTRACT_ADDRESS = "0xB5fFecf066Fc5b65737c6C36851B46d493156A1b"; // Replace with your deployed contract address
 export const SEPOLIA_CHAIN_ID = "0xaa36a7";
 export const SEPOLIA_RPC_URL = "https://sepolia.infura.io/v3/"; // Replace with your RPC URL
 
