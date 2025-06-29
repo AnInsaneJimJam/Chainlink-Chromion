@@ -4,18 +4,18 @@ InheritChain is a decentralized, cross-chain inheritance management system that 
 
 ---
 
-## 🔗 Live on: Sepolia (Primary), Polygon, Avalanche
+## 🔗 Live on: Sepolia (Primary), Polygon, Avalanche, Base
 
 ---
 
 ## 📌 Features
 
-* **Smart Will Registry**: Create will with off-chain metadata and on-chain proof.
-* **Smart Wallet Deployment**: Deploy vaults on any supported chain to hold testator's assets.
+* **Smart Will Registry**: Create will with off-chain asset % for privacy and on-chain beneficiary list and willhash-A tamper resistent proof of off chain data.
+* **Smart Wallet Deployment**: Deploy vaults on any supported chain to hold testator's assets - managed by ccip.
 * **Challenge Window**: A transparent 10-day contestation window to allow dispute of false claims.
 * **Automated Finalization**: Uses Chainlink Automation to trigger execution after challenge period.
-* **Chainlink Any API**: Verifies if the testator has passed away.
-* **Chainlink CCIP**: Transfers funds to beneficiaries across chains.
+* **Chainlink Any API**: Fetches from a simulated Government Api and Verifies if the testator has passed away.
+* **Chainlink CCIP**: Transfers funds to beneficiaries across chains with just a single call.
 * **Multi-party Challenge Protocol**: Stake-based dispute mechanism between beneficiaries.
 * **MongoDB-Backed Off-chain Storage**: Efficient off-chain will metadata and asset records.
 
@@ -38,7 +38,7 @@ Frontend (React)
          - View Countdown / Status
    |
    ↓
-Chainlink Automation — polls wills that crossed 10-day window
+Chainlink Automation — execute wills that crossed 10-day window
    ↓
 If Challenged → Chainlink Any API → Fetch testator death status
 If Not Challenged → CCIP Transfer auto-executes
@@ -56,9 +56,8 @@ MongoDB ↔ Backend (Node.js/Express) ↔ Smart Contracts ↔ Chainlink
    * Will object is stored in **MongoDB** with:
 
      * Testator address
-     * Will content hash
      * Beneficiary details and allocations
-   * On-chain `WillContract` stores the hash and beneficiary addresses.
+   * On-chain `WillContract` stores the Will hash and beneficiary addresses.
 
 2. **Smart Wallet Deployment**
 
