@@ -7,21 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
+import	{CONTRACT_ADDRESS, CONTRACT_ABI} from "../EtherJs/constants.js"; 
 
-// --- Contract Info ---
-const CONTRACT_ADDRESS = "0x076af07022a92cCFdAF1aB6CA42AfA9Ed0360097";
-const CONTRACT_ABI = [
-  {
-    inputs: [
-      { internalType: "address[]", name: "_beneficiaries", type: "address[]" },
-      { internalType: "bytes32", name: "_willHash", type: "bytes32" },
-    ],
-    name: "editWill",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-];
 
 const chainToSymbol = {
   polygon: "MATIC",
@@ -210,6 +197,7 @@ const EditWill = () => {
       const bytes = ethers.toUtf8Bytes(jsonStr);
       const createdWillHash = ethers.keccak256(bytes);
 
+      console.log("newB, createdW", newBeneficiaries, createdWillHash);
       const tx = await contract.editWill(newBeneficiaries, createdWillHash);
       await tx.wait();
 
