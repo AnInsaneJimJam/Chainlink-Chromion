@@ -88,7 +88,7 @@ const DeployWallet = () => {
             {chain.logo}
           </div>
           <div className="info-container">
-            <h2 className="text-[#59595a] text-3xl font-semibold text-start" style={{fontFamily: 'Inter, sans-serif'}}>
+            <h2 className="text-[#59595a] text-3xl font-semibold text-start" style={{ fontFamily: 'Inter, sans-serif' }}>
               {chain.name}
             </h2>
             <div className="flex items-center gap-2 mt-2">
@@ -96,11 +96,10 @@ const DeployWallet = () => {
                 Status:
               </span>
               <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold ${
-                  isDeployed
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-sm font-semibold ${isDeployed
                     ? "border border-green-700 bg-green-100 text-green-700 shadow-md shadow-green-800/30"
                     : "border border-amber-700 bg-amber-100 text-amber-700 shadow-md shadow-amber-800/30"
-                }`}
+                  }`}
               >
                 {isDeployed ? "✔ Deployed" : "⊗ Not Deployed"}
               </span>
@@ -350,72 +349,72 @@ const DeployWallet = () => {
 
   return (
     <>
-<header className="fixed top-0 left-0 p-8 lg:p-12 z-10 w-full">
-  <div className="flex items-center gap-4">
-    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-black text-2xl font-bold">
-      L
-    </div>
-    <span className="text-gray-800 text-[32px] font-semibold" style={{fontFamily: 'Clash Display, sans-serif'}}>
-      InheritChain
-    </span>
-  </div>
-</header>
-    <div className="min-h-screen relative overflow-hidden">
+      <header className="fixed top-0 left-0 p-8 lg:p-12 z-10 w-full">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-black text-2xl font-bold">
+            L
+          </div>
+          <span className="text-gray-800 text-[32px] font-semibold" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+            InheritChain
+          </span>
+        </div>
+      </header>
+      <div className="min-h-screen relative overflow-hidden">
 
-            {/* Header */}
+        {/* Header */}
 
 
-      {/* Fixed Background */}
-      <div
-        className="fixed inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)",
-        }}
-      >
-        {/* Background overlays */}
+        {/* Fixed Background */}
         <div
-          className="absolute inset-0 opacity-25"
+          className="fixed inset-0 z-0"
           style={{
             background:
-              'url("https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg") lightgray 50% / cover no-repeat',
-            boxShadow: "0px 0px 114.717px 0px #CDEFFF",
+              "radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)",
           }}
-        />
+        >
+          {/* Background overlays */}
+          <div
+            className="absolute inset-0 opacity-25"
+            style={{
+              background:
+                'url("https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg") lightgray 50% / cover no-repeat',
+              boxShadow: "0px 0px 114.717px 0px #CDEFFF",
+            }}
+          />
+        </div>
+
+
+
+        {/* Main Content */}
+        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-24 pb-12 px-4">
+          <div className="text-center">
+            <h1 className="text-[#0469AB] text-4xl lg:text-[54px] font-semibold mb-8" style={{ fontFamily: 'Clash Display, sans-serif' }}>
+              Deploy Your Smart Contract Wallets
+            </h1>
+            <p className="text-[#767676] text-xl lg:text-[22px] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Please ensure you're on the correct network when funding or
+              withdrawing
+            </p>
+          </div>
+
+          {/* Warning Box */}
+          <div className="max-w-[741px] w-full h-11 mt-6 rounded-[10px] border-[0.5px] border-[#8F6112] bg-yellow-100 flex items-center justify-center px-4">
+            <p className="text-amber-700 text-lg lg:text-[23px] font-medium text-center">
+              Make sure your MetaMask network matches the selected chain
+            </p>
+          </div>
+
+          {/* Chain Cards */}
+          <div className="space-y-6 mt-8 w-full flex flex-col items-center">
+            {Object.entries(chainData).map(([chainId, chain]) => (
+              <ChainCard key={chainId} chainId={chainId} chain={chain} />
+            ))}
+          </div>
+        </div>
+
+        {/* Modal */}
+        <Modal />
       </div>
-
-
-
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-24 pb-12 px-4">
-        <div className="text-center">
-          <h1 className="text-[#0469AB] text-4xl lg:text-[54px] font-semibold mb-8" style={{fontFamily: 'Clash Display, sans-serif'}}>
-            Deploy Your Smart Contract Wallets
-          </h1>
-          <p className="text-[#767676] text-xl lg:text-[22px] font-medium" style={{fontFamily: 'Inter, sans-serif'}}>
-            Please ensure you're on the correct network when funding or
-            withdrawing
-          </p>
-        </div>
-
-        {/* Warning Box */}
-        <div className="max-w-[741px] w-full h-11 mt-6 rounded-[10px] border-[0.5px] border-[#8F6112] bg-yellow-100 flex items-center justify-center px-4">
-          <p className="text-amber-700 text-lg lg:text-[23px] font-medium text-center">
-            Make sure your MetaMask network matches the selected chain
-          </p>
-        </div>
-
-        {/* Chain Cards */}
-        <div className="space-y-6 mt-8 w-full flex flex-col items-center">
-          {Object.entries(chainData).map(([chainId, chain]) => (
-            <ChainCard key={chainId} chainId={chainId} chain={chain} />
-          ))}
-        </div>
-      </div>
-
-      {/* Modal */}
-      <Modal />
-    </div>
     </>
   );
 };

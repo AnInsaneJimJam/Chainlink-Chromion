@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { ethers } from "https://esm.sh/ethers@6.12.1";
 import { smartWalletABI, smartWalletBytecode } from "../abi/smartwallet";
+import Header from "@/components/Header";
 
 const CHAIN_CONFIGS = {
   polygon: {
@@ -497,19 +498,7 @@ const SmartWalletManager = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 p-8 lg:p-12 z-10 w-full">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-black text-2xl font-bold">
-            L
-          </div>
-          <span
-            className="text-gray-800 text-[32px] font-semibold"
-            style={{ fontFamily: "Clash Display, sans-serif" }}
-          >
-            InheritChain
-          </span>
-        </div>
-      </header>
+      <Header />
       <div className="min-h-screen relative overflow-hidden">
         {/* Fixed Background */}
         <div
@@ -694,7 +683,7 @@ const SmartWalletManager = () => {
               >
                 <X size={24} />
               </button>
-              
+
               {activeModal === "balance" && (
                 <div className="flex flex-col items-center gap-6 text-center">
                   <h2 className="text-[#0469AB] text-[28px] font-semibold font-clash">
@@ -793,11 +782,10 @@ const SmartWalletManager = () => {
                   </div>
                   <button
                     onClick={handleModalAction}
-                    className={`w-52 h-12 ${
-                      activeModal === "fund"
-                        ? "bg-blue-700 hover:bg-blue-800"
-                        : "bg-purple-600 hover:bg-purple-700"
-                    } text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 transition-transform hover:scale-105`}
+                    className={`w-52 h-12 ${activeModal === "fund"
+                      ? "bg-blue-700 hover:bg-blue-800"
+                      : "bg-purple-600 hover:bg-purple-700"
+                      } text-white rounded-3xl font-semibold text-lg flex items-center justify-center gap-2 transition-transform hover:scale-105`}
                   >
                     {activeModal === "fund" ? (
                       <ArrowDown size={20} />

@@ -15,14 +15,14 @@ const Index = () => {
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       {/* Fixed Background Layer */}
-      <div 
+      <div
         className="fixed w-full h-full top-0 left-0 z-0 overflow-hidden"
         style={{
           background: 'radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)'
         }}
       >
         {/* Background Hue Layer */}
-        <div 
+        <div
           className="absolute w-[150vmax] h-[150vmax] top-1/2 left-1/2"
           style={{
             transform: 'translate(-50%, -50%) rotate(-9.478deg)',
@@ -31,7 +31,7 @@ const Index = () => {
           }}
         />
         {/* Background Logo Layer */}
-        <div 
+        <div
           className="absolute w-[150vmax] h-[150vmax] top-1/2 left-1/2 opacity-25"
           style={{
             transform: 'translate(-50%, -50%) rotate(-30.74deg)',
@@ -66,7 +66,7 @@ const Index = () => {
                   DIGITAL INHERITANCE WITH
                 </motion.span>
               </motion.h1>
-              
+
               <motion.h2
                 className="font-semibold text-[#0469AB] leading-tight"
                 style={{
@@ -105,9 +105,9 @@ const Index = () => {
                   initial={{ opacity: 0, y: 60 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
-                  whileHover={{ scale: 1.1, y: -5, transition: { duration: 0.2, ease: "easeOut" }}}
+                  whileHover={{ scale: 1.1, y: -5, transition: { duration: 0.2, ease: "easeOut" } }}
                 >
-                  <p 
+                  <p
                     className="text-[#25292A] font-semibold"
                     style={{
                       fontSize: 'clamp(32px, 3vw, 40px)',
@@ -116,7 +116,7 @@ const Index = () => {
                   >
                     100%
                   </p>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium"
                     style={{
                       fontSize: 'clamp(16px, 1.5vw, 22px)',
@@ -131,9 +131,9 @@ const Index = () => {
                   initial={{ opacity: 0, y: 60 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7, duration: 0.5, ease: "easeOut" }}
-                  whileHover={{ scale: 1.1, y: -5, transition: { duration: 0.2, ease: "easeOut" }}}
+                  whileHover={{ scale: 1.1, y: -5, transition: { duration: 0.2, ease: "easeOut" } }}
                 >
-                  <p 
+                  <p
                     className="text-[#25292A] font-semibold"
                     style={{
                       fontSize: 'clamp(32px, 3vw, 40px)',
@@ -142,7 +142,7 @@ const Index = () => {
                   >
                     24/7
                   </p>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium"
                     style={{
                       fontSize: 'clamp(16px, 1.5vw, 22px)',
@@ -157,9 +157,9 @@ const Index = () => {
                   initial={{ opacity: 0, y: 60 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
-                  whileHover={{ scale: 1.1, y: -5, transition: { duration: 0.2, ease: "easeOut" }}}
+                  whileHover={{ scale: 1.1, y: -5, transition: { duration: 0.2, ease: "easeOut" } }}
                 >
-                  <p 
+                  <p
                     className="text-[#25292A] font-semibold"
                     style={{
                       fontSize: 'clamp(32px, 3vw, 40px)',
@@ -168,7 +168,7 @@ const Index = () => {
                   >
                     0
                   </p>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium"
                     style={{
                       fontSize: 'clamp(16px, 1.5vw, 22px)',
@@ -190,7 +190,7 @@ const Index = () => {
                 whileInView={{ opacity: 0.8, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
                 viewport={{ once: true }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.3 }}}
+                whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
               >
                 <div>
                   <div className="flex items-center gap-4">
@@ -198,13 +198,13 @@ const Index = () => {
                       <img src="testator.png" alt="Testator Icon" className="w-10 h-10" />
                     </div>
                     <h3 style={{ fontFamily: "'Clash Display', sans-serif" }}>
-                      <span 
+                      <span
                         className="text-[#25292A] font-medium"
                         style={{ fontSize: 'clamp(28px, 2.5vw, 35px)' }}
                       >
                         I'm a{' '}
                       </span>
-                      <span 
+                      <span
                         className="text-[#07AAF4] font-medium"
                         style={{ fontSize: 'clamp(28px, 2.5vw, 35px)' }}
                       >
@@ -212,7 +212,7 @@ const Index = () => {
                       </span>
                     </h3>
                   </div>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium mt-4"
                     style={{
                       fontSize: 'clamp(16px, 1.4vw, 20px)',
@@ -242,7 +242,7 @@ const Index = () => {
                 whileInView={{ opacity: 0.8, x: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
                 viewport={{ once: true }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.3 }}}
+                whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
               >
                 <div>
                   <div className="flex items-center gap-4">
@@ -250,13 +250,13 @@ const Index = () => {
                       <img src="beneficiary.png" alt="Beneficiary Icon" className="w-7 h-7" />
                     </div>
                     <h3 style={{ fontFamily: "'Clash Display', sans-serif" }}>
-                      <span 
+                      <span
                         className="text-[#25292A] font-medium"
                         style={{ fontSize: 'clamp(28px, 2.5vw, 35px)' }}
                       >
                         I'm a{' '}
                       </span>
-                      <span 
+                      <span
                         className="text-[#07AAF4] font-medium"
                         style={{ fontSize: 'clamp(28px, 2.5vw, 35px)' }}
                       >
@@ -264,7 +264,7 @@ const Index = () => {
                       </span>
                     </h3>
                   </div>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium mt-4"
                     style={{
                       fontSize: 'clamp(16px, 1.4vw, 20px)',
@@ -303,7 +303,7 @@ const Index = () => {
               >
                 Why Choose InheritChain?
               </motion.h3>
-              
+
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6"
                 initial={{ opacity: 0 }}
@@ -318,12 +318,12 @@ const Index = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
                   viewport={{ once: true, margin: "-50px" }}
-                  whileHover={{ y: -15, scale: 1.03, transition: { duration: 0.4, ease: "easeOut" }}}
+                  whileHover={{ y: -15, scale: 1.03, transition: { duration: 0.4, ease: "easeOut" } }}
                 >
                   <div className="w-[62px] h-[62px] bg-[#0167AF] rounded-full flex items-center justify-center mb-3 flex-shrink-0">
                     <img src="secure and immutable.png" alt="Secure Icon" className="w-10 h-10" />
                   </div>
-                  <h4 
+                  <h4
                     className="text-[#25292A] font-medium mb-3"
                     style={{
                       fontSize: 'clamp(20px, 1.8vw, 26px)',
@@ -332,7 +332,7 @@ const Index = () => {
                   >
                     Secure & Immutable
                   </h4>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium max-w-xs mx-auto"
                     style={{
                       fontSize: 'clamp(16px, 1.4vw, 20px)',
@@ -342,7 +342,7 @@ const Index = () => {
                     Your will is stored on blockchain, making it tamper-proof and permanently accessible.
                   </p>
                 </motion.div>
-                
+
                 {/* Feature 2 */}
                 <motion.div
                   className="flex flex-col items-center text-center"
@@ -350,12 +350,12 @@ const Index = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.9, ease: "easeOut" }}
                   viewport={{ once: true, margin: "-50px" }}
-                  whileHover={{ y: -18, scale: 1.05, transition: { duration: 0.4, ease: "easeOut" }}}
+                  whileHover={{ y: -18, scale: 1.05, transition: { duration: 0.4, ease: "easeOut" } }}
                 >
                   <div className="w-[62px] h-[62px] bg-[#0167AF] rounded-full flex items-center justify-center mb-3 flex-shrink-0">
                     <img src="easy management.png" alt="Management Icon" className="w-10 h-10" />
                   </div>
-                  <h4 
+                  <h4
                     className="text-[#25292A] font-medium mb-3"
                     style={{
                       fontSize: 'clamp(20px, 1.8vw, 26px)',
@@ -364,7 +364,7 @@ const Index = () => {
                   >
                     Easy Management
                   </h4>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium max-w-xs mx-auto"
                     style={{
                       fontSize: 'clamp(16px, 1.4vw, 20px)',
@@ -374,7 +374,7 @@ const Index = () => {
                     Simple interface to create, edit, and manage your digital inheritance plans.
                   </p>
                 </motion.div>
-                
+
                 {/* Feature 3 */}
                 <motion.div
                   className="flex flex-col items-center text-center"
@@ -382,12 +382,12 @@ const Index = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.9, duration: 1.0, ease: "easeOut" }}
                   viewport={{ once: true, margin: "-50px" }}
-                  whileHover={{ y: -15, scale: 1.03, transition: { duration: 0.4, ease: "easeOut" }}}
+                  whileHover={{ y: -15, scale: 1.03, transition: { duration: 0.4, ease: "easeOut" } }}
                 >
                   <div className="w-[62px] h-[62px] bg-[#0167AF] rounded-full flex items-center justify-center mb-3 flex-shrink-0">
                     <img src="automated transfer.png" alt="Transfer Icon" className="w-10 h-10" />
                   </div>
-                  <h4 
+                  <h4
                     className="text-[#25292A] font-medium mb-3"
                     style={{
                       fontSize: 'clamp(20px, 1.8vw, 26px)',
@@ -396,7 +396,7 @@ const Index = () => {
                   >
                     Automated Transfer
                   </h4>
-                  <p 
+                  <p
                     className="text-[#767676] font-medium max-w-xs mx-auto"
                     style={{
                       fontSize: 'clamp(16px, 1.4vw, 20px)',

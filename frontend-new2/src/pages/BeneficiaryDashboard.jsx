@@ -889,7 +889,7 @@ const InheritanceCard = ({ inheritance, onInitiate, onChallenge, onInherit }) =>
 						className="flex items-center gap-2 py-2 px-4 text-sm font-semibold rounded-lg bg-orange-600 hover:bg-orange-700 text-white"
 					>
 						Challenge
-					</button>
+          </button>
 				)} */}
 				{inheritance.status === "Verified" && (
 					<button

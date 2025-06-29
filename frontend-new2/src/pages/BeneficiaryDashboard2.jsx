@@ -608,22 +608,22 @@ const BeneficiaryDashboard = () => {
 				<h2 className="font-clash section-title text-[36px] font-semibold text-[#2D2D2D] mb-1">Your Inheritances</h2>
 				<div className="w-full space-y-6 min-h-[40vh] flex flex-col justify-center">
 					<AnimatePresence>
-                    {loading ? (
-                        <div className="text-gray-500 text-center">Loading testators...</div>
-                    ) : inheritances.length === 0 ? (
-                        <div className="text-gray-500 text-center">No inheritances found.</div>
-                    ) : (
-                        inheritances.map((i) => (
-                        <InheritanceCard
-                            key={i.id}
-                            inheritance={i}
-                            onInitiate={handleInitiate}
-                            onChallenge={handleChallenge}
-                            onInherit={handleInherit}
-                        />
-                        ))
-                    )}
-                    </AnimatePresence>
+						{loading ? (
+							<div className="text-gray-500 text-center">Loading testators...</div>
+						) : inheritances.length === 0 ? (
+							<div className="text-gray-500 text-center">No inheritances found.</div>
+						) : (
+							inheritances.map((i) => (
+								<InheritanceCard
+									key={i.id}
+									inheritance={i}
+									onInitiate={handleInitiate}
+									onChallenge={handleChallenge}
+									onInherit={handleInherit}
+								/>
+							))
+						)}
+					</AnimatePresence>
 				</div>
 			</div>
 		</div>
