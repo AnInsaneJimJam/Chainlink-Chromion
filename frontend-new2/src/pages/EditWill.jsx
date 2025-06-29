@@ -381,7 +381,7 @@ const EditWill = () => {
               asset distributions
             </p>
           </div>
-          <div className="inline-flex h-11 rounded-[10px] border-[0.5px] border-[#8F6112] bg-yellow-100 items-center justify-center px-4 my-4">
+          <div className="inline-flex h-11 rounded-[10px] border-[0.5px] border-[#8F6112] bg-yellow-100 items-center justify-center px-4 mt-4">
             <p className="text-amber-700 text-md lg:text-[19px] font-medium text-center whitespace-nowrap">
               Make sure your Metamask matches the Sepolia Chain
             </p>
