@@ -554,8 +554,6 @@ const BeneficiaryDashboard = () => {
 		// 4. Prepare and call MainCoordinator contract
 		const coordinator = new ethers.Contract(MAIN_COORDINATOR_ADDRESS, ABI, signer);
 
-		// Optional: Estimate fees first by looping over s_router.getFee(...) off-chain
-
 		// Call contract: _to = beneficiaryAddress
 		const tx = await coordinator.requestActionBatch(batchTransfers, beneficiaryAddress, {
 			value: ethers.parseEther("0.002") // rough overpayment for gas fee

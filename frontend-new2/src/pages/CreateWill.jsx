@@ -17,6 +17,7 @@ const chainToSymbol = {
 	ethereum: "ETH",
 	binancesmartchain: "BNB",
 	avalanche: "AVAX",
+  base: "BASE SEPOLIA"
 };
 
 const CreateWill = () => {
@@ -49,7 +50,8 @@ const CreateWill = () => {
 	const RPC_URLS = {
 		sepolia: "https://sepolia.infura.io/v3/YOUR_INFURA_ID", // optional, in case needed
 		polygon: "https://rpc-amoy.polygon.technology/",
-		avalanche: "https://api.avax-test.network/ext/bc/C/rpc"
+		avalanche: "https://api.avax-test.network/ext/bc/C/rpc",
+    base: "https://sepolia.base.org"
 	};
 	const updateBalance = useCallback(async (chainKey, walletAddress) => {
 		try {
