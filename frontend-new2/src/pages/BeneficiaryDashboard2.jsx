@@ -848,20 +848,20 @@ const InheritanceCard = ({ inheritance, onInitiate, onChallenge, onInherit }) =>
 			animate={{ opacity: 1, y: 0 }}
 			exit={{ opacity: 0, x: -20 }}
 			transition={{ duration: 0.4 }}
-			className="border border-gray-200/80 rounded-xl p-5 bg-white shadow-sm hover:shadow-lg transition-all"
+			className="border border-gray-200/80 rounded-xl p-8 bg-white shadow-sm hover:shadow-lg transition-all min-h-[160px] w-full"
 		>
 			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div className="flex-1">
-					<div className="flex items-center gap-3 mb-2">
-						<h3 className="font-semibold text-lg text-gray-900">{inheritance.name}</h3>
-						<span className={`px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1.5 ${statusColors[inheritance.status]}`}>
-							{statusIcons[inheritance.status]}
-							{inheritance.status.replace(/([A-Z])/g, ' $1').trim()}
-						</span>
+					<div className="flex items-center gap-3 mb-4">
+						<div className="text-[28px] sm:text-[32px] font-bold text-gray-900 uppercase">{inheritance.name}</div>
+                        <span className={`px-4 py-1.5 text-sm sm:text-base font-semibold rounded-full flex items-center gap-2 ${statusColors[inheritance.status]}`}>
+                            {statusIcons[inheritance.status]}
+                            <span>{inheritance.status.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        </span>
 					</div>
-					<div className="text-sm text-gray-600">
+					<div className="text-base sm:text-lg text-gray-700 mt-4">
 						<div>
-							<span className="font-medium text-gray-700">Testator Address:</span> {inheritance.address}
+							<span className="font-medium text-gray-800">Testator Address:</span> {inheritance.address}
 						</div>
 						{inheritance.status === "ChallengePeriodActive" && inheritance.waitingPeriodEndDate && (
 							<Countdown endDate={inheritance.waitingPeriodEndDate} />
@@ -1381,7 +1381,7 @@ const BeneficiaryDashboard = () => {
 						<p className="font-inter stat-label text-[18px] text-[#767676] font-medium">Pending Investigation</p>
 					</div>
 				</div>
-				<h2 className="font-clash section-title text-[36px] font-semibold text-[#2D2D2D] mb-6">Your Inheritances</h2>
+				<h2 className="font-clash section-title text-[36px] font-semibold text-[#2D2D2D] mb-1">Your Inheritances</h2>
 				<div className="w-full space-y-6 min-h-[40vh] flex flex-col justify-center">
 					<AnimatePresence>
                     {loading ? (
