@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertTriangle,
   CheckCircle,
@@ -56,15 +55,6 @@ const CHAIN_CONFIGS = {
     name: "Avalanche",
     logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png",
     logicContractAddress: "0xE60f79571E7EDba477ff98BAdeE618b5605DF7aE",
-  },
-  solana: {
-    chainId: "0x65",
-    chainName: "Solana Devnet",
-    nativeCurrency: { name: "SOL", symbol: "SOL", decimals: 9 },
-    rpcUrls: ["https://api.devnet.solana.com"],
-    blockExplorerUrls: ["https://explorer.solana.com/?cluster=devnet"],
-    name: "Solana",
-    logo: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png",
   },
 };
 
@@ -209,56 +199,115 @@ const SmartWalletManager = () => {
     return res.json();
   };
 
+  // const handleDeploy = async (chainKey) => {
+  //   setChainStatus((ps) => ({
+  //     ...ps,
+  //     [chainKey]: { message: "Deploying...", type: "loading" },
+  //   }));
+  //   try {
+  //     await switchNetwork(chainKey);
+  //     const { signer } = await getProviderAndSigner();
+  //     if (
+  //       !smartWalletBytecode ||
+  //       smartWalletBytecode === "YOUR_SMART_WALLET_BYTECODE"
+  //     )
+  //       throw new Error("Bytecode not configured.");
+
+  //     const factory = new ethers.ContractFactory(
+  //       smartWalletABI,
+  //       smartWalletBytecode,
+  //       signer,
+  //     );
+  //     const contract = await factory.deploy();
+  //     await contract.waitForDeployment();
+  //     const address = await contract.getAddress();
+
+  //     const logic = CHAIN_CONFIGS[chainKey].logicContractAddress;
+  //     if (!logic) throw new Error(`Missing logic contract for ${chainKey}`);
+  //     await (await contract.setLogicContract(logic)).wait();
+
+  //     setChainStatus((ps) => ({
+  //       ...ps,
+  //       [chainKey]: { message: "Saving to backend...", type: "loading" },
+  //     }));
+  //     await saveToBackend(userAddress, chainKey, address);
+
+  //     setWallets((ps) => ({ ...ps, [chainKey]: address }));
+  //     setChainStatus((ps) => ({
+  //       ...ps,
+  //       [chainKey]: { message: "Deployed", type: "success" },
+  //     }));
+  //     updateBalance(chainKey, address);
+  //   } catch (e) {
+  //     console.error(e);
+  //     setChainStatus((ps) => ({
+  //       ...ps,
+  //       [chainKey]: {
+  //         message: `Deployment failed: ${e.message}`,
+  //         type: "error",
+  //       },
+  //     }));
+  //   }
+  // };
   const handleDeploy = async (chainKey) => {
+  setChainStatus((ps) => ({
+    ...ps,
+    [chainKey]: { message: "Deploying...", type: "loading" },
+  }));
+
+  try {
+    await switchNetwork(chainKey);
+    const { signer } = await getProviderAndSigner();
+
+    // Hardcoded logicContract addresses for Avalanche and Polygon
+    const logicContracts = {
+      polygon: "0xeE12fF2A08BAF07c719adB07EFeE5DC62dE23fbd",
+      avalanche: "0xE60f79571E7EDba477ff98BAdeE618b5605DF7aE",
+      sepolia: CHAIN_CONFIGS[chainKey]?.logicContractAddress, // fallback for dev/test
+    };
+
+    const logicContract = logicContracts[chainKey];
+    if (!logicContract) throw new Error(`Missing logic contract for ${chainKey}`);
+
+    const factory = new ethers.ContractFactory(
+      smartWalletABI,
+      smartWalletBytecode,
+      signer
+    );
+
+    // Pass logic contract to constructor
+    const contract = await factory.deploy(logicContract);
+    await contract.waitForDeployment();
+
+    const address = await contract.getAddress();
+
+    // Save to backend and update state
     setChainStatus((ps) => ({
       ...ps,
-      [chainKey]: { message: "Deploying...", type: "loading" },
+      [chainKey]: { message: "Saving to backend...", type: "loading" },
     }));
-    try {
-      await switchNetwork(chainKey);
-      const { signer } = await getProviderAndSigner();
-      if (
-        !smartWalletBytecode ||
-        smartWalletBytecode === "YOUR_SMART_WALLET_BYTECODE"
-      )
-        throw new Error("Bytecode not configured.");
 
-      const factory = new ethers.ContractFactory(
-        smartWalletABI,
-        smartWalletBytecode,
-        signer,
-      );
-      const contract = await factory.deploy();
-      await contract.waitForDeployment();
-      const address = await contract.getAddress();
+    await saveToBackend(userAddress, chainKey, address);
 
-      const logic = CHAIN_CONFIGS[chainKey].logicContractAddress;
-      if (!logic) throw new Error(`Missing logic contract for ${chainKey}`);
-      await (await contract.setLogicContract(logic)).wait();
+    setWallets((ps) => ({ ...ps, [chainKey]: address }));
+    setChainStatus((ps) => ({
+      ...ps,
+      [chainKey]: { message: "Deployed", type: "success" },
+    }));
 
-      setChainStatus((ps) => ({
-        ...ps,
-        [chainKey]: { message: "Saving to backend...", type: "loading" },
-      }));
-      await saveToBackend(userAddress, chainKey, address);
+    updateBalance(chainKey, address);
+  } catch (e) {
+    console.error(e);
+    setChainStatus((ps) => ({
+      ...ps,
+      [chainKey]: {
+        message: `Deployment failed: ${e.message}`,
+        type: "error",
+      },
+    }));
+  }
+};
 
-      setWallets((ps) => ({ ...ps, [chainKey]: address }));
-      setChainStatus((ps) => ({
-        ...ps,
-        [chainKey]: { message: "Deployed", type: "success" },
-      }));
-      updateBalance(chainKey, address);
-    } catch (e) {
-      console.error(e);
-      setChainStatus((ps) => ({
-        ...ps,
-        [chainKey]: {
-          message: `Deployment failed: ${e.message}`,
-          type: "error",
-        },
-      }));
-    }
-  };
 
   const handleFund = async () => {
     if (!fundConfig || !fundAmount || isNaN(fundAmount) || +fundAmount <= 0) {
