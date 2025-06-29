@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ showDisconnect = false, onDisconnect, walletAddress }) => {
+const Header = ({ showDisconnect = false, onDisconnect, walletAddress, showBackToDashboard = false }) => {
   const navigate = useNavigate();
   return (
     <header className="bg-transparent backdrop-blur-sm fixed top-0 left-0 w-full z-50">
@@ -20,6 +20,15 @@ const Header = ({ showDisconnect = false, onDisconnect, walletAddress }) => {
             <span className="font-inter font-semibold text-gray-700 bg-gray-100 px-4 py-2 rounded-full text-sm border border-gray-200">
               {walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4)}
             </span>
+          )}
+          {showBackToDashboard && (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="header-btn border border-[#0469AB] text-[#0469AB] font-semibold rounded-[25px] px-6 py-2 transition-all hover:bg-[#0469AB1A] bg-white"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+            >
+              Back to Dashboard
+            </button>
           )}
           {showDisconnect && (
             <button
@@ -40,6 +49,7 @@ Header.propTypes = {
   showDisconnect: PropTypes.bool,
   onDisconnect: PropTypes.func,
   walletAddress: PropTypes.string,
+  showBackToDashboard: PropTypes.bool,
 };
 
 export default Header;

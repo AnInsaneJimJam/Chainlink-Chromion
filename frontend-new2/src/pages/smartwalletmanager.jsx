@@ -546,29 +546,33 @@ const SmartWalletManager = () => {
   };
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Fixed Background */}
+    <div className="min-h-screen relative font-inter overflow-x-hidden" style={{ background: '#EAF6FF' }}>
+      {/* Fixed Background Layers */}
+      <div className="fixed w-full h-full top-0 left-0 z-0 overflow-hidden"
+        style={{
+          background: 'radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)'
+        }}
+      >
         <div
-          className="fixed inset-0 z-0"
+          className="absolute w-[150vmax] h-[150vmax] top-1/2 left-1/2"
           style={{
-            background:
-              "radial-gradient(182.23% 114.29% at 93.19% 88.28%, #CDEFFF 0%, #FFF 47.28%, #CDEFFF 96.18%)",
+            transform: 'translate(-50%, -50%) rotate(-9.478deg)',
+            background: '#CDEFFF',
+            mixBlendMode: 'hue'
           }}
-        >
-          {/* Background overlays */}
-          <div
-            className="absolute inset-0 opacity-25"
-            style={{
-              background:
-                'url("https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg") lightgray 50% / cover no-repeat',
-              boxShadow: "0px 0px 114.717px 0px #CDEFFF",
-            }}
-          />
-        </div>
-
-        {/* main content  */}
+        />
+        <div
+          className="absolute w-[150vmax] h-[150vmax] top-1/2 left-1/2 opacity-25"
+          style={{
+            transform: 'translate(-50%, -50%) rotate(-30.74deg)',
+            background: "url('https://i.pinimg.com/736x/ed/a1/9c/eda19c7ecf1dfd77f407ab1ed4dfecfa.jpg') lightgray 50% / cover no-repeat",
+            boxShadow: '0px 0px 114.717px 0px #CDEFFF'
+          }}
+        />
+      </div>
+      <div className="main-content relative z-10 min-h-screen">
+        {/* Header with Back to Dashboard button */}
+        <Header showBackToDashboard={true} />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center pt-24 pb-12 px-4">
           <div className="text-center">
             <h1
@@ -961,7 +965,7 @@ const SmartWalletManager = () => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

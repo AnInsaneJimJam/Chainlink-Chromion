@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
-import	{CONTRACT_ADDRESS, CONTRACT_ABI} from "../EtherJs/constants.js"; 
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../EtherJs/constants.js";
 import SmartWalletManager from "./smartwalletmanager";
 import { useNavigate } from "react-router-dom";
 
