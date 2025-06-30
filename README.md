@@ -30,7 +30,7 @@ InheritChain is a decentralized, cross-chain inheritance management system that 
 * **Chainlink CCIP**: Transfers funds to beneficiaries across chains with just a single call.
 * **Multi-party Challenge Protocol**: Stake-based dispute mechanism between beneficiaries.
 * **MongoDB-Backed Off-chain Storage**: Efficient off-chain will metadata and asset records.
-
+* **Automatic Tweets**: Sends automatic posts to X, keeping testators informed and reassured.
 ---
 
 ##  Architecture Overview
@@ -89,7 +89,7 @@ MongoDB ↔ Backend (Node.js/Express) ↔ Smart Contracts ↔ Chainlink
 
 1. **Will Creation** (Testator)
 
-   * Creates a will from Sepolia network
+   * Creates a will from Sepolia network, and a tweet is posted to X.
    * Will object is stored in **MongoDB** with:
 
      * Testator address
@@ -187,6 +187,33 @@ Used to **trigger `finalizeExecution()`** automatically after 10-day timeout.
   * Challenge → trigger Chainlink API
   * Updates will status + starts CCIP transfers
 
+
+---
+
+## ElizaOS
+
+### ✅ 1. Automated Tweets
+
+Used to **build credibility for InheritChain** and ensure **transparency** by publicly confirming key actions taken on behalf of testators.
+
+* **Trigger:** When a testator creates a will and clicks `Save Will`, a backend API call is triggered.
+* **Location & Integration:** Implemented in `server.js`, where the ElizaOS agentic API is invoked using Eliza’s runtime.
+* **Action:** A tweet is generated using agentic AI and Google API, then posted in real-time via the X API.
+
+**Implementation Details:**
+
+* Twitter integration handled via `twitter-api-v2`
+* Eliza setup uses `elizaLogger`, `AgentRuntime`, and `ModelProviderName` from `@ai16z/eliza`
+* Eliza character is configured in a `character` object
+* `initializeEliza()` is called to initialize the agent
+* Tweet generation is triggered via `POST /api/generate-tweet` route
+
+**Benefits:**
+
+* Builds **brand trust and visibility** for InheritChain
+* Provides **assurance** to testators and beneficiaries that the platform is active and transparent
+* Enhances **productivity** and **operational efficiency** by automating communication and reducing manual effort
+
 ---
 
 ##  Tech Stack
@@ -199,7 +226,8 @@ Used to **trigger `finalizeExecution()`** automatically after 10-day timeout.
 | Backend     | Node.js + Express             |
 | Database    | MongoDB                       |
 | Chainlink   | CCIP, Automation, Any API     |
-| EVM Chains  | Sepolia, Polygon, Avalanche, Base   |   
+| EVM Chains    | Sepolia, Polygon, Avalanche, Base      |
+| AI Agent      |  ElizaOS               |
 
 ---
 
@@ -216,22 +244,45 @@ Used to **trigger `finalizeExecution()`** automatically after 10-day timeout.
 ---
 ## Setup and Installation
 
-#### A. Backend (Node.js)
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/AnInsaneJimJam/Chainlink-Chromion
-    ```
-2.  **Install dependencies:**
-    ```bash
-    cd Chainlink-Chromion/backend
-    npm install
-    ```
-3.  **Create a `.env` file** and add your `MONGO_URI` and other environment variables.
-4.  **Start the server:**
-    ```bash
-    npm run dev
-    ```
+### A. Backend Setup (Node.js)
+
+1. **Clone the Repository**
+
+   ```bash
+   git clone https://github.com/AnInsaneJimJam/Chainlink-Chromion
+   ```
+
+2. **Navigate to the Backend Directory**
+
+   ```bash
+   cd Chainlink-Chromion/backend
+   ```
+
+3. **Install Dependencies**
+
+   ```bash
+   npm install
+   ```
+
+4. **Create a `.env` File**
+
+   Add the following environment variables to your `.env` file:
+
+   ```
+   MONGO_URI=
+   TWITTER_API_KEY=
+   TWITTER_API_SECRET=
+   TWITTER_ACCESS_TOKEN=
+   TWITTER_ACCESS_TOKEN_SECRET=
+   GOOGLE_API_KEY=
+   ```
+
+5. **Start the Development Server**
+
+   ```bash
+   npm run dev
+   ```
 
 ---
 
@@ -257,7 +308,7 @@ Used to **trigger `finalizeExecution()`** automatically after 10-day timeout.
 
 ## 🚧 Future Work
 
-* ZK-based private challenge protocol
+
 * NFT-based proof of inheritance
 * Dynamic Chainlink Functions integration
 
