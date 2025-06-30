@@ -1,17 +1,29 @@
-# 🪙 InheritChain — Cross-Chain Decentralized Will Execution Protocol
+# 🪙 InheritChain — A Decentralized Digital Will & Cross-Chain Inheritance Protocol
 
-InheritChain is a decentralized, cross-chain inheritance management system that allows a **testator** to create a legally binding, multi-chain digital will, and enables **beneficiaries** to securely claim their inheritance — with **dispute resolution**, **Chainlink-powered truth verification**, and **automated CCIP-based asset transfers** across Ethereum, Polygon, Avalanche, and more.
+[![Chainlink Hackathon](https://img.shields.io/badge/Chainlink%20Hackathon-Chrominon%202025-blue)](https://chain.link/hackathon)
+
+## The Problem: The Black Hole of Digital Inheritance
+
+In the digital age, we manage a growing portfolio of valuable assets on various blockchains—cryptocurrencies, NFTs, and other tokens. However, the process of passing these assets to our loved ones after we're gone is a legal and technical minefield.
+* **Lost Keys, Lost Fortunes:** If private keys are not successfully transferred, assets are lost forever in the digital void. There is no "forgot password" for a crypto wallet.
+* **Legal Uncertainty:** There is no established legal or technical framework to govern the inheritance of digital assets, leading to ambiguity and potential disputes.
+* **Cross-Chain Complexity:** Assets are often spread across multiple blockchains (Ethereum, Polygon, Solana, etc.). There is no simple way to execute a will that distributes assets across these disconnected ecosystems.
 
 ---
 
-## 🔗 Live on: Sepolia (Primary), Polygon, Avalanche, Base
+## Our Solution: A Trustless Digital Will
+
+InheritChain is a decentralized, cross-chain inheritance management system that allows a **estator** to create a legally binding, multi-chain digital will, and enables **beneficiaries** to securely claim their inheritance — with **dispute resolution**, **Chainlink-powered truth verification**, and **automated Chainlink CCIP-based asset transfers** across Ethereum, Polygon, Avalanche, and more.
+
+
+#### 🔗 Live on: Sepolia (Primary), Polygon, Avalanche, Base
 
 ---
 
 ## 📌 Features
 
-* **Smart Will Registry**: Create will with off-chain asset % for privacy and on-chain beneficiary list and willhash-A tamper resistent proof of off chain data.
-* **Smart Wallet Deployment**: Deploy vaults on any supported chain to hold testator's assets - managed by ccip.
+* **Smart Will Registry**: Create will with off-chain asset % for privacy and on-chain beneficiary list and Will Hash- A tamper resistent proof of off chain data.
+* **Smart Wallet Deployment**: Deploy vaults on any supported chain to hold testator's assets - managed by Chainlink CCIP.
 * **Challenge Window**: A transparent 10-day contestation window to allow dispute of false claims.
 * **Automated Finalization**: Uses Chainlink Automation to trigger execution after challenge period.
 * **Chainlink Any API**: Fetches from a simulated Government Api and Verifies if the testator has passed away.
@@ -21,7 +33,32 @@ InheritChain is a decentralized, cross-chain inheritance management system that 
 
 ---
 
-## 🧹 Architecture Overview
+##  Architecture Overview
+
+[![F5wHciJ.md.png](https://iili.io/F5wHciJ.md.png)](https://freeimage.host/i/F5wHciJ)
+
+🔗[Link to Excalidraw](https://excalidraw.com/#json=ohqpHLVcX-ZKoWl3vF74V,_pswWhHsVeIwYllC_q2PlQ)
+
+Our system is a hybrid smart contract architecture that leverages the strengths of both on-chain logic and off-chain computation.
+
+### Core Components
+
+1.  **`Will.sol` (Main Logic Contract):** Deployed on a source EVM chain (e.g., Ethereum Sepolia). This contract manages the creation of wills and the verification process. It does **not** store sensitive will details, only a hash for verification.
+
+2.  **Backend API & Database (Node.js & MongoDB):** A private off-chain database that stores the encrypted details of the will (i.e., the specific assets and beneficiaries).
+
+3.  **Cross-Chain Execution Framework (Chainlink CCIP):**
+    * **`MainCoordinator.sol` (EVM):** The central hub on the source chain that initiates cross-chain commands.
+    * **`LogicContractReceiver.sol` (EVM & SVM):** A trusted "hand" on each destination chain that receives commands from the MainCoordinator.
+    * **`SmartWallet.sol` (EVM & SVM):** A personal vault contract deployed for each user on destination chains to hold their assets.
+
+### Chainlink Services Used
+
+* **Chainlink Automation:** Powers the time-based challenge period. It reliably and decentrally calls the `finalizeExecution` function after the 10-day challenge window has passed.
+* **Chainlink Functions:** Acts as the "ultimate truth" for dispute resolution. If a will's initiation is challenged, Chainlink Functions securely calls our off-chain Death Database API to get a definitive answer, which is then reported back on-chain.
+* **Chainlink CCIP (Cross-Chain Interoperability Protocol):** The backbone of our asset distribution. After a will is verified, our backend triggers CCIP messages to securely transfer assets from the deceased's `SmartWallet` contracts on any supported chain to the beneficiaries.
+
+Architecture Flow
 
 ```
 Frontend (React)
@@ -68,7 +105,7 @@ MongoDB ↔ Backend (Node.js/Express) ↔ Smart Contracts ↔ Chainlink
 3. **Initiation of Inheritance** (Any Beneficiary)
 
    * A beneficiary starts the inheritance process by staking **0.1 ETH**.
-   * Status is set to `PendingExecution`.
+   * Status is set to `ChallengePeriodActive`.
    * Timestamp is recorded to enforce the **10-day challenge window**.
 
 4. **Challenge Phase**
@@ -86,7 +123,7 @@ MongoDB ↔ Backend (Node.js/Express) ↔ Smart Contracts ↔ Chainlink
 
 6. **Verification**
 
-   * Chainlink Any API (external adapter or oracle) checks off-chain truth (e.g., obituary database).
+   * Chainlink Any API checks off-chain truth from Simulated Govt Database
 
      * If **testator is confirmed deceased**:
 
@@ -115,11 +152,11 @@ MongoDB ↔ Backend (Node.js/Express) ↔ Smart Contracts ↔ Chainlink
 
 ---
 
-## ♻️ Chainlink Integrations
+## Chainlink Integrations
 
 ### ✅ 1. Chainlink CCIP (Cross-Chain Interoperability Protocol)
 
-Used for **cross-chain value + instruction transfer**.
+Used for **cross-chain asset + instruction transfer**.
 
 * `MainCoordinator.sol` (Sepolia):
 
@@ -152,19 +189,17 @@ Used to **trigger `finalizeExecution()`** automatically after 10-day timeout.
 
 ---
 
-## 🧠 Tech Stack
+##  Tech Stack
 
 | Layer       | Tools                         |
 | ----------- | ----------------------------- |
 | Language    | Solidity, JavaScript          |
-| Contracts   | Hardhat                       |
+| Contracts   | Foundry                       |
 | Frontend    | React + Tailwind              |
 | Backend     | Node.js + Express             |
 | Database    | MongoDB                       |
 | Chainlink   | CCIP, Automation, Any API     |
-| EVM Chains  | Sepolia, Polygon, Avalanche   |
-| Wallet      | MetaMask                      |
-| Cross-Chain | CCIP Selector-based Messaging |
+| EVM Chains  | Sepolia, Polygon, Avalanche, Base   |   
 
 ---
 
@@ -172,23 +207,53 @@ Used to **trigger `finalizeExecution()`** automatically after 10-day timeout.
 
 | Contract                    | Role                                      |
 | --------------------------- | ----------------------------------------- |
-| `WillRegistry.sol`          | Registers wills, stores on-chain metadata |
+| `Will.sol`          | Registers wills, stores on-chain metadata |
 | `MainCoordinator.sol`       | Initiates inheritance CCIP requests       |
 | `LogicContractReceiver.sol` | Executes instructions on target chains    |
 | `SmartWallet.sol`           | Custodial vault per testator per chain    |
-| `SmartWalletFactory.sol`    | Deploys smart wallets                     |
-| `AutomationManager.sol`     | Chainlink-compatible keeper               |
+| `GettingStartedFunctionConsumer.sol`     | Chainlink Functions logic               |
+
+---
+## Setup and Installation
+
+#### A. Backend (Node.js)
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/AnInsaneJimJam/Chainlink-Chromion
+    ```
+2.  **Install dependencies:**
+    ```bash
+    cd Chainlink-Chromion/backend
+    npm install
+    ```
+3.  **Create a `.env` file** and add your `MONGO_URI` and other environment variables.
+4.  **Start the server:**
+    ```bash
+    npm run dev
+    ```
 
 ---
 
-## 🧪 Testing & Deployment
+#### B. Frontend
 
-* Hardhat used for local testnet simulation
-* Chainlink CCIP tested using Amoy + Fuji + Sepolia networks
-* MongoDB Atlas for hosted DB
-* Frontend tested with Metamask interaction flow
+
+1.  **Install dependencies:**
+
+    ```bash
+    cd ..
+    cd frontend-new2
+    npm install
+
+2.  **Run Frontend:**
+    ```bash
+    npm run dev
+    ```
 
 ---
+
+## Demo Video
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE)
 
 ## 🚧 Future Work
 
