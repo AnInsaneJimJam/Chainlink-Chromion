@@ -229,7 +229,28 @@ const CreateWill = () => {
       console.error("Error saving to smart contract:", error);
     }
   };
+  const sendWillToAPI = async (willObjectToTweet) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/generate-tweet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(willObjectToTweet),
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("tweet generated successfully", result);
+      return result;
+    } catch (error) {
+      console.error("Error sending will data:", error);
+      throw error;
+    }
+  };
   const handleSaveWill = async () => {
     // Validate allocations before saving
     const validationErrors = validateAllocations();
@@ -258,6 +279,27 @@ const CreateWill = () => {
         ),
       })),
     };
+
+    // testatorName
+    // yearOfBirth
+    // beneficiaries
+    
+    
+    
+    // object to go to tweet
+    const willObjectToTweet = {
+      testatorName: testatorName.trim(),
+      testator: walletAddress,
+      yearOfBirth: yearOfBirth.trim(),
+      beneficiaries: beneficiaries.map((b) => ({
+        address: b.address,
+      })),
+    };
+    
+    sendWillToAPI(willObjectToTweet);
+    
+    
+    // return;
 
     try {
       const res = await fetch("http://localhost:5000/api/wills", {
