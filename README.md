@@ -304,13 +304,20 @@ Used to **build credibility for InheritChain** and ensure **transparency** by pu
 ---
 
 ## Demo Video
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/KA85svTm7S4/maxresdefault.jpg)](https://www.youtube.com/watch?v=KA85svTm7S4)
 
 ## 🚧 Future Work
 
+### Personalized Updates via ElizaOS Agentic AI
 
-* NFT-based proof of inheritance
-* Dynamic Chainlink Functions integration
+* As the will transitions through states (`NotStarted` → `Slashed`),
+* Beneficiaries receive real-time updates via Twitter DMs,
+* Powered by ElizaOS Agentic AI.
+* Notifications include who got slashed, who challenged, and other key events.
+* Ensures **transparency** without compromising **privacy**.
+
+#### NFT-based proof of inheritance
+#### Dynamic Chainlink Functions integration
 
 ---
 
