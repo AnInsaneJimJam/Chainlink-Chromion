@@ -4,14 +4,19 @@ pragma solidity ^0.8.19;
 import {FunctionsClient} from "@chainlink/contracts@1.4.0/src/v0.8/functions/v1_0_0/FunctionsClient.sol";
 import {ConfirmedOwner} from "@chainlink/contracts@1.4.0/src/v0.8/shared/access/ConfirmedOwner.sol";
 import {FunctionsRequest} from "@chainlink/contracts@1.4.0/src/v0.8/functions/v1_0_0/libraries/FunctionsRequest.sol";
-import {Will} from "./Will.sol";
+import {Will} from "./will.sol";
+
+/**
+ * Request testnet LINK and ETH here: https://faucets.chain.link/
+ * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/resources/link-token-contracts/
+ */
 
 /**
  * @title GettingStartedFunctionsConsumer
- * @notice This contract acts as the dispute resolution oracle for the main Will contract.
- * @dev It can only be called by the Will contract and securely reports results back.
+ * @notice This is an example contract to show how to make HTTP requests using Chainlink
+ * @dev This contract uses hardcoded values and should not be used in production.
  */
-
+ 
 contract GettingStartedFunctionsConsumer is FunctionsClient, ConfirmedOwner {
     using FunctionsRequest for FunctionsRequest.Request;
 
@@ -37,18 +42,20 @@ contract GettingStartedFunctionsConsumer is FunctionsClient, ConfirmedOwner {
     address router = 0xb83E47C2bC239B3bf370bc41e1459A34b41238D0;
 
     // JavaScript source code
-    string source =
-        "const name = args[0];"
-        "const yearOfBirth = args[1];"
-        "const apiResponse = await Functions.makeHttpRequest({"
-        "url: `https://death-database-chainlink.vercel.app/death/${name}/${yearOfBirth}/is-dead`"
-        "});"
-        "if (apiResponse.error) {"
-        "throw Error('Request failed');"
-        "}"
-        "const { data } = apiResponse;"
-        "return Functions.encodeString(data.isDead);";
-
+    string source = string.concat(
+    "const name = args[0];",
+    "const yob = args[1];",
+    "const url = 'https://database-guew-git-master-yash-agrawal-s-projects.vercel.app/verify?name=' + name + '&yob=' + yob;",
+    "const response = await Functions.makeHttpRequest({",
+    "  url: url,",
+    "  method: 'GET'",
+    "});",
+    "if (response.error) {",
+    "  throw new Error('API request failed');",
+    "}",
+    "const result = response.data.result;",
+    "return Functions.encodeUint256(result);"
+);
     //Callback gas limit
     uint32 gasLimit = 300000;
 
@@ -100,24 +107,27 @@ contract GettingStartedFunctionsConsumer is FunctionsClient, ConfirmedOwner {
      * @param response The HTTP response data
      * @param err Any errors from the Functions request
      */
-    function fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
+    function fulfillRequest(
+        bytes32 requestId,
+        bytes memory response,
+        bytes memory err
+    ) internal override {
         if (s_lastRequestId != requestId) {
-            revert UnexpectedRequestID(requestId); // Check if request IDs match
+            revert UnexpectedRequestID(requestId);
         }
-        // Update the contract's state variables with the response and any errors
+
         s_lastResponse = response;
         s_lastError = err;
-        s_lastResult = string(response);
 
+        uint256 status = abi.decode(response, (uint256));
         address testator = s_requestToTestator[requestId];
 
-        // After getting the result, call back to the Will contract to resolve the dispute
-        if(willContractAddress != address(0)) {
-            bool wasInitiationCorrect = keccak256(bytes(s_lastResult)) == keccak256(bytes("true"));
+        if (willContractAddress != address(0)) {
+            bool wasInitiationCorrect = (status == 1);
             Will(willContractAddress).resolveDispute(testator, wasInitiationCorrect);
         }
 
-        emit Response(requestId, testator, s_lastResult, err);
-        delete s_requestToTestator[requestId]; // Clean up state
-    }
+        emit Response(requestId, testator, string(response), err);
+        delete s_requestToTestator[requestId];
+}
 }

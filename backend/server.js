@@ -33,7 +33,7 @@ app.use("/api/wallets", walletRoutes);
 app.use("/api/wills", willRoutes); 
 
 //connect db
-mongoose.connect(process.env.MONGO_URI2).then(() => {
+mongoose.connect(process.env.MONGO_URI).then(() => {
   app.listen(5000, () => {
     console.log("Connected to db and Listening on port 5000");
   });

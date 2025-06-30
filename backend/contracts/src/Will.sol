@@ -23,13 +23,13 @@
 // private
 // view & pure functions
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.20;
 
-import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 // Interface to communicate with the Functions Consumer contract
 import {IGettingStartedFunctionsConsumer} from "./IGettingStartedFunctionsConsumer.sol";
 import {AutomationCompatibleInterface} from
-    "../lib/chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+    "https://github.com/smartcontractkit/chainlink-brownie-contracts/blob/main/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 
 /**
  * @title A Digital Will Contract with a Challenge Period Verification Method
@@ -53,6 +53,7 @@ contract Will is Ownable, AutomationCompatibleInterface {
     error Will_TransferFailed();
     error Will_FunctionsConsumerNotSet();
     error Will_TestatorInfoNotSet();
+    error Will_line255();
 
     ///////////////////////// TYPE DECLARATIONS /////////////////////////////
     enum Status {
@@ -76,7 +77,7 @@ contract Will is Ownable, AutomationCompatibleInterface {
 
     uint256 public constant MIN_INITIATOR_BOND = 0.001 ether;
     uint256 public constant MIN_CHALLENGE_BOND = 0.001 ether;
-    uint256 public constant CHALLENGE_DURATION = 1 hours;
+    uint256 public constant CHALLENGE_DURATION = 3 minutes;
     uint256 public constant CONTRACT_FEE = 0.01 ether;
 
     //////////////////////// STATE VARIABLES ///////////////////////////////
@@ -248,10 +249,7 @@ contract Will is Ownable, AutomationCompatibleInterface {
         emit ExecutionChallenged(_testator, msg.sender, msg.value);
     }
 
-    function finalizeExecution(address _testator) public {
-        if (s_verificationStatus[_testator] != Status.ChallengePeriodActive) {
-            revert Will_VerificationNotInCorrectState(s_verificationStatus[_testator]);
-        }
+    function finalizeExecution(address _testator) public { 
         ChallengeInfo storage challenge = s_challenges[_testator];
         if (block.timestamp < challenge.endTime) revert Will_ChallengePeriodNotOver();
         if (challenge.challengerList.length > 0) {
@@ -265,7 +263,6 @@ contract Will is Ownable, AutomationCompatibleInterface {
             args[0] = name;
             args[1] = yob;
             IGettingStartedFunctionsConsumer(functionsConsumerAddress).requestDeathVerification(_testator, functionsSubscriptionId, args);
-            s_verificationStatus[_testator] = Status.PendingResolution;
             return;
         }
 
@@ -299,7 +296,7 @@ contract Will is Ownable, AutomationCompatibleInterface {
         performData = "";
         for (uint256 i = 0; i < s_activeChallengeTestators.length; i++) {
             address testator = s_activeChallengeTestators[i];
-            if (s_verificationStatus[testator] == Status.ChallengePeriodActive && block.timestamp > s_challenges[testator].endTime) {
+            if ((s_verificationStatus[testator] == Status.ChallengePeriodActive&& block.timestamp > s_challenges[testator].endTime) || (s_verificationStatus[testator] == Status.PendingResolution && block.timestamp > s_challenges[testator].endTime)) {
                 upkeepNeeded = true;
                 performData = abi.encode(testator);
                 break; // Found one, no need to check further
@@ -407,6 +404,13 @@ contract Will is Ownable, AutomationCompatibleInterface {
     
     function getTestatorName(address _testator) external view returns (string memory) {
     return s_testatorName[_testator];
+    }
+    function getActiveChallengeTestators() external view returns (address[] memory) {
+        return s_activeChallengeTestators;
+    }
+
+    function getActiveChallengeTestatorsLength() external view returns (uint256) {
+        return s_activeChallengeTestators.length;
     }
 
 }
